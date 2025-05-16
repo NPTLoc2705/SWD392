@@ -34,6 +34,7 @@ namespace SWD392.Server
             app.MapFallbackToFile("/index.html");
 
             app.Run();
+            
         }
     }
 }
