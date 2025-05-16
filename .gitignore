@@ -1,0 +1,5 @@
+# Ignore Visual Studio folder
+.vs/
+
+# Ignore server object files
+SWD392.Server/obj/
