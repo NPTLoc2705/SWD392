@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using SWD392.Server.Models;
 using System.Security.Cryptography;
+using Google.Apis.Auth;
 
 namespace SWD392.Server.Services
 {
@@ -59,6 +60,51 @@ namespace SWD392.Server.Services
                 token = token,
                 user = student
             };
+        }
+
+        public async Task<LoginResponse> GoogleLogin(GoogleAuthDto googleAuthDto)
+        {
+            try
+            {
+                // Verify Google ID token
+                var payload = await GoogleJsonWebSignature.ValidateAsync(
+                    googleAuthDto.IdToken,
+                    new GoogleJsonWebSignature.ValidationSettings()
+                    {
+                        Audience = new[] { _configuration["GoogleAuth:ClientId"] }
+                    });
+
+               
+                var student = await _context.Student
+                    .FirstOrDefaultAsync(s => s.email == payload.Email);
+
+                if (student == null)
+                {
+                    
+                    student = new Student
+                    {
+                        name = payload.Name,
+                        email = payload.Email,
+                        phone = "", 
+                        password = "" 
+                    };
+
+                    _context.Student.Add(student);
+                    await _context.SaveChangesAsync();
+                }
+
+                var token = GenerateJwtToken(student);
+
+                return new LoginResponse
+                {
+                    token = token,
+                    user = student
+                };
+            }
+            catch (Exception)
+            {
+                throw new Exception("Invalid Google token");
+            }
         }
 
         private string GenerateJwtToken(Student student)

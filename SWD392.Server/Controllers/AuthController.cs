@@ -42,5 +42,19 @@ namespace SWD392.Server.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDto googleAuthDto)
+        {
+            try
+            {
+                var response = await _authService.GoogleLogin(googleAuthDto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
