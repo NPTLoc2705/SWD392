@@ -1,1 +1,2 @@
 D:\VesperWork\SWD\SWD392\swd392.client\obj\Debug\swd392.client.esproj.CoreCompileInputs.cache
+C:\Users\dung3\Desktop\SWD_FPT_Project\SWD392\swd392.client\obj\Debug\swd392.client.esproj.CoreCompileInputs.cache
