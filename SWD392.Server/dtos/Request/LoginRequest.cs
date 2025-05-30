@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SWD392.Server.Models
+namespace SWD392.Server.dtos.Request
 {
-    public class LoginDto
+    public class LoginRequest
     {
         [Required]
         [EmailAddress]

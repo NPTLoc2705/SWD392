@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using SWD392.Server.Models;
 using System.Security.Cryptography;
 using Google.Apis.Auth;
+using SWD392.Server.dtos;
+using SWD392.Server.dtos.Request;
+using SWD392.Server.dtos.Response;
 
 namespace SWD392.Server.Services
 {
@@ -20,7 +23,7 @@ namespace SWD392.Server.Services
             _configuration = configuration;
         }
 
-        public async Task<Student> Register(RegisterDto registerDto)
+        public async Task<Student> Register(RegisterRequest registerDto)
         {
             // Check if user already exists
             if (await _context.Student.AnyAsync(s => s.email == registerDto.email))
@@ -43,7 +46,7 @@ namespace SWD392.Server.Services
             return student;
         }
 
-        public async Task<LoginResponse> Login(LoginDto loginDto)
+        public async Task<LoginResponse> Login(LoginRequest loginDto)
         {
             var student = await _context.Student
                 .FirstOrDefaultAsync(s => s.email == loginDto.email);
