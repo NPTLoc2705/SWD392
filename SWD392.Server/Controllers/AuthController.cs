@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SWD392.Server.Models;
+using SWD392.Server.dtos;
+using SWD392.Server.dtos.Request;
 using SWD392.Server.Services;
 
 namespace SWD392.Server.Controllers
@@ -16,7 +17,7 @@ namespace SWD392.Server.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest registerDto)
         {
             try
             {
@@ -30,7 +31,7 @@ namespace SWD392.Server.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginDto)
         {
             try
             {
