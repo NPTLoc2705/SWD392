@@ -5,6 +5,6 @@ namespace SWD392.Server.dtos.Response
     public class LoginResponse
     {
         public string token { get; set; }
-        public Student user { get; set; }
+        public User user { get; set; }
     }
 }
