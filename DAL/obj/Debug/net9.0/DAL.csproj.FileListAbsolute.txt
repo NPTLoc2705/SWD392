@@ -1,0 +1,16 @@
+D:\GitHub\SWD392\DAL\bin\Debug\net9.0\DAL.deps.json
+D:\GitHub\SWD392\DAL\bin\Debug\net9.0\DAL.dll
+D:\GitHub\SWD392\DAL\bin\Debug\net9.0\DAL.pdb
+D:\GitHub\SWD392\DAL\bin\Debug\net9.0\BO.dll
+D:\GitHub\SWD392\DAL\bin\Debug\net9.0\BO.pdb
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.csproj.AssemblyReference.cache
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.AssemblyInfoInputs.cache
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.AssemblyInfo.cs
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.csproj.CoreCompileInputs.cache
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.sourcelink.json
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.csproj.Up2Date
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.dll
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\refint\DAL.dll
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\DAL.pdb
+D:\GitHub\SWD392\DAL\obj\Debug\net9.0\ref\DAL.dll

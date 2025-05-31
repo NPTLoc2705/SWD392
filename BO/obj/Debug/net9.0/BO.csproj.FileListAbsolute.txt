@@ -1,0 +1,15 @@
+D:\GitHub\SWD392\BO\bin\Debug\net9.0\BO.deps.json
+D:\GitHub\SWD392\BO\bin\Debug\net9.0\BO.runtimeconfig.json
+D:\GitHub\SWD392\BO\bin\Debug\net9.0\BO.dll
+D:\GitHub\SWD392\BO\bin\Debug\net9.0\BO.pdb
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.csproj.AssemblyReference.cache
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.GeneratedMSBuildEditorConfig.editorconfig
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.AssemblyInfoInputs.cache
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.AssemblyInfo.cs
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.csproj.CoreCompileInputs.cache
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.sourcelink.json
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.dll
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\refint\BO.dll
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.pdb
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\BO.genruntimeconfig.cache
+D:\GitHub\SWD392\BO\obj\Debug\net9.0\ref\BO.dll
