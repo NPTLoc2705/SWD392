@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
-namespace SWD392.Server.Models
+namespace BO.Models
 {
     public class Applications
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SWD392.Server.Models
+namespace BO.Models
 {
     public class Role
     {

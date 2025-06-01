@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
-namespace SWD392.Server.Models
+namespace BO.Models
 {
     public class User
     {
