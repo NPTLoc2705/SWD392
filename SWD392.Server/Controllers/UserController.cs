@@ -9,19 +9,19 @@ namespace SWD392.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize] // Add authorization requirement
-    public class StudentController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly AppDbContext _appDbContext;
 
-        public StudentController(AppDbContext appDbContext)
+        public UserController(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
         }
 
-        [HttpGet("GetStudent")]
+        [HttpGet("GetUser")]
         public async Task<IActionResult> GetStudent()
         {
-            var result = await _appDbContext.Student.Select(x => new Student
+            var result = await _appDbContext.Student.Select(x => new User
             {
                 id = x.id,
                 name = x.name,

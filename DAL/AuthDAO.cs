@@ -25,7 +25,7 @@ namespace DAL
             _configuration = configuration;
         }
 
-        public async Task<Student> Register(RegisterRequest registerDto)
+        public async Task<User> Register(RegisterRequest registerDto)
         {
             // Check if user already exists
             if (await _context.Student.AnyAsync(s => s.email == registerDto.email))
@@ -34,7 +34,7 @@ namespace DAL
             }
 
             // Create new student
-            var student = new Student
+            var student = new User
             {
                 name = registerDto.name,
                 email = registerDto.email,
@@ -85,8 +85,8 @@ namespace DAL
 
                 if (student == null)
                 {
-
-                    student = new Student
+                    
+                    student = new User
                     {
                         name = payload.Name,
                         email = payload.Email,
@@ -112,7 +112,7 @@ namespace DAL
             }
         }
 
-        private string GenerateJwtToken(Student student)
+        private string GenerateJwtToken(User student)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration["JwtSettings:SecretKey"]));
