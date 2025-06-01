@@ -1,11 +1,12 @@
+using DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Repo;
 using Scalar.AspNetCore;
-using SWD392.Server.Models;
-using SWD392.Server.Services;
+using Services.Service;
 using System.Text;
 
 namespace SWD392.Server
@@ -39,7 +40,9 @@ namespace SWD392.Server
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Register custom services
-            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<AuthDAO>();
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             // Configure JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

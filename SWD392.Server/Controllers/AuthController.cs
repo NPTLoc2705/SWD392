@@ -1,17 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SWD392.Server.dtos;
-using SWD392.Server.dtos.Request;
-using SWD392.Server.Services;
+﻿using BO.dtos;
+using BO.dtos.Request;
+using Microsoft.AspNetCore.Mvc;
+using Services.Service;
+
 
 namespace SWD392.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : Controller
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public AuthController(AuthService authService)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
