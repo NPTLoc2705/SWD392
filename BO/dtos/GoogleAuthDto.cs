@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SWD392.Server.dtos
+namespace BO.dtos
 {
     public class GoogleAuthDto
     {

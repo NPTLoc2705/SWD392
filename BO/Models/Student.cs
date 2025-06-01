@@ -1,15 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
-namespace SWD392.Server.dtos.Request
+namespace BO.Models
 {
-    public class RegisterRequest
+    public class Student
     {
+        public int id { get; set; }
+
         [Required]
         [StringLength(100)]
         public string name { get; set; }
 
         [Required]
         [StringLength(100)]
+        [JsonIgnore] // Prevent password from being returned in API responses
         public string password { get; set; }
 
         [Required]

@@ -1,23 +1,25 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using SWD392.Server.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using SWD392.Server.Models;
 using System.Security.Cryptography;
-using Google.Apis.Auth;
-using SWD392.Server.dtos;
-using SWD392.Server.dtos.Request;
-using SWD392.Server.dtos.Response;
+using BO.Models;
+using BO.dtos.Request;
+using BO.dtos.Response;
+using BO.dtos;
 
-namespace SWD392.Server.Services
+namespace DAL
 {
-    public class AuthService
+    public class AuthDAO
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
 
-        public AuthService(AppDbContext context, IConfiguration configuration)
+        public AuthDAO(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
@@ -77,7 +79,7 @@ namespace SWD392.Server.Services
                         Audience = new[] { _configuration["GoogleAuth:ClientId"] }
                     });
 
-               
+
                 var student = await _context.Student
                     .FirstOrDefaultAsync(s => s.email == payload.Email);
 
@@ -88,8 +90,8 @@ namespace SWD392.Server.Services
                     {
                         name = payload.Name,
                         email = payload.Email,
-                        phone = "", 
-                        password = "" 
+                        phone = "",
+                        password = ""
                     };
 
                     _context.Student.Add(student);

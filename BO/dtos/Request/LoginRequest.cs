@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SWD392.Server.dtos.Request
+namespace BO.dtos.Request
 {
     public class LoginRequest
     {

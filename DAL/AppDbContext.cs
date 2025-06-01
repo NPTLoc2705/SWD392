@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BO.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SWD392.Server.Models
 {

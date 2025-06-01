@@ -4,3 +4,8 @@
 # Ignore server object files
 SWD392.Server/obj/
 SWD392.Server/bin/
+/BO/obj
+/DAL/obj
+/Repo/obj
+/Services/obj
+/Services/obj

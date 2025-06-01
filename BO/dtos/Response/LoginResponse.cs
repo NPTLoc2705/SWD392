@@ -1,6 +1,6 @@
-﻿using SWD392.Server.Models;
+﻿using BO.Models;
 
-namespace SWD392.Server.dtos.Response
+namespace BO.dtos.Response
 {
     public class LoginResponse
     {

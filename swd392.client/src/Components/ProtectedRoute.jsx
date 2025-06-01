@@ -1,11 +1,11 @@
-import { Navigate } from "react-router-dom";
-import { isAuthenticated } from "../Services/authService";
+// import { Navigate } from "react-router-dom";
+// import { isAuthenticated } from "../Services/authService";
 
-const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
+// const ProtectedRoute = ({ children }) => {
+//   if (!isAuthenticated()) {
+//     return <Navigate to="/login" replace />;
+//   }
+//   return children;
+// };
 
-export default ProtectedRoute;
+// export default ProtectedRoute;
