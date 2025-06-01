@@ -1,16 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace BO.Models
+﻿namespace BO.Models
 {
     public class Role
     {
-        public int id { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string name { get; set; }
-
-        // Navigation property: One Role has many Users
-        public ICollection<User> Users { get; set; }
+        // Navigation Property (1 Role -> Many Students)
+        public ICollection<User> User { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SWD392.Server.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -39,7 +38,8 @@ namespace DAL
                 name = registerDto.name,
                 email = registerDto.email,
                 phone = registerDto.phone,
-                password = HashPassword(registerDto.password)
+                password = HashPassword(registerDto.password),
+                RoleId = 1
             };
 
             _context.Student.Add(student);
@@ -50,7 +50,9 @@ namespace DAL
 
         public async Task<LoginResponse> Login(LoginRequest loginDto)
         {
+            // Include the Role navigation property
             var student = await _context.Student
+                .Include(s => s.Role)
                 .FirstOrDefaultAsync(s => s.email == loginDto.email);
 
             if (student == null || !VerifyPassword(loginDto.password, student.password))
@@ -79,23 +81,29 @@ namespace DAL
                         Audience = new[] { _configuration["GoogleAuth:ClientId"] }
                     });
 
-
+                // Include the Role navigation property
                 var student = await _context.Student
+                    .Include(s => s.Role)
                     .FirstOrDefaultAsync(s => s.email == payload.Email);
 
                 if (student == null)
                 {
-                    
                     student = new User
                     {
                         name = payload.Name,
                         email = payload.Email,
                         phone = "",
-                        password = ""
+                        password = "",
+                        RoleId = 1 // Set default role for Google users
                     };
 
                     _context.Student.Add(student);
                     await _context.SaveChangesAsync();
+
+                    // Load the role for the newly created user
+                    student = await _context.Student
+                        .Include(s => s.Role)
+                        .FirstOrDefaultAsync(s => s.id == student.id);
                 }
 
                 var token = GenerateJwtToken(student);
@@ -112,18 +120,17 @@ namespace DAL
             }
         }
 
-        private string GenerateJwtToken(User student)
+        private string GenerateJwtToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration["JwtSettings:SecretKey"]));
-
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, student.id.ToString()),
-                new Claim(ClaimTypes.Email, student.email),
-                new Claim(ClaimTypes.Name, student.name)
+                new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
+                new Claim(ClaimTypes.Email, user.email),
+                new Claim(ClaimTypes.Name, user.name),
+                new Claim(ClaimTypes.Role, user.Role?.Name ?? "User") // Safe access with null coalescing
             };
 
             var token = new JwtSecurityToken(

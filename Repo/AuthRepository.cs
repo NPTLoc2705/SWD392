@@ -4,7 +4,6 @@ using BO.dtos.Response;
 using BO.Models;
 using DAL;
 using Microsoft.Extensions.Configuration;
-using SWD392.Server.Models;
 
 
 namespace Repo
@@ -22,9 +21,7 @@ namespace Repo
         public Task<LoginResponse> Login(LoginRequest loginDto)
         => AuthDAO.Login(loginDto);
 
-        public Task<Student> Register(RegisterRequest registerDto)
+        public Task<User> Register(RegisterRequest registerDto)
         => AuthDAO.Register(registerDto);
-
-      
     }
 }
