@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BO.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace BO.dtos.Request
 {
@@ -20,5 +21,6 @@ namespace BO.dtos.Request
         [Phone]
         [StringLength(15)]
         public string phone { get; set; }
+
     }
 }

@@ -11,7 +11,7 @@ namespace Repo
 {
     public interface IAuthRepository
     {
-        Task<Student> Register(RegisterRequest registerDto);
+        Task<User> Register(RegisterRequest registerDto);
         Task<LoginResponse> Login(LoginRequest loginDto);       
         Task<LoginResponse> GoogleLogin(GoogleAuthDto googleAuthDto);
      

@@ -12,7 +12,7 @@ namespace Services.Service
 {
     public interface IAuthService
     {
-        Task<Student> Register(RegisterRequest registerDto);
+        Task<User> Register(RegisterRequest registerDto);
         Task<LoginResponse> Login(LoginRequest loginDto);
         Task<LoginResponse> GoogleLogin(GoogleAuthDto googleAuthDto);
     }

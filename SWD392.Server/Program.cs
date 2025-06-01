@@ -7,7 +7,6 @@ using Microsoft.OpenApi.Models;
 using Repo;
 using Scalar.AspNetCore;
 using Services.Service;
-using SWD392.Server.Models;
 using System.Text;
 
 namespace SWD392.Server
