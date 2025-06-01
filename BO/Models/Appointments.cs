@@ -25,9 +25,6 @@ namespace SWD392.Server.Models
         public User Consultant { get; set; }
 
         [Required]
-        public DateTime scheduled_at { get; set; }
-
-        [Required]
         [StringLength(50)]
         public string status { get; set; }
 
