@@ -94,12 +94,12 @@ const TopBar = ({ isSticky }) => {
               >
                 Trang Chủ
               </Link>
-              <a
-                href="/students"
+              <Link
+                to="/sinh-vien"
                 className="text-gray-600 hover:text-[#F2711F] text-sm font-semibold"
               >
                 Sinh Viên
-              </a>
+              </Link>
               <a
                 href="/alumni"
                 className="text-gray-600 hover:text-[#F2711F] text-sm font-semibold"
@@ -177,12 +177,12 @@ const MainNavigation = ({ isSticky }) => {
               ))}
             </ul>
 
-            <a
-              href="/contact"
+            <Link
+              to="/lien-he"
               className="bg-white hover:bg-gray-100 text-[#F2711F] font-semibold py-2 px-4 rounded transition-colors duration-300 border border-white font-semibold"
             >
               Liên Hệ
-            </a>
+            </Link>
           </nav>
         </div>
       </div>
@@ -203,7 +203,8 @@ const Header = () => {
   }, []);
 
   return (
-    // <div className="min-h-screen bg-gray-100">
+    <div className="">
+
       <header
         className={`w-full transition-all duration-300 z-50 ${
           isSticky ? "fixed top-0 shadow-md" : "relative"

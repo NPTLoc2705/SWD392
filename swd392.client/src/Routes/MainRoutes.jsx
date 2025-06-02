@@ -12,6 +12,8 @@ import NewsPage from "../Pages/NewsPage";
 import ProgramsPage from "../Pages/ProgramsPage";
 import AdmissionsPage from "../Pages/AdmissionsPage";
 import GlobalPage from "../Pages/GlobalPage";
+import ContactPage from "../Pages/ContactPage";
+import StudentPage from "../Pages/StudentPage";
 
 const MainLayout = () => (
   <>
@@ -34,6 +36,8 @@ const MainRoutes = () => {
           <Route path="/nganh-hoc" element={<ProgramsPage />} />
           <Route path="/tuyen-sinh" element={<AdmissionsPage />} />
           <Route path="/trai-nghiem-toan-cau" element={<GlobalPage />} />
+          <Route path="/lien-he" element={<ContactPage />} />
+          <Route path="/sinh-vien" element={<StudentPage />} />
           
           <Route path="*" element={<PageNotFound />} />
         </Route>
