@@ -11,14 +11,14 @@ namespace SWD392.Server.Models
 
         public DbSet<User> Student { get; set; }
         public DbSet<Role> Role { get; set; }
-        public DbSet<Programs> Programs { get; set; }
+        //public DbSet<Programs> Programs { get; set; }
         public DbSet<Appointments> Appointments { get; set; }
-        public DbSet<Tickets> Tickets { get; set; }
-        public DbSet<Applications> Applications { get; set; }
-        public DbSet<Articles> Articles { get; set; }
-        public DbSet<Email_verifications> Email_verifications { get; set; } 
+        //public DbSet<Tickets> Tickets { get; set; }
+        //public DbSet<Applications> Applications { get; set; }
+        //public DbSet<Articles> Articles { get; set; }
+        //public DbSet<Email_verifications> Email_verifications { get; set; } 
         public DbSet<Payments> Payments { get; set; }
-        public DbSet<Feedback> Feedback { get; set; } 
+        //public DbSet<Feedback> Feedback { get; set; } 
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -59,24 +59,32 @@ namespace SWD392.Server.Models
                 entity.Property(e => e.tuition_fee).IsRequired();
             });
 
-            // Cấu hình cho Appointments
+            //Cấu hình cho Appointments
             modelBuilder.Entity<Appointments>(entity =>
             {
-                entity.HasKey(e => e.id);
-                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.status).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.scheduled_at).IsRequired();
-                entity.Property(e => e.create_at).IsRequired();
-                entity.Property(e => e.update_at).IsRequired();
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).IsRequired().HasMaxLength(50);
+
+                entity.Property(e => e.StudentId).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.StudentName).IsRequired().HasMaxLength(100);
+
+                entity.Property(e => e.ConsultantId).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.ConsultantName).IsRequired().HasMaxLength(100);
+
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.IsPriority).IsRequired();
+
+                entity.Property(e => e.Create_at).IsRequired();
+                entity.Property(e => e.Update_at).IsRequired();
 
                 entity.HasOne(a => a.Student)
                       .WithMany()
-                      .HasForeignKey(a => a.student_id)
+                      .HasForeignKey(a => a.StudentId)
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(a => a.Consultant)
                       .WithMany()
-                      .HasForeignKey(a => a.consultant_id)
+                      .HasForeignKey(a => a.ConsultantId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -152,24 +160,35 @@ namespace SWD392.Server.Models
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
+            //// Cấu hình cho Payments
             // Cấu hình cho Payments
             modelBuilder.Entity<Payments>(entity =>
             {
-                entity.HasKey(e => e.id);
-                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.amount).IsRequired().HasColumnType("decimal(12,2)");
-                entity.Property(e => e.currency).IsRequired().HasMaxLength(10);
-                entity.Property(e => e.purpose).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.status).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.vnp_txn_ref).HasMaxLength(100);
-                entity.Property(e => e.vnp_response_code).HasMaxLength(10);
-                entity.Property(e => e.vnp_order_info);
-                entity.Property(e => e.vnp_pay_date);
-                entity.Property(e => e.created_at).IsRequired();
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).IsRequired().HasMaxLength(50);
+
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.AppointmentId).HasMaxLength(50);
+
+                entity.Property(e => e.Amount).IsRequired().HasColumnType("decimal(12,2)");
+                entity.Property(e => e.Currency).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.Purpose).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+
+                entity.Property(e => e.VnpTxnRef).HasMaxLength(100);
+                entity.Property(e => e.VnpResponseCode).HasMaxLength(10);
+                entity.Property(e => e.VnpOrderInfo);
+                entity.Property(e => e.VnpPayDate);
+                entity.Property(e => e.CreatedAt).IsRequired();
 
                 entity.HasOne(p => p.User)
-                      .WithMany(u => u.Payments)
-                      .HasForeignKey(p => p.user_id)
+                      .WithMany()
+                      .HasForeignKey(p => p.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(p => p.Appointment)
+                      .WithMany()
+                      .HasForeignKey(p => p.AppointmentId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 

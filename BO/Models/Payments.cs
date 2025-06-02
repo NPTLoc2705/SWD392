@@ -7,45 +7,52 @@ namespace BO.Models
     public class Payments
     {
         [Key]
-        public string id { get; set; }
+        public string Id { get; set; }
         public Payments()
         {
-            if (string.IsNullOrEmpty(id))
-                id = Guid.NewGuid().ToString("N");
+            if (string.IsNullOrEmpty(Id))
+                Id = Guid.NewGuid().ToString("N");
         }
 
         [Required]
-        [ForeignKey("User")]
-        public string user_id { get; set; }
-        public User User { get; set; }
+        public int UserId { get; set; }
+
+        [MaxLength(50)]
+        public string? AppointmentId { get; set; } // Khớp với kiểu string của Appointments.Id
 
         [Required]
         [Column(TypeName = "decimal(12,2)")]
-        public decimal amount { get; set; }
+        public decimal Amount { get; set; }
 
         [Required]
-        [StringLength(10)]
-        public string currency { get; set; }
+        [MaxLength(10)]
+        public string Currency { get; set; } = "VND";
 
         [Required]
-        [StringLength(100)]
-        public string purpose { get; set; }
+        [MaxLength(100)]
+        public string Purpose { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string status { get; set; }
+        [MaxLength(50)]
+        public string Status { get; set; } = "Pending"; // Pending, Success, Failed
 
-        [StringLength(100)]
-        public string vnp_txn_ref { get; set; }
+        [MaxLength(100)]
+        public string? VnpTxnRef { get; set; }
 
-        [StringLength(10)]
-        public string vnp_response_code { get; set; }
+        [MaxLength(10)]
+        public string? VnpResponseCode { get; set; }
 
-        public string vnp_order_info { get; set; }
+        public string? VnpOrderInfo { get; set; }
 
-        public DateTime? vnp_pay_date { get; set; }
+        public DateTime? VnpPayDate { get; set; }
 
-        [Required]
-        public DateTime created_at { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation properties
+        [ForeignKey("UserId")]
+        public virtual User User { get; set; }
+
+        [ForeignKey("AppointmentId")]
+        public virtual Appointments? Appointment { get; set; }
     }
 }

@@ -44,6 +44,7 @@ namespace SWD392.Server
             builder.Services.AddScoped<AuthDAO>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<VNPayService>();
 
             // Configure JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
