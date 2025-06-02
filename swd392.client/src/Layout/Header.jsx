@@ -203,7 +203,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    // <div className="min-h-screen bg-gray-100">
       <header
         className={`w-full transition-all duration-300 z-50 ${
           isSticky ? "fixed top-0 shadow-md" : "relative"
@@ -212,7 +212,7 @@ const Header = () => {
         <TopBar isSticky={isSticky} />
         <MainNavigation isSticky={isSticky} />
       </header>
-    </div>
+    // </div>
   );
 };
 
