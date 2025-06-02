@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using SWD392.Server.Models;
 using System.Security.Cryptography;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
@@ -43,7 +42,7 @@ namespace Services.Service
             return _authRepository.Login(loginDto);
         }
 
-        public Task<Student> Register(RegisterRequest registerDto)
+        public Task<User> Register(RegisterRequest registerDto)
         {
             if (registerDto == null)
                 throw new ArgumentNullException(nameof(registerDto));

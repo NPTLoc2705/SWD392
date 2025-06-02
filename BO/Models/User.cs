@@ -7,12 +7,7 @@ namespace BO.Models
 {
     public class User
     {
-        public string id { get; set; }
-        public User()
-        {
-            if (string.IsNullOrEmpty(id))
-                id = Guid.NewGuid().ToString("N");
-        }
+        public int id { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -21,11 +16,11 @@ namespace BO.Models
 
         [Required]
         [StringLength(100)]
-        [JsonIgnore] // Prevent password from being returned in API responses
+        [JsonIgnore]
         public string password { get; set; }
 
         [Required]
-        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [EmailAddress]
         [StringLength(100)]
         [RegularExpression(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$", ErrorMessage = "Email không đúng định dạng.")]
 
@@ -37,12 +32,12 @@ namespace BO.Models
 
         public string phone { get; set; }
 
-        [Required]
-        public DateTime create_at { get; set; }
-        public bool is_active { get; set; }
-
-        // Foreign key
+        // Foreign Key
         public int RoleId { get; set; }
+
+        // Navigation property
+        [JsonIgnore]
+        public Role Role { get; set; }
 
         // Navigation properties for appointments
         //public ICollection<Appointments> StudentAppointments { get; set; }

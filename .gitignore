@@ -1,6 +1,6 @@
 # Ignore Visual Studio folder
 .vs/
-
+node_modules/
 # Ignore server object files
 SWD392.Server/obj/
 SWD392.Server/bin/
@@ -9,4 +9,8 @@ SWD392.Server/bin/
 /Repo/obj
 /Services/obj
 /Services/obj
-swd392.client/swd392.client.esproj
+/BO/bin
+/DAL/bin
+/Repo/bin
+/Services/bin
+/swd392.client/obj

@@ -1,14 +1,14 @@
 ﻿using BO.Models;
+using DAL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SWD392.Server.Models;
 
 namespace SWD392.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Add authorization requirement
+    [Authorize(Roles = "Student")] // Add authorization requirement
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _appDbContext;
@@ -27,6 +27,7 @@ namespace SWD392.Server.Controllers
                 name = x.name,
                 email = x.email,
                 phone = x.phone,
+                Role = x.Role
                 // password is excluded due to JsonIgnore
             }).ToListAsync();
 

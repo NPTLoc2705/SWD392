@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BO.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace BO.dtos.Request
 {
@@ -23,5 +24,6 @@ namespace BO.dtos.Request
         [StringLength(15)]
         [RegularExpression(@"^(0[3|5|7|8|9])+([0-9]{8})$", ErrorMessage = "Số điện thoại không đúng định dạng Việt Nam.")]
         public string phone { get; set; }
+
     }
 }
