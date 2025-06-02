@@ -7,6 +7,7 @@ namespace BO.Models
     {
         [Key]
         public string id { get; set; }
+
         public Articles()
         {
             if (string.IsNullOrEmpty(id))
@@ -17,11 +18,15 @@ namespace BO.Models
         public string title { get; set; }
 
         [Required]
+        public byte[] image { get; set; }
+
+        [Required]
         public string content { get; set; }
 
         [Required]
         [ForeignKey("User")]
-        public string published_by { get; set; }
+        public int published_by { get; set; } 
+
         public User User { get; set; }
 
         [Required]

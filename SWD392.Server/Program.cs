@@ -40,10 +40,15 @@ namespace SWD392.Server
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Register custom services
+            //...................................................................................//
             builder.Services.AddScoped<AuthDAO>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IArticleRepo, ArticlesRepo>();
+            builder.Services.AddScoped<IArticleService, ArticleService>();
+            builder.Services.AddScoped<ArticlesDAO>();
 
+            //...................................................................................//
             // Configure JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
