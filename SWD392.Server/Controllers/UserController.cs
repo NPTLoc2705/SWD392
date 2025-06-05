@@ -3,37 +3,30 @@ using DAL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Services.Service;
 
 namespace SWD392.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Student")] // Add authorization requirement
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly IUserService _userService;
 
-        public UserController(AppDbContext appDbContext)
+        public UserController(IUserService userService)
         {
-            _appDbContext = appDbContext;
+            _userService = userService;
         }
 
         [HttpGet("GetUser")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetStudent()
         {
-            var result = await _appDbContext.Student.Select(x => new User
-            {
-                id = x.id,
-                name = x.name,
-                email = x.email,
-                phone = x.phone,
-                Role = x.Role
-                // password is excluded due to JsonIgnore
-            }).ToListAsync();
+            var result = await _userService.GetUsers();
 
             return Ok(result);
         }
 
-        // The old CreateStudent method is now handled by the AuthController's Register method
+        
     }
 }

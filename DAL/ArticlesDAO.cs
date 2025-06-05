@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DAL
@@ -11,21 +10,41 @@ namespace DAL
     public class ArticlesDAO
     {
         private readonly AppDbContext _appDbContext;
+        private readonly string _imageStoragePath;
 
-        public ArticlesDAO(AppDbContext Context)
+        public ArticlesDAO(AppDbContext context, string imageStoragePath = "wwwroot/images/articles")
         {
-            _appDbContext = Context;
+            _appDbContext = context;
+            _imageStoragePath = imageStoragePath;
         }
 
         // Upload/Create a new article
-        public async Task<Articles> Upload(Articles articles)
+        public async Task<Articles> Upload(Articles articles, byte[] imageData = null)
         {
             try
             {
+                string imagePath = null;
+                if (imageData != null && imageData.Length > 0)
+                {
+                    // Ensure directory exists
+                    if (!Directory.Exists(_imageStoragePath))
+                    {
+                        Directory.CreateDirectory(_imageStoragePath);
+                    }
+
+                    // Generate unique file name
+                    var fileName = $"{Guid.NewGuid().ToString("N")}.jpg"; // Assuming JPEG format
+                    var fullPath = Path.Combine(_imageStoragePath, fileName);
+
+                    // Save image to file system
+                    await File.WriteAllBytesAsync(fullPath, imageData);
+                    imagePath = $"/images/articles/{fileName}";
+                }
+
                 var article = new Articles
                 {
                     title = articles.title,
-                    image = articles.image,
+                    imagePath = imagePath ?? articles.imagePath,
                     content = articles.content,
                     published_by = articles.published_by,
                     created_at = DateTime.UtcNow,
@@ -43,7 +62,7 @@ namespace DAL
             }
         }
 
-        // Get all articles
+        // Get all>>>>>>>all articles
         public async Task<List<Articles>> GetAllArticles()
         {
             try
@@ -94,7 +113,7 @@ namespace DAL
         }
 
         // Update an existing article
-        public async Task<Articles> UpdateArticle(Articles articles)
+        public async Task<Articles> UpdateArticle(Articles articles, byte[] imageData = null)
         {
             try
             {
@@ -106,8 +125,33 @@ namespace DAL
                     throw new ArgumentException("Article not found");
                 }
 
+                string imagePath = existingArticle.imagePath;
+                if (imageData != null && imageData.Length > 0)
+                {
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(imagePath))
+                    {
+                        var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath.TrimStart('/'));
+                        if (File.Exists(oldImagePath))
+                        {
+                            File.Delete(oldImagePath);
+                        }
+                    }
+
+                    // Save new image
+                    if (!Directory.Exists(_imageStoragePath))
+                    {
+                        Directory.CreateDirectory(_imageStoragePath);
+                    }
+
+                    var fileName = $"{Guid.NewGuid().ToString("N")}.jpg";
+                    var fullPath = Path.Combine(_imageStoragePath, fileName);
+                    await File.WriteAllBytesAsync(fullPath, imageData);
+                    imagePath = $"/images/articles/{fileName}";
+                }
+
                 existingArticle.title = articles.title;
-                existingArticle.image = articles.image;
+                existingArticle.imagePath = imagePath;
                 existingArticle.content = articles.content;
                 existingArticle.updated_at = DateTime.UtcNow;
 
@@ -135,6 +179,16 @@ namespace DAL
                     return false; // Article not found
                 }
 
+                // Delete image file
+                if (!string.IsNullOrEmpty(article.imagePath))
+                {
+                    var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", article.imagePath.TrimStart('/'));
+                    if (File.Exists(imagePath))
+                    {
+                        File.Delete(imagePath);
+                    }
+                }
+
                 _appDbContext.Articles.Remove(article);
                 await _appDbContext.SaveChangesAsync();
 
@@ -157,7 +211,20 @@ namespace DAL
 
                 if (!articles.Any())
                 {
-                    return 0; 
+                    return 0;
+                }
+
+                foreach (var article in articles)
+                {
+                    // Delete image file
+                    if (!string.IsNullOrEmpty(article.imagePath))
+                    {
+                        var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", article.imagePath.TrimStart('/'));
+                        if (File.Exists(imagePath))
+                        {
+                            File.Delete(imagePath);
+                        }
+                    }
                 }
 
                 _appDbContext.Articles.RemoveRange(articles);

@@ -47,7 +47,9 @@ namespace SWD392.Server
             builder.Services.AddScoped<IArticleRepo, ArticlesRepo>();
             builder.Services.AddScoped<IArticleService, ArticleService>();
             builder.Services.AddScoped<ArticlesDAO>();
-
+            builder.Services.AddScoped<IUserRepo, UserRepo>();
+            builder.Services.AddScoped<IUserService,UserService>();
+            builder.Services.AddScoped<UserDAO>();
             //...................................................................................//
             // Configure JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

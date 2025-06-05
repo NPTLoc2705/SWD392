@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Service;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace SWD392.Server.Controllers
 {
@@ -18,9 +19,6 @@ namespace SWD392.Server.Controllers
             _articleService = articleService ?? throw new ArgumentNullException(nameof(articleService));
         }
 
-        /// <summary>
-        /// Get all articles (public access)
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAllArticles()
         {
@@ -45,9 +43,6 @@ namespace SWD392.Server.Controllers
             }
         }
 
-        /// <summary>
-        /// Get articles with pagination (public access)
-        /// </summary>
         [HttpGet("paginated")]
         public async Task<IActionResult> GetArticlesPaginated([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
@@ -108,6 +103,7 @@ namespace SWD392.Server.Controllers
                 });
             }
         }
+
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetArticlesByUserId(int userId)
         {
@@ -136,8 +132,9 @@ namespace SWD392.Server.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")] 
-        public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest createArticleRequest)
+        [Authorize(Roles = "Admin")]
+        [RequestFormLimits(MultipartBodyLengthLimit = 20971520)] // 20MB limit
+        public async Task<IActionResult> CreateArticle([FromForm] CreateArticleRequest createArticleRequest, [FromForm] IFormFile image)
         {
             try
             {
@@ -165,7 +162,17 @@ namespace SWD392.Server.Controllers
 
                 createArticleRequest.PublishedBy = userId;
 
-                var createdArticle = await _articleService.UploadArticle(createArticleRequest);
+                byte[] imageData = null;
+                if (image != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image.CopyToAsync(memoryStream);
+                        imageData = memoryStream.ToArray();
+                    }
+                }
+
+                var createdArticle = await _articleService.UploadArticle(createArticleRequest, imageData);
 
                 return CreatedAtAction(
                     nameof(GetArticleById),
@@ -192,12 +199,10 @@ namespace SWD392.Server.Controllers
             }
         }
 
-        /// <summary>
-        /// Update an existing article (requires authentication and ownership)
-        /// </summary>
         [HttpPut("{id}")]
-        [Authorize] // Requires any authenticated user
-        public async Task<IActionResult> UpdateArticle(string id, [FromBody] UpdateArticleRequest updateArticleRequest)
+        [Authorize]
+        [RequestFormLimits(MultipartBodyLengthLimit = 20971520)] // 20MB limit
+        public async Task<IActionResult> UpdateArticle(string id, [FromForm] UpdateArticleRequest updateArticleRequest, [FromForm] IFormFile image = null)
         {
             try
             {
@@ -234,7 +239,17 @@ namespace SWD392.Server.Controllers
                 if (existingArticle.PublishedBy != userId)
                     return Forbid("You can only update your own articles");
 
-                var updatedArticle = await _articleService.UpdateArticle(id, updateArticleRequest);
+                byte[] imageData = null;
+                if (image != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image.CopyToAsync(memoryStream);
+                        imageData = memoryStream.ToArray();
+                    }
+                }
+
+                var updatedArticle = await _articleService.UpdateArticle(id, updateArticleRequest, imageData);
 
                 return Ok(new
                 {
@@ -258,11 +273,8 @@ namespace SWD392.Server.Controllers
             }
         }
 
-        /// <summary>
-        /// Delete an article (requires authentication and ownership)
-        /// </summary>
         [HttpDelete("{id}")]
-        [Authorize] 
+        [Authorize]
         public async Task<IActionResult> DeleteArticle(string id)
         {
             try
@@ -311,11 +323,8 @@ namespace SWD392.Server.Controllers
             }
         }
 
-        /// <summary>
-        /// Get current user's articles (requires authentication)
-        /// </summary>
         [HttpGet("my-articles")]
-        [Authorize] // Requires any authenticated user
+        [Authorize]
         public async Task<IActionResult> GetMyArticles()
         {
             try

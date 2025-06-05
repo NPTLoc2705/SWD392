@@ -35,9 +35,9 @@ namespace DAL.Migrations
                     b.Property<DateTime>("created_at")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<byte[]>("image")
+                    b.Property<string>("imagePath")
                         .IsRequired()
-                        .HasColumnType("bytea");
+                        .HasColumnType("text");
 
                     b.Property<int>("published_by")
                         .HasColumnType("integer");

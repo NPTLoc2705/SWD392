@@ -18,14 +18,14 @@ namespace BO.Models
         public string title { get; set; }
 
         [Required]
-        public byte[] image { get; set; }
+        public string imagePath { get; set; } // Changed from byte[] to string for file path
 
         [Required]
         public string content { get; set; }
 
         [Required]
         [ForeignKey("User")]
-        public int published_by { get; set; } 
+        public int published_by { get; set; }
 
         public User User { get; set; }
 

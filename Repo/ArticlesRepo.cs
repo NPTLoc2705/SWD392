@@ -2,9 +2,6 @@
 using DAL;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repo
@@ -17,6 +14,7 @@ namespace Repo
         {
             _articlesDAO = articlesDAO;
         }
+
         public async Task<bool> DeleteArticle(string id)
         {
             try
@@ -76,7 +74,7 @@ namespace Repo
             }
             catch (ArgumentException)
             {
-                throw; // Re-throw argument exceptions
+                throw;
             }
             catch (Exception ex)
             {
@@ -106,7 +104,7 @@ namespace Repo
             }
         }
 
-        public async Task<Articles> UpdateArticle(Articles article)
+        public async Task<Articles> UpdateArticle(Articles article, byte[] imageData = null)
         {
             try
             {
@@ -119,7 +117,7 @@ namespace Repo
                 {
                     throw new ArgumentException("Article not found");
                 }
-                return await _articlesDAO.UpdateArticle(article);
+                return await _articlesDAO.UpdateArticle(article, imageData);
             }
             catch (Exception ex)
             {
@@ -127,12 +125,11 @@ namespace Repo
             }
         }
 
-        public async Task<Articles> UploadArticle(Articles article)
+        public async Task<Articles> UploadArticle(Articles article, byte[] imageData = null)
         {
             try
             {
-
-                return await _articlesDAO.Upload(article);
+                return await _articlesDAO.Upload(article, imageData);
             }
             catch (Exception ex)
             {

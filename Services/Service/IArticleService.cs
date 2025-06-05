@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BO.dtos.Request;
+﻿using BO.dtos.Request;
 using BO.dtos.Response;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Services.Service
 {
     public interface IArticleService
     {
-        Task<ArticleResponse> UploadArticle(CreateArticleRequest createArticleRequest);
+        // Create/Upload operations
+        Task<ArticleResponse> UploadArticle(CreateArticleRequest createArticleRequest, byte[] imageData);
 
         // Read operations  
         Task<List<ArticleResponse>> GetAllArticles();
@@ -18,10 +18,9 @@ namespace Services.Service
         Task<PaginatedArticleResponse> GetArticlesPaginated(int pageNumber, int pageSize);
 
         // Update operations
-        Task<ArticleResponse> UpdateArticle(string id, UpdateArticleRequest updateArticleRequest);
+        Task<ArticleResponse> UpdateArticle(string id, UpdateArticleRequest updateArticleRequest, byte[] imageData = null);
 
         // Delete operations
         Task<bool> DeleteArticle(string id);
-
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BO.dtos.Request
 {
@@ -15,9 +10,6 @@ namespace BO.dtos.Request
 
         [Required(ErrorMessage = "Content is required")]
         public string Content { get; set; }
-
-        [Required(ErrorMessage = "Image is required")]
-        public byte[] Image { get; set; }
 
         public int PublishedBy { get; set; }
     }
