@@ -15,6 +15,10 @@ import GlobalPage from "../Pages/GlobalPage";
 import ContactPage from "../Pages/ContactPage";
 import StudentPage from "../Pages/StudentPage";
 
+import UploadArticlePage from "../Pages/UploadArticlePage";
+import ArticleListPage from "../Pages/ArticleListPage"; 
+import ArticleDetailPage from "../Pages/ArticleDetailPage"; 
+import EditArticlePage from "../Pages/EditArticlePage"; 
 const MainLayout = () => (
   <>
     <Header />
@@ -38,7 +42,11 @@ const MainRoutes = () => {
           <Route path="/trai-nghiem-toan-cau" element={<GlobalPage />} />
           <Route path="/lien-he" element={<ContactPage />} />
           <Route path="/sinh-vien" element={<StudentPage />} />
-          
+
+<Route path="/upload-article" element={<UploadArticlePage />} />
+<Route path="/articles" element={<ArticleListPage />} />
+<Route path="/articles/:id" element={<ArticleDetailPage />} />
+<Route path="/articles/edit/:id" element={<EditArticlePage />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
 
