@@ -57,6 +57,7 @@ namespace DAL
 
                 entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.IsPriority).IsRequired();
+                entity.Property(e => e.QueuePosition).IsRequired();
 
                 entity.Property(e => e.Create_at).IsRequired();
                 entity.Property(e => e.Update_at).IsRequired();

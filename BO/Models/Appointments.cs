@@ -37,6 +37,7 @@ namespace BO.Models
         public string Status { get; set; }
 
         public bool IsPriority { get; set; }
+        public int QueuePosition { get; set; }
 
         [Required]
         public DateTime Create_at { get; set; }
