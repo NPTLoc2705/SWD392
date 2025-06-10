@@ -43,7 +43,7 @@ namespace BO.Models
         //public ICollection<Appointments> StudentAppointments { get; set; }
         //public ICollection<Appointments> ConsultantAppointments { get; set; }
         //public ICollection<Applications> Applications { get; set; }
-        //public ICollection<Articles> Articles { get; set; }
+        public ICollection<Articles> Articles { get; set; }
         //public ICollection<Email_verifications> Email_verifications { get; set; }
         //public ICollection<Feedback> StudentFeedbacks { get; set; }
         public virtual ICollection<Payments> Payments { get; set; }

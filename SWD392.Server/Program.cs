@@ -40,9 +40,17 @@ namespace SWD392.Server
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Register custom services
+            //...................................................................................//
             builder.Services.AddScoped<AuthDAO>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IArticleRepo, ArticlesRepo>();
+            builder.Services.AddScoped<IArticleService, ArticleService>();
+            builder.Services.AddScoped<ArticlesDAO>();
+            builder.Services.AddScoped<IUserRepo, UserRepo>();
+            builder.Services.AddScoped<IUserService,UserService>();
+            builder.Services.AddScoped<UserDAO>();
+            //...................................................................................//
             builder.Services.AddScoped<VNPayService>();
             builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
