@@ -1,7 +1,12 @@
 import React from "react";
+import AdmissionsPage from "./AdmissionsPage";
 
 const HomePage = () => {
-  return <div style={{ backgroundColor: "red" }}>HomePage</div>;
+  return (
+    <div>
+      <AdmissionsPage />
+    </div>
+  );
 };
 
 export default HomePage;
