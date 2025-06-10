@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repo;
+using Repo.Ticket;
 using Scalar.AspNetCore;
 using Services.Service;
+using Services.Ticket;
 using System.Text;
 
 namespace SWD392.Server
@@ -39,15 +41,23 @@ namespace SWD392.Server
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Register custom repository
+            //...................................................................................//
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<IArticleRepo, ArticlesRepo>();
+            builder.Services.AddScoped<IUserRepo, UserRepo>();
+            builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+
+            //...................................................................................//
+
             // Register custom services
             //...................................................................................//
             builder.Services.AddScoped<AuthDAO>();
-            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<TicketDAO>();
+            builder.Services.AddScoped<ITicketService, TicketService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IArticleRepo, ArticlesRepo>();
             builder.Services.AddScoped<IArticleService, ArticleService>();
             builder.Services.AddScoped<ArticlesDAO>();
-            builder.Services.AddScoped<IUserRepo, UserRepo>();
             builder.Services.AddScoped<IUserService,UserService>();
             builder.Services.AddScoped<UserDAO>();
             //...................................................................................//
