@@ -15,7 +15,7 @@ namespace DAL
         //public DbSet<Appointments> Appointments { get; set; }
         //public DbSet<Tickets> Tickets { get; set; }
         //public DbSet<Applications> Applications { get; set; }
-        //public DbSet<Articles> Articles { get; set; }
+        public DbSet<Articles> Articles { get; set; }
         //public DbSet<Email_verifications> Email_verifications { get; set; } 
         //public DbSet<Payments> Payments { get; set; }
         //public DbSet<Feedback> Feedback { get; set; } 
@@ -104,21 +104,21 @@ namespace DAL
             //});
 
             //// Cấu hình cho Articles
-            //modelBuilder.Entity<Articles>(entity =>
-            //{
-            //    entity.HasKey(e => e.id);
-            //    entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-            //    entity.Property(e => e.title).IsRequired();
-            //    entity.Property(e => e.content).IsRequired();
-            //    entity.Property(e => e.published_by).IsRequired();
-            //    entity.Property(e => e.created_at).IsRequired();
-            //    entity.Property(e => e.updated_at).IsRequired();
+            modelBuilder.Entity<Articles>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.title).IsRequired();
+                entity.Property(e => e.content).IsRequired();
+                entity.Property(e => e.published_by).IsRequired();
+                entity.Property(e => e.created_at).IsRequired();
+                entity.Property(e => e.updated_at).IsRequired();
 
-            //    entity.HasOne(a => a.User)
-            //          .WithMany(u => u.Articles)
-            //          .HasForeignKey(a => a.published_by)
-            //          .OnDelete(DeleteBehavior.Restrict);
-            //});
+                entity.HasOne(a => a.User)
+                      .WithMany(u => u.Articles)
+                      .HasForeignKey(a => a.published_by)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
 
             //// Cấu hình cho Email_verifications
             //modelBuilder.Entity<Email_verifications>(entity =>
