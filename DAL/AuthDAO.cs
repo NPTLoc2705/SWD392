@@ -27,7 +27,7 @@ namespace DAL
         public async Task<User> Register(RegisterRequest registerDto)
         {
             // Check if user already exists
-            if (await _context.Student.AnyAsync(s => s.email == registerDto.email))
+            if (await _context.User.AnyAsync(s => s.email == registerDto.email))
             {
                 throw new Exception("Email already registered");
             }
@@ -42,7 +42,7 @@ namespace DAL
                 RoleId = 1
             };
 
-            _context.Student.Add(student);
+            _context.User.Add(student);
             await _context.SaveChangesAsync();
 
             return student;
@@ -51,7 +51,7 @@ namespace DAL
         public async Task<LoginResponse> Login(LoginRequest loginDto)
         {
             // Include the Role navigation property
-            var student = await _context.Student
+            var student = await _context.User
                 .Include(s => s.Role)
                 .FirstOrDefaultAsync(s => s.email == loginDto.email);
 
@@ -82,7 +82,7 @@ namespace DAL
                     });
 
                 // Include the Role navigation property
-                var student = await _context.Student
+                var student = await _context.User
                     .Include(s => s.Role)
                     .FirstOrDefaultAsync(s => s.email == payload.Email);
 
@@ -97,11 +97,11 @@ namespace DAL
                         RoleId = 1 // Set default role for Google users
                     };
 
-                    _context.Student.Add(student);
+                    _context.User.Add(student);
                     await _context.SaveChangesAsync();
 
                     // Load the role for the newly created user
-                    student = await _context.Student
+                    student = await _context.User
                         .Include(s => s.Role)
                         .FirstOrDefaultAsync(s => s.id == student.id);
                 }
