@@ -9,6 +9,7 @@ namespace DAL
         {
         }
 
+        public DbSet<ChatHistory> ChatHistories { get; set; }
         public DbSet<User> User { get; set; }
         public DbSet<Role> Role { get; set; }
         //public DbSet<Programs> Programs { get; set; }

@@ -141,7 +141,7 @@ namespace Services.Service
                 {
                     title = createArticleRequest.Title,
                     content = createArticleRequest.Content,
-                    imagePath = null, // Will be set in DAO
+                    imagePath = null, // DAO
                     published_by = createArticleRequest.PublishedBy,
                     created_at = DateTime.UtcNow,
                     updated_at = DateTime.UtcNow
