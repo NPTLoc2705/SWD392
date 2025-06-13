@@ -32,11 +32,11 @@ namespace DAL
                         Directory.CreateDirectory(_imageStoragePath);
                     }
 
-                    // Generate unique file name
-                    var fileName = $"{Guid.NewGuid().ToString("N")}.jpg"; // Assuming JPEG format
+
+                    var fileName = $"{Guid.NewGuid().ToString("N")}.jpg"; 
                     var fullPath = Path.Combine(_imageStoragePath, fileName);
 
-                    // Save image to file system
+
                     await File.WriteAllBytesAsync(fullPath, imageData);
                     imagePath = $"/images/articles/{fileName}";
                 }
@@ -173,11 +173,6 @@ namespace DAL
             {
                 var article = await _appDbContext.Articles
                     .FirstOrDefaultAsync(a => a.id == id);
-
-                if (article == null)
-                {
-                    return false; // Article not found
-                }
 
                 // Delete image file
                 if (!string.IsNullOrEmpty(article.imagePath))
