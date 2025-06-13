@@ -121,6 +121,44 @@ namespace DAL.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BO.Models.Tickets", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int?>("ConsultantId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("updated_at")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsultantId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Tickets");
+                });
+
             modelBuilder.Entity("BO.Models.User", b =>
                 {
                     b.Property<int>("id")
@@ -157,7 +195,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Student");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("BO.Models.Articles", b =>
@@ -180,6 +218,22 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+            modelBuilder.Entity("BO.Models.Tickets", b =>
+                {
+                    b.HasOne("BO.Models.User", "Consultant")
+                        .WithMany()
+                        .HasForeignKey("ConsultantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BO.Models.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Consultant");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("BO.Models.User", b =>
