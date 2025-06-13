@@ -1,3 +1,4 @@
+using BO.Models;
 using DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
@@ -6,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repo;
 using Scalar.AspNetCore;
+using Services;
 using Services.Service;
 using System.Text;
 
@@ -50,6 +52,12 @@ namespace SWD392.Server
             builder.Services.AddScoped<IUserRepo, UserRepo>();
             builder.Services.AddScoped<IUserService,UserService>();
             builder.Services.AddScoped<UserDAO>();
+
+            // Register other services
+            builder.Services.AddScoped<ChatHistoryDAO>();
+            builder.Services.AddScoped<IChatHistoryRepo, ChatHistoryRepo>();
+            builder.Services.AddScoped<IChatbotService, ChatbotService>();
+            builder.Services.Configure<LlmSettings>(builder.Configuration.GetSection("LlmSettings"));
             //...................................................................................//
             // Configure JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

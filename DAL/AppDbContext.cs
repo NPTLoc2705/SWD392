@@ -10,6 +10,7 @@ namespace DAL
         }
 
         public DbSet<User> Student { get; set; }
+        public DbSet<ChatHistory> ChatHistories { get; set; }
         public DbSet<Role> Role { get; set; }
         //public DbSet<Programs> Programs { get; set; }
         //public DbSet<Appointments> Appointments { get; set; }
