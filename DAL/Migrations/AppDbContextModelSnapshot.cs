@@ -218,6 +218,8 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
             modelBuilder.Entity("BO.Models.Tickets", b =>
                 {
                     b.HasOne("BO.Models.User", "Consultant")
