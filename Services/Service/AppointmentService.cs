@@ -25,7 +25,7 @@ namespace Services.Service
         public async Task<BookAppointmentResponse> BookAppointmentAsync(BookAppointmentRequest request)
         {
 
-            var student = await _context.Student
+            var student = await _context.User
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Id == request.StudentId && u.Role.Name == "Student");
             if (student == null)
@@ -37,14 +37,14 @@ namespace Services.Service
                 .Select(a => a.ConsultantId)
                 .ToListAsync();
 
-            var availableConsultants = await _context.Student
+            var availableConsultants = await _context.User
                 .Include(u => u.Role)
                 .Where(u => u.Role.Name == "Consultant" && !busyConsultantIds.Contains(u.Id))
                 .ToListAsync();
 
             if (!availableConsultants.Any())
             {
-                availableConsultants = await _context.Student
+                availableConsultants = await _context.User
                     .Include(u => u.Role)
                     .Where(u => u.Role.Name == "Consultant")
                     .ToListAsync();

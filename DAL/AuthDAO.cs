@@ -27,7 +27,7 @@ namespace DAL
         public async Task<User> Register(RegisterRequest registerDto)
         {
             // Check if user already exists
-            if (await _context.Student.AnyAsync(s => s.Email == registerDto.email))
+            if (await _context.User.AnyAsync(s => s.Email == registerDto.email))
             {
                 throw new Exception("Email already registered");
             }

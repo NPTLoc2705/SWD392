@@ -51,8 +51,8 @@ namespace DAL
                 Question = t.Message,
                 Status = t.Status,
                 CreatedAt = t.created_at,
-                StudentName = t.Student.name,
-                ConsultantName = t.Consultant != null ? t.Consultant.name : null
+                StudentName = t.Student.Name,
+                ConsultantName = t.Consultant != null ? t.Consultant.Name : null
             })
             .ToListAsync();
     }
@@ -71,8 +71,8 @@ namespace DAL
                 Question = t.Message,
                 Status = t.Status,
                 CreatedAt = t.created_at,
-                StudentName = t.Student.name,
-                ConsultantName = t.Consultant != null ? t.Consultant.name : null
+                StudentName = t.Student.Name,
+                ConsultantName = t.Consultant != null ? t.Consultant.Name : null
             })
             .ToListAsync();
     }
@@ -90,8 +90,8 @@ namespace DAL
                 Question = t.Message,
                 Status = t.Status,
                 CreatedAt = t.created_at,
-                StudentName = t.Student.name,
-                ConsultantName = t.Consultant != null ? t.Consultant.name : null
+                StudentName = t.Student.Name,
+                ConsultantName = t.Consultant != null ? t.Consultant.Name : null
             })
             .ToListAsync();
     }
@@ -168,8 +168,8 @@ namespace DAL
                 Question = t.Message,
                 Status = t.Status,
                 CreatedAt = t.created_at,
-                StudentName = t.Student.name,
-                ConsultantName = t.Consultant != null ? t.Consultant.name : null
+                StudentName = t.Student.Name,
+                ConsultantName = t.Consultant != null ? t.Consultant.Name : null
             })
             .FirstOrDefaultAsync();
     }
