@@ -7,18 +7,13 @@ namespace BO.Models
     public class Payments
     {
         [Key]
-        public string Id { get; set; }
-        public Payments()
-        {
-            if (string.IsNullOrEmpty(Id))
-                Id = Guid.NewGuid().ToString("N");
-        }
+        public int Id { get; set; }
 
         [Required]
         public int UserId { get; set; }
 
-        [MaxLength(50)]
-        public string? AppointmentId { get; set; } // Khớp với kiểu string của Appointments.Id
+        [Required]
+        public int AppointmentId { get; set; } 
 
         [Required]
         [Column(TypeName = "decimal(12,2)")]

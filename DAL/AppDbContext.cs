@@ -26,12 +26,12 @@ namespace DAL
             // Cấu hình cho User
             modelBuilder.Entity<User>(entity =>
             {
-                entity.HasKey(e => e.id);
-                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.name).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.password).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.email).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.phone).HasMaxLength(10);
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Password).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Phone).HasMaxLength(10);
 
 
  
@@ -41,18 +41,18 @@ namespace DAL
                           new Role { Id = 1, Name = "Student" },
                           new Role { Id = 2, Name = "Consultant" },
                           new Role { Id = 3, Name = "Admin" }
-                      );
+            );
 
             //Cấu hình cho Appointments
             modelBuilder.Entity<Appointments>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Id).IsRequired();
 
-                entity.Property(e => e.StudentId).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.StudentId).IsRequired();
                 entity.Property(e => e.StudentName).IsRequired().HasMaxLength(100);
 
-                entity.Property(e => e.ConsultantId).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.ConsultantId).IsRequired();
                 entity.Property(e => e.ConsultantName).IsRequired().HasMaxLength(100);
 
                 entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
@@ -150,10 +150,10 @@ namespace DAL
             modelBuilder.Entity<Payments>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Id).IsRequired();
 
                 entity.Property(e => e.UserId).IsRequired();
-                entity.Property(e => e.AppointmentId).HasMaxLength(50);
+                entity.Property(e => e.AppointmentId).IsRequired();
 
                 entity.Property(e => e.Amount).IsRequired().HasColumnType("decimal(12,2)");
                 entity.Property(e => e.Currency).IsRequired().HasMaxLength(10);
@@ -167,12 +167,12 @@ namespace DAL
                 entity.Property(e => e.CreatedAt).IsRequired();
 
                 entity.HasOne(p => p.User)
-                      .WithMany()
+                      .WithMany(u => u.Payments)
                       .HasForeignKey(p => p.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(p => p.Appointment)
-                      .WithMany()
+                      .WithMany(a => a.Payments)
                       .HasForeignKey(p => p.AppointmentId)
                       .OnDelete(DeleteBehavior.Restrict);
             });

@@ -7,16 +7,11 @@ namespace BO.Models
     public class Appointments
     {
         [Key]
-        public string Id { get; set; }
-        public Appointments()
-        {
-            if (string.IsNullOrEmpty(Id))
-                Id = Guid.NewGuid().ToString("N");
-        }
+        public int Id { get; set; }
 
         // Khóa ngoại đến User (Student)
         [ForeignKey("Student")]
-        public string StudentId { get; set; }
+        public int StudentId { get; set; }
         public User Student { get; set; }
 
         [Required]
@@ -25,7 +20,7 @@ namespace BO.Models
 
         // Khóa ngoại đến User (Consultant)
         [ForeignKey("Consultant")]
-        public string ConsultantId { get; set; }
+        public int ConsultantId { get; set; }
         public User Consultant { get; set; }
 
         [Required]

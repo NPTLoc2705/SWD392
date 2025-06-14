@@ -8,7 +8,7 @@ namespace BO.dtos.Request
 {
     public class BookAppointmentRequest
     {
-        public string StudentId { get; set; }
+        public int StudentId { get; set; }
         public string StudentName { get; set; }
         public string Phone { get; set; }
         public bool IsPriority { get; set; }

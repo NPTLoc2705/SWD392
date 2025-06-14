@@ -24,9 +24,10 @@ namespace Services.Service
 
         public async Task<BookAppointmentResponse> BookAppointmentAsync(BookAppointmentRequest request)
         {
+
             var student = await _context.Student
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Id.ToString() == request.StudentId && u.Role.Name == "Student");
+                .FirstOrDefaultAsync(u => u.Id == request.StudentId && u.Role.Name == "Student");
             if (student == null)
                 return new BookAppointmentResponse { Messsage = "User không hợp lệ hoặc không phải student." };
 
@@ -38,7 +39,7 @@ namespace Services.Service
 
             var availableConsultants = await _context.Student
                 .Include(u => u.Role)
-                .Where(u => u.Role.Name == "Consultant" && !busyConsultantIds.Contains(u.Id.ToString()))
+                .Where(u => u.Role.Name == "Consultant" && !busyConsultantIds.Contains(u.Id))
                 .ToListAsync();
 
             if (!availableConsultants.Any())
@@ -57,10 +58,10 @@ namespace Services.Service
 
             var appointment = new Appointments
             {
-                Id = Guid.NewGuid().ToString("N"),
+                // Id is auto-generated (int)
                 StudentId = request.StudentId,
                 StudentName = request.StudentName,
-                ConsultantId = consultant.Id.ToString(),
+                ConsultantId = consultant.Id,
                 ConsultantName = consultant.Name,
                 Status = "Pending",
                 IsPriority = request.IsPriority,
@@ -70,11 +71,11 @@ namespace Services.Service
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
-            var paymentUrl = _vnpay.CreatePaymentUrl(appointment.Id, 100000, "Thanh toán đặt lịch hẹn");
+            var paymentUrl = _vnpay.CreatePaymentUrl(appointment.Id.ToString(), 100000, "Thanh toán đặt lịch hẹn");
 
             return new BookAppointmentResponse
             {
-                AppointmentId = appointment.Id,
+                AppointmentId = appointment.Id.ToString(),
                 ConsultantId = consultant.Id.ToString(),
                 ConsultantName = consultant.Name,
                 ConsultantEmail = consultant.Email,
@@ -85,7 +86,11 @@ namespace Services.Service
 
         public async Task<AppointmentPaymentResultResponse> HandlePaymentCallbackAsync(string appointmentId, string vnpResponseCode)
         {
-            var appointment = await _context.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId);
+            // Parse appointmentId from string to int
+            if (!int.TryParse(appointmentId, out int id))
+                return new AppointmentPaymentResultResponse { Messsage = "Không tìm thấy lịch hẹn." };
+
+            var appointment = await _context.Appointments.FirstOrDefaultAsync(a => a.Id == id);
             if (appointment == null)
                 return new AppointmentPaymentResultResponse { Messsage = "Không tìm thấy lịch hẹn." };
 
@@ -97,7 +102,7 @@ namespace Services.Service
 
                 return new AppointmentPaymentResultResponse
                 {
-                    AppointmentId = appointment.Id,
+                    AppointmentId = appointment.Id.ToString(),
                     Status = appointment.Status,
                     ConsultantName = appointment.ConsultantName,
                     Messsage = "Đặt lịch thành công!"
@@ -109,7 +114,7 @@ namespace Services.Service
                 await _context.SaveChangesAsync();
                 return new AppointmentPaymentResultResponse
                 {
-                    AppointmentId = appointment.Id,
+                    AppointmentId = appointment.Id.ToString(),
                     Status = appointment.Status,
                     Messsage = "Thanh toán không thành công."
                 };
