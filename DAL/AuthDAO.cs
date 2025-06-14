@@ -42,7 +42,7 @@ namespace DAL
                 RoleId = 1
             };
 
-            _context.Student.Add(student);
+            _context.User.Add(student);
             await _context.SaveChangesAsync();
 
             return student;
@@ -51,7 +51,7 @@ namespace DAL
         public async Task<LoginResponse> Login(LoginRequest loginDto)
         {
             // Include the Role navigation property
-            var student = await _context.Student
+            var student = await _context.User
                 .Include(s => s.Role)
                 .FirstOrDefaultAsync(s => s.Email == loginDto.email);
 
@@ -82,7 +82,7 @@ namespace DAL
                     });
 
                 // Include the Role navigation property
-                var student = await _context.Student
+                var student = await _context.User
                     .Include(s => s.Role)
                     .FirstOrDefaultAsync(s => s.Email == payload.Email);
 
@@ -97,11 +97,11 @@ namespace DAL
                         RoleId = 1 // Set default role for Google users
                     };
 
-                    _context.Student.Add(student);
+                    _context.User.Add(student);
                     await _context.SaveChangesAsync();
 
                     // Load the role for the newly created user
-                    student = await _context.Student
+                    student = await _context.User
                         .Include(s => s.Role)
                         .FirstOrDefaultAsync(s => s.Id == student.Id);
                 }

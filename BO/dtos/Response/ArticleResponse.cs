@@ -7,7 +7,7 @@ namespace BO.dtos.Response
         public string Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public string ImagePath { get; set; } // Changed from byte[] to string
+        public string ImagePath { get; set; } 
         public int PublishedBy { get; set; }
         public string AuthorName { get; set; }
         public DateTime CreatedAt { get; set; }

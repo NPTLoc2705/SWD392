@@ -18,7 +18,7 @@ namespace DAL
         {
             try
             {
-                return await _dbContext.Student
+                return await _dbContext.User
                     .Include(a => a.Role) //This fucking line added the role when fetch
                     .OrderByDescending(a => a.Name)
                     .ToListAsync();

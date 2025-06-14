@@ -9,11 +9,12 @@ namespace DAL
         {
         }
 
-        public DbSet<User> Student { get; set; }
+        public DbSet<ChatHistory> ChatHistories { get; set; }
+        public DbSet<User> User { get; set; }
         public DbSet<Role> Role { get; set; }
         //public DbSet<Programs> Programs { get; set; }
         public DbSet<Appointments> Appointments { get; set; }
-        //public DbSet<Tickets> Tickets { get; set; }
+        public DbSet<Tickets> Tickets { get; set; }
         //public DbSet<Applications> Applications { get; set; }
         public DbSet<Articles> Articles { get; set; }
         //public DbSet<Email_verifications> Email_verifications { get; set; } 
@@ -73,26 +74,27 @@ namespace DAL
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            //// Cấu hình cho Tickets
-            //modelBuilder.Entity<Tickets>(entity =>
-            //{
-            //    entity.HasKey(e => e.id);
-            //    entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-            //    entity.Property(e => e.subject).IsRequired();
-            //    entity.Property(e => e.status).IsRequired();
-            //    entity.Property(e => e.created_at).IsRequired();
-            //    entity.Property(e => e.updated_at).IsRequired();
+            // Cấu hình cho Tickets
+            modelBuilder.Entity<Tickets>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Subject).IsRequired();
+                entity.Property(e => e.Status).IsRequired();
+                entity.Property(e => e.created_at).IsRequired();
+                entity.Property(e => e.updated_at).IsRequired();
+                entity.Property(e => e.Message).IsRequired();
 
-            //    entity.HasOne(t => t.Student)
-            //          .WithMany()
-            //          .HasForeignKey(t => t.student_id)
-            //          .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(t => t.Student)
+                      .WithMany()
+                      .HasForeignKey(t => t.StudentId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
-            //    entity.HasOne(t => t.Consultant)
-            //          .WithMany()
-            //          .HasForeignKey(t => t.consultant_id)
-            //          .OnDelete(DeleteBehavior.Restrict);
-            //});
+                entity.HasOne(t => t.Consultant)
+                      .WithMany()
+                      .HasForeignKey(t => t.ConsultantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
 
             //// Cấu hình cho Applications
             //modelBuilder.Entity<Applications>(entity =>
