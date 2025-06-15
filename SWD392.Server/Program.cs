@@ -69,6 +69,9 @@ namespace SWD392.Server
             builder.Services.AddScoped<IChatbotService, ChatbotService>();
             builder.Services.Configure<LlmSettings>(builder.Configuration.GetSection("LlmSettings"));
             //...................................................................................//
+            builder.Services.AddScoped<VNPayService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+
             // Configure JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

@@ -20,7 +20,7 @@ namespace DAL
             {
                 return await _dbContext.User
                     .Include(a => a.Role) //This fucking line added the role when fetch
-                    .OrderByDescending(a => a.name)
+                    .OrderByDescending(a => a.Name)
                     .ToListAsync();
             }
             catch (Exception ex)

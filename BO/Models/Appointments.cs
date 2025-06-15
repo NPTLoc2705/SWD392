@@ -7,31 +7,38 @@ namespace BO.Models
     public class Appointments
     {
         [Key]
-        public string id { get; set; }
-        public Appointments()
-        {
-            if (string.IsNullOrEmpty(id))
-                id = Guid.NewGuid().ToString("N");
-        }
+        public int Id { get; set; }
 
         // Khóa ngoại đến User (Student)
         [ForeignKey("Student")]
-        public string student_id { get; set; }
+        public int StudentId { get; set; }
         public User Student { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string StudentName { get; set; }
 
         // Khóa ngoại đến User (Consultant)
         [ForeignKey("Consultant")]
-        public string consultant_id { get; set; }
+        public int ConsultantId { get; set; }
         public User Consultant { get; set; }
 
         [Required]
+        [StringLength(100)]
+        public string ConsultantName { get; set; }
+
+        [Required]
         [StringLength(50)]
-        public string status { get; set; }
+        public string Status { get; set; }
+
+        public bool IsPriority { get; set; }
+        public int QueuePosition { get; set; }
 
         [Required]
-        public DateTime create_at { get; set; }
+        public DateTime Create_at { get; set; }
 
         [Required]
-        public DateTime update_at { get; set; }
+        public DateTime Update_at { get; set; }
+        public virtual ICollection<Payments> Payments { get; set; }
     }
 }

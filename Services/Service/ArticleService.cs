@@ -173,7 +173,7 @@ namespace Services.Service
                 Content = article.content,
                 ImagePath = article.imagePath,
                 PublishedBy = article.published_by,
-                AuthorName = article.User?.name,
+                AuthorName = article.User?.Name,
                 CreatedAt = article.created_at,
                 UpdatedAt = article.updated_at
             };

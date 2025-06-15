@@ -27,7 +27,7 @@ namespace DAL
         public async Task<User> Register(RegisterRequest registerDto)
         {
             // Check if user already exists
-            if (await _context.User.AnyAsync(s => s.email == registerDto.email))
+            if (await _context.User.AnyAsync(s => s.Email == registerDto.email))
             {
                 throw new Exception("Email already registered");
             }
@@ -35,10 +35,10 @@ namespace DAL
             // Create new student
             var student = new User
             {
-                name = registerDto.name,
-                email = registerDto.email,
-                phone = registerDto.phone,
-                password = HashPassword(registerDto.password),
+                Name = registerDto.name,
+                Email = registerDto.email,
+                Phone = registerDto.phone,
+                Password = HashPassword(registerDto.password),
                 RoleId = 1
             };
 
@@ -53,9 +53,9 @@ namespace DAL
             // Include the Role navigation property
             var student = await _context.User
                 .Include(s => s.Role)
-                .FirstOrDefaultAsync(s => s.email == loginDto.email);
+                .FirstOrDefaultAsync(s => s.Email == loginDto.email);
 
-            if (student == null || !VerifyPassword(loginDto.password, student.password))
+            if (student == null || !VerifyPassword(loginDto.password, student.Password))
             {
                 throw new Exception("Invalid email or password");
             }
@@ -84,16 +84,16 @@ namespace DAL
                 // Include the Role navigation property
                 var student = await _context.User
                     .Include(s => s.Role)
-                    .FirstOrDefaultAsync(s => s.email == payload.Email);
+                    .FirstOrDefaultAsync(s => s.Email == payload.Email);
 
                 if (student == null)
                 {
                     student = new User
                     {
-                        name = payload.Name,
-                        email = payload.Email,
-                        phone = "",
-                        password = "",
+                        Name = payload.Name,
+                        Email = payload.Email,
+                        Phone = "",
+                        Password = "",
                         RoleId = 1 // Set default role for Google users
                     };
 
@@ -103,7 +103,7 @@ namespace DAL
                     // Load the role for the newly created user
                     student = await _context.User
                         .Include(s => s.Role)
-                        .FirstOrDefaultAsync(s => s.id == student.id);
+                        .FirstOrDefaultAsync(s => s.Id == student.Id);
                 }
 
                 var token = GenerateJwtToken(student);
@@ -127,9 +127,9 @@ namespace DAL
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
-                new Claim(ClaimTypes.Email, user.email),
-                new Claim(ClaimTypes.Name, user.name),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role?.Name ?? "User") // Safe access with null coalescing
             };
 

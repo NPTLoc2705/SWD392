@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class chatbot : Migration
+    public partial class vnp : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,23 +31,56 @@ namespace DAL.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", maxLength: 50, nullable: false)
+                    Id = table.Column<int>(type: "integer", maxLength: 50, nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    password = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    phone = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Password = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Phone = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     RoleId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.id);
+                    table.PrimaryKey("PK_User", x => x.Id);
                     table.ForeignKey(
                         name: "FK_User_Role_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Role",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Appointments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StudentId = table.Column<int>(type: "integer", nullable: false),
+                    StudentName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    ConsultantId = table.Column<int>(type: "integer", nullable: false),
+                    ConsultantName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    IsPriority = table.Column<bool>(type: "boolean", nullable: false),
+                    QueuePosition = table.Column<int>(type: "integer", nullable: false),
+                    Create_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Update_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Appointments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Appointments_User_ConsultantId",
+                        column: x => x.ConsultantId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Appointments_User_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,7 +102,7 @@ namespace DAL.Migrations
                         name: "FK_Articles_User_published_by",
                         column: x => x.published_by,
                         principalTable: "User",
-                        principalColumn: "id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -91,7 +124,7 @@ namespace DAL.Migrations
                         name: "FK_ChatHistories_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -115,13 +148,48 @@ namespace DAL.Migrations
                         name: "FK_Tickets_User_ConsultantId",
                         column: x => x.ConsultantId,
                         principalTable: "User",
-                        principalColumn: "id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Tickets_User_StudentId",
                         column: x => x.StudentId,
                         principalTable: "User",
-                        principalColumn: "id",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    AppointmentId = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(12,2)", nullable: false),
+                    Currency = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    Purpose = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    VnpTxnRef = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    VnpResponseCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    VnpOrderInfo = table.Column<string>(type: "text", nullable: true),
+                    VnpPayDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payments_Appointments_AppointmentId",
+                        column: x => x.AppointmentId,
+                        principalTable: "Appointments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Payments_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -136,6 +204,16 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Appointments_ConsultantId",
+                table: "Appointments",
+                column: "ConsultantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Appointments_StudentId",
+                table: "Appointments",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Articles_published_by",
                 table: "Articles",
                 column: "published_by");
@@ -143,6 +221,16 @@ namespace DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ChatHistories_UserId",
                 table: "ChatHistories",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_AppointmentId",
+                table: "Payments",
+                column: "AppointmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_UserId",
+                table: "Payments",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -171,7 +259,13 @@ namespace DAL.Migrations
                 name: "ChatHistories");
 
             migrationBuilder.DropTable(
+                name: "Payments");
+
+            migrationBuilder.DropTable(
                 name: "Tickets");
+
+            migrationBuilder.DropTable(
+                name: "Appointments");
 
             migrationBuilder.DropTable(
                 name: "User");

@@ -38,10 +38,10 @@ namespace Services.Service
 
             return new UserResponse
             {
-                Id = user.id,
-                Name = user.name,
-                Email = user.email,
-                Phone = user.phone,
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.Phone,
                 RoleName = user.Role?.Name
             };
         }
