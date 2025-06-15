@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
 
 public class VNPayService
 {
@@ -47,18 +47,37 @@ public class VNPayService
         var query = new StringBuilder();
         foreach (var item in inputData)
         {
-            query.Append(HttpUtility.UrlEncode(item.Key) + "=" + HttpUtility.UrlEncode(item.Value) + "&");
+            if (!string.IsNullOrEmpty(item.Value))
+            {
+                query.Append(WebUtility.UrlEncode(item.Key) + "=" + WebUtility.UrlEncode(item.Value) + "&");
+            }
         }
-        var signData = query.ToString().TrimEnd('&');
-        var vnp_SecureHash = HmacSHA512(vnp_HashSecret, signData);
-        var paymentUrl = $"{vnp_Url}?{signData}&vnp_SecureHash={vnp_SecureHash}";
+
+        // Remove the last '&' character
+        var queryString = query.ToString();
+        if (queryString.Length > 0)
+        {
+            queryString = queryString.Remove(queryString.Length - 1, 1);
+        }
+
+        var vnp_SecureHash = HmacSHA512(vnp_HashSecret, queryString);
+        var paymentUrl = $"{vnp_Url}?{queryString}&vnp_SecureHash={vnp_SecureHash}";
         return paymentUrl;
     }
 
     private string HmacSHA512(string key, string inputData)
     {
-        var hash = new HMACSHA512(Encoding.UTF8.GetBytes(key));
-        var bytes = hash.ComputeHash(Encoding.UTF8.GetBytes(inputData));
-        return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        var hash = new StringBuilder();
+        byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+        byte[] inputBytes = Encoding.UTF8.GetBytes(inputData);
+        using (var hmac = new HMACSHA512(keyBytes))
+        {
+            byte[] hashValue = hmac.ComputeHash(inputBytes);
+            foreach (var theByte in hashValue)
+            {
+                hash.Append(theByte.ToString("x2"));
+            }
+        }
+        return hash.ToString();
     }
 }
