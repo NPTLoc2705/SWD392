@@ -48,13 +48,13 @@ namespace Services.Service
             _executor = new InteractiveExecutor(_context);
         }
 
-        public async Task<ChatbotResponse> GenerateResponseAsync(ChatbotRequest request, int userId)
+        public async Task<ChatbotResponse> GenerateResponse(ChatbotRequest request, int userId)
         {
             if (string.IsNullOrWhiteSpace(request.Message))
                 throw new ArgumentException("Message cannot be empty");
 
             // Get recent chat history
-            var history = await _chatHistoryRepo.GetChatHistoryByUserIdAsync(userId);
+            var history = await _chatHistoryRepo.GetChatHistoryByUserId(userId);
             var recentHistory = history.OrderByDescending(h => h.Timestamp)
                                       .Take(_maxHistoryMessages)
                                       .OrderBy(h => h.Timestamp) // Oldest to newest
@@ -84,14 +84,14 @@ namespace Services.Service
             responseText = responseText.Trim();
 
             // Save to database
-            await _chatHistoryRepo.SaveChatMessageAsync(userId, request.Message, responseText);
+            await _chatHistoryRepo.SaveChatMessage(userId, request.Message, responseText);
 
             return new ChatbotResponse { Reply = responseText };
         }
 
-        public async Task<List<ChatHistoryResponse>> GetChatHistoryAsync(int userId)
+        public async Task<List<ChatHistoryResponse>> GetChatHistory(int userId)
         {
-            var history = await _chatHistoryRepo.GetChatHistoryByUserIdAsync(userId);
+            var history = await _chatHistoryRepo.GetChatHistoryByUserId(userId);
             return history.Select(h => new ChatHistoryResponse
             {
                 Id = h.Id,
