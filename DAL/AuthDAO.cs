@@ -40,7 +40,6 @@ namespace DAL
                 Phone = registerDto.phone,
                 Password = HashPassword(registerDto.password),
                 RoleId = 1,
-                IsBanned = false,
             };
 
             _context.User.Add(student);
