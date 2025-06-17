@@ -107,7 +107,10 @@ const ArticleListPage = () => {
                 </Link>
                 <div className="p-5 flex-1 flex flex-col">
                   <Link to={`/articles/${article.id}`}>
-                    <h2 className="text-lg font-bold text-orange-700 mb-1 line-clamp-2 hover:underline transition">
+                    <h2
+                      className="text-lg font-bold text-orange-700 mb-1 hover:underline transition line-clamp-2"
+                      title={article.title}
+                    >
                       {article.title}
                     </h2>
                   </Link>

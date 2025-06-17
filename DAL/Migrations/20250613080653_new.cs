@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class articles : Migration
+    public partial class @new : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -28,7 +28,7 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Student",
+                name: "User",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", maxLength: 50, nullable: false)
@@ -41,9 +41,9 @@ namespace DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Student", x => x.id);
+                    table.PrimaryKey("PK_User", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Student_Role_RoleId",
+                        name: "FK_User_Role_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Role",
                         principalColumn: "Id",
@@ -66,9 +66,61 @@ namespace DAL.Migrations
                 {
                     table.PrimaryKey("PK_Articles", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Articles_Student_published_by",
+                        name: "FK_Articles_User_published_by",
                         column: x => x.published_by,
-                        principalTable: "Student",
+                        principalTable: "User",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChatHistories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    Message = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    Response = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChatHistories_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tickets",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    StudentId = table.Column<int>(type: "integer", nullable: false),
+                    ConsultantId = table.Column<int>(type: "integer", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Subject = table.Column<string>(type: "text", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tickets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tickets_User_ConsultantId",
+                        column: x => x.ConsultantId,
+                        principalTable: "User",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Tickets_User_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "User",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -89,8 +141,23 @@ namespace DAL.Migrations
                 column: "published_by");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Student_RoleId",
-                table: "Student",
+                name: "IX_ChatHistories_UserId",
+                table: "ChatHistories",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_ConsultantId",
+                table: "Tickets",
+                column: "ConsultantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_StudentId",
+                table: "Tickets",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_RoleId",
+                table: "User",
                 column: "RoleId");
         }
 
@@ -101,7 +168,13 @@ namespace DAL.Migrations
                 name: "Articles");
 
             migrationBuilder.DropTable(
-                name: "Student");
+                name: "ChatHistories");
+
+            migrationBuilder.DropTable(
+                name: "Tickets");
+
+            migrationBuilder.DropTable(
+                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Role");
