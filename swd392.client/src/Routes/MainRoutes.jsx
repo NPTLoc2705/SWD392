@@ -36,7 +36,7 @@ const MainRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/gioi-thieu" element={<AboutPage />} />
-          <Route path="/tin-tuc-su-kien" element={<NewsPage />} />
+          <Route path="/tin-tuc-su-kien" element={<ArticleListPage />} />
           <Route path="/nganh-hoc" element={<ProgramsPage />} />
           <Route path="/tuyen-sinh" element={<AdmissionsPage />} />
           <Route path="/trai-nghiem-toan-cau" element={<GlobalPage />} />

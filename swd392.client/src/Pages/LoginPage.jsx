@@ -19,7 +19,7 @@ const LoginPage = () => {
 
         try {
             await login(form.email, form.password);
-            navigate("/homepage");
+            navigate("/gioi-thieu");
         } catch (err) {
             setError(err.message || "Đăng nhập thất bại");
         } finally {
@@ -33,7 +33,7 @@ const LoginPage = () => {
 
         try {
             await googleLogin(credentialResponse.credential);
-            navigate("/homepage");
+            navigate("/gioi-thieu");
         } catch (err) {
             setError(err.message || "Đăng nhập Google thất bại");
         } finally {
