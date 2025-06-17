@@ -39,6 +39,8 @@ namespace BO.Models
         [JsonIgnore]
         public Role Role { get; set; }
 
+  
+
         // Navigation properties for appointments
         //public ICollection<Appointments> StudentAppointments { get; set; }
         //public ICollection<Appointments> ConsultantAppointments { get; set; }

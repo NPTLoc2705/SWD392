@@ -11,10 +11,11 @@ namespace DAL
     public class UserDAO
     {
         private readonly AppDbContext _dbContext;
-        public UserDAO(AppDbContext context) {
+        public UserDAO(AppDbContext context)
+        {
             _dbContext = context;
         }
-        public async Task<List<User>>  ViewUser()
+        public async Task<List<User>> ViewUser()
         {
             try
             {
@@ -28,6 +29,49 @@ namespace DAL
                 throw new Exception($"Error retrieving User from UserDAO: {ex.Message}", ex);
             }
 
+        }
+        public async Task<User> UpdateUser(User user)
+        {
+            try
+            {
+                var existingUser = await _dbContext.User.FirstOrDefaultAsync(u => u.Id == user.Id);
+                if (existingUser == null)
+                {
+                    throw new ArgumentException("User not found");
+                }
+                existingUser.Name = user.Name;
+                existingUser.Password = user.Password;
+                existingUser.Email = user.Email;
+                existingUser.Phone = user.Phone;
+
+                _dbContext.User.Update(existingUser);
+                await _dbContext.SaveChangesAsync();
+                return existingUser;
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error updating User: {e.Message}");
+            }
+        }
+        public async Task<User>GetUserById(int id)
+        {
+            var user = await _dbContext.User.FirstOrDefaultAsync(a => a.Id == id);
+            return user;
+        }
+        public async Task<bool> DeleteUserById(int id)
+        {
+            try
+            {
+                var user = _dbContext.User.FirstOrDefault(a => a.Id == id);
+                _dbContext.User.Remove(user);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Can not delete User:{e.Message}");
+            }
         }
     }
 }

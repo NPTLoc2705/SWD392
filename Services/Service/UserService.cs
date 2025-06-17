@@ -17,6 +17,11 @@ namespace Services.Service
             _userRepo = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
         }
 
+        public async Task<UserResponse> GetUserById(int id)
+        {
+            var user = await _userRepo.GetUserById(id);
+            return MapToUserResponse(user);
+        }
 
         public  async Task<List<UserResponse>> GetUsers()
         {
@@ -29,6 +34,16 @@ namespace Services.Service
             {
                 throw new Exception("Error while list user in Service:" + ex.Message, ex);
             }
+        }
+
+        public async Task<UserResponse> UpdateUser(User user)
+        {
+            var existinguser = await _userRepo.UpdateUser(user);
+            return MapToUserResponse(existinguser);
+        }
+        public async Task<bool>DeleteUserById(int id)
+        {
+            return await _userRepo.DeleteUserById(id);
         }
 
         private UserResponse MapToUserResponse(User user)

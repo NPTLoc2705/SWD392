@@ -6,7 +6,7 @@ namespace Repo
 {
     public interface IChatHistoryRepo
     {
-        Task SaveChatMessageAsync(int userId, string message, string response);
-        Task<List<ChatHistory>> GetChatHistoryByUserIdAsync(int userId);
+        Task SaveChatMessage(int userId, string message, string response);
+        Task<List<ChatHistory>> GetChatHistoryByUserId(int userId);
     }
 }

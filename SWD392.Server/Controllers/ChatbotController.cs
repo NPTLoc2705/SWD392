@@ -33,7 +33,7 @@ namespace SWD392.Server.Controllers
                 if (!int.TryParse(userIdClaim, out int userId))
                     return Unauthorized(new { success = false, message = "Invalid user authentication" });
 
-                var response = await _chatbotService.GenerateResponseAsync(request, userId);
+                var response = await _chatbotService.GenerateResponse(request, userId);
                 return Ok(new { success = true, data = response, message = "Response generated" });
             }
             catch (ArgumentException ex)
@@ -56,7 +56,7 @@ namespace SWD392.Server.Controllers
                 if (!int.TryParse(userIdClaim, out int userId))
                     return Unauthorized(new { success = false, message = "Invalid user authentication" });
 
-                var history = await _chatbotService.GetChatHistoryAsync(userId);
+                var history = await _chatbotService.GetChatHistory(userId);
                 return Ok(new { success = true, data = history, message = "Chat history retrieved" });
             }
             catch (ArgumentException ex)

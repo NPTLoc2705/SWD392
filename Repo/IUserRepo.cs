@@ -10,5 +10,8 @@ namespace Repo
     public interface IUserRepo
     {
         Task<List<User>> ViewUser();
+        Task<User>UpdateUser(User user);
+        Task<User> GetUserById(int id);
+        Task<bool> DeleteUserById(int id);
     }
 }

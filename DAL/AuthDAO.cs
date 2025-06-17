@@ -39,7 +39,7 @@ namespace DAL
                 Email = registerDto.email,
                 Phone = registerDto.phone,
                 Password = HashPassword(registerDto.password),
-                RoleId = 1
+                RoleId = 1,
             };
 
             _context.User.Add(student);

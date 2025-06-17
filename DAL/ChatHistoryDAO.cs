@@ -14,13 +14,13 @@ namespace DAL
             _context = context;
         }
 
-        public async Task SaveChatMessageAsync(ChatHistory chat)
+        public async Task SaveChatMessage(ChatHistory chat)
         {
             _context.ChatHistories.Add(chat);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<ChatHistory>> GetChatHistoryByUserIdAsync(int userId)
+        public async Task<List<ChatHistory>> GetChatHistoryByUserId(int userId)
         {
             return await _context.ChatHistories
                 .Where(ch => ch.UserId == userId)

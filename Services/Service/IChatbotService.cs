@@ -8,7 +8,7 @@ namespace Services.Service
 {
     public interface IChatbotService
     {
-        Task<ChatbotResponse> GenerateResponseAsync(ChatbotRequest request, int userId);
-        Task<List<ChatHistoryResponse>> GetChatHistoryAsync(int userId);
+        Task<ChatbotResponse> GenerateResponse(ChatbotRequest request, int userId);
+        Task<List<ChatHistoryResponse>> GetChatHistory(int userId);
     }
 }

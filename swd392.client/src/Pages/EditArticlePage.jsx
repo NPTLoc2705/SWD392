@@ -14,7 +14,7 @@ const EditArticlePage = () => {
   const [coverImage, setCoverImage] = useState(null);
   const [currentImagePath, setCurrentImagePath] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" }); // Modified to include message type
+  const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -37,15 +37,12 @@ const EditArticlePage = () => {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-
-    if (currentImagePath && !coverImage) {
-      formData.append("imagePath", currentImagePath);
-    }
+    formData.append("Title", title); // Match backend property name
+    formData.append("Content", content); // Match backend property name
+    formData.append("ImagePath", currentImagePath || ""); // Always send ImagePath, even if empty
 
     if (coverImage) {
-      formData.append("image", coverImage);
+      formData.append("image", coverImage); // Send new image if selected
     }
 
     try {

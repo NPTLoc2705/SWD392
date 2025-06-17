@@ -15,7 +15,7 @@ namespace Repo
             _dao = dao;
         }
 
-        public async Task SaveChatMessageAsync(int userId, string message, string response)
+        public async Task SaveChatMessage(int userId, string message, string response)
         {
             if (userId <= 0) throw new ArgumentException("Invalid user ID");
             if (string.IsNullOrWhiteSpace(message)) throw new ArgumentException("Message cannot be empty");
@@ -28,13 +28,13 @@ namespace Repo
                 Response = response,
                 Timestamp = DateTime.UtcNow
             };
-            await _dao.SaveChatMessageAsync(chat);
+            await _dao.SaveChatMessage(chat);
         }
 
-        public async Task<List<ChatHistory>> GetChatHistoryByUserIdAsync(int userId)
+        public async Task<List<ChatHistory>> GetChatHistoryByUserId(int userId)
         {
             if (userId <= 0) throw new ArgumentException("Invalid user ID");
-            return await _dao.GetChatHistoryByUserIdAsync(userId);
+            return await _dao.GetChatHistoryByUserId(userId);
         }
     }
 }
