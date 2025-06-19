@@ -17,6 +17,8 @@ namespace BO.Models
         [ForeignKey("User")]
         public int? ConsultantId { get; set; } 
         public User? Consultant { get; set; }
+        public Feedback Feedback { get; set; }
+
 
         [Required]
         public Status Status { get; set; } = Status.Pending;

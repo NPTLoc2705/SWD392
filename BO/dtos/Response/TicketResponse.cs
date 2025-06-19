@@ -18,4 +18,10 @@ namespace BO.dtos.Response
         public string StudentName { get; set; }  // From User.name
         public string? ConsultantName { get; set; }
     }
+    public class ConsultantResponse
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+    }
 }

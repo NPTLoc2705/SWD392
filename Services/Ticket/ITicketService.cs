@@ -19,5 +19,8 @@ namespace Services.Ticket
         Task<TicketResponse> AssignTicketToConsultantAsync(string ticketId, int consultantId);
 
         Task<TicketResponse> GetTicketByIdAsync(string ticketId);
+
+        Task<IEnumerable<ConsultantResponse>> GetAvailableConsultantsAsync();
+        Task<List<Status>> GetAllowedStatusesAsync(string ticketId);
     }
 }

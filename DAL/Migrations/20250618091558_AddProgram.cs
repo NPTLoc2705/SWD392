@@ -9,11 +9,30 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class vnp : Migration
+    public partial class AddProgram : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Programs",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    admission_requirements = table.Column<string>(type: "jsonb", nullable: false),
+                    tuition_fee = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    dormitory_info = table.Column<string>(type: "text", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Programs", x => x.id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
@@ -48,6 +67,39 @@ namespace DAL.Migrations
                         principalTable: "Role",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Applications",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    student_id = table.Column<int>(type: "integer", nullable: false),
+                    programs_id = table.Column<string>(type: "character varying(50)", nullable: false),
+                    submission_data = table.Column<string>(type: "jsonb", nullable: false),
+                    submitted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Programsid = table.Column<string>(type: "character varying(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Applications", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Applications_Programs_Programsid",
+                        column: x => x.Programsid,
+                        principalTable: "Programs",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_Applications_Programs_programs_id",
+                        column: x => x.programs_id,
+                        principalTable: "Programs",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Applications_User_student_id",
+                        column: x => x.student_id,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -193,6 +245,43 @@ namespace DAL.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Feedback",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    ticket_id = table.Column<string>(type: "character varying(50)", nullable: false),
+                    student_id = table.Column<int>(type: "integer", nullable: false),
+                    consultant_id = table.Column<int>(type: "integer", nullable: false),
+                    rating = table.Column<int>(type: "integer", nullable: false),
+                    comment = table.Column<string>(type: "text", nullable: false),
+                    response = table.Column<string>(type: "text", nullable: true),
+                    resolved = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Feedback", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Feedback_Tickets_ticket_id",
+                        column: x => x.ticket_id,
+                        principalTable: "Tickets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Feedback_User_consultant_id",
+                        column: x => x.consultant_id,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Feedback_User_student_id",
+                        column: x => x.student_id,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.InsertData(
                 table: "Role",
                 columns: new[] { "Id", "Name" },
@@ -202,6 +291,21 @@ namespace DAL.Migrations
                     { 2, "Consultant" },
                     { 3, "Admin" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Applications_programs_id",
+                table: "Applications",
+                column: "programs_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Applications_Programsid",
+                table: "Applications",
+                column: "Programsid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Applications_student_id",
+                table: "Applications",
+                column: "student_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_ConsultantId",
@@ -222,6 +326,22 @@ namespace DAL.Migrations
                 name: "IX_ChatHistories_UserId",
                 table: "ChatHistories",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Feedback_consultant_id",
+                table: "Feedback",
+                column: "consultant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Feedback_student_id",
+                table: "Feedback",
+                column: "student_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Feedback_ticket_id",
+                table: "Feedback",
+                column: "ticket_id",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_AppointmentId",
@@ -253,13 +373,22 @@ namespace DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Applications");
+
+            migrationBuilder.DropTable(
                 name: "Articles");
 
             migrationBuilder.DropTable(
                 name: "ChatHistories");
 
             migrationBuilder.DropTable(
+                name: "Feedback");
+
+            migrationBuilder.DropTable(
                 name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "Programs");
 
             migrationBuilder.DropTable(
                 name: "Tickets");

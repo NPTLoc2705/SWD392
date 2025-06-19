@@ -15,8 +15,8 @@ namespace BO.Models
                 id = Guid.NewGuid().ToString("N");
         }
 
-        [ForeignKey("Student")]
-        public string student_id { get; set; }
+        [ForeignKey("User")]
+        public int student_id { get; set; }
         public User Student { get; set; }
 
         [ForeignKey("Programs")]

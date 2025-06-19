@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250614151435_new")]
-    partial class @new
+    [Migration("20250618091558_AddProgram")]
+    partial class AddProgram
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,40 @@ namespace DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("BO.Models.Applications", b =>
+                {
+                    b.Property<string>("id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Programsid")
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("programs_id")
+                        .IsRequired()
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("student_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("submission_data")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("submitted_at")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("Programsid");
+
+                    b.HasIndex("programs_id");
+
+                    b.HasIndex("student_id");
+
+                    b.ToTable("Applications");
+                });
 
             modelBuilder.Entity("BO.Models.Appointments", b =>
                 {
@@ -140,6 +174,50 @@ namespace DAL.Migrations
                     b.ToTable("ChatHistories");
                 });
 
+            modelBuilder.Entity("BO.Models.Feedback", b =>
+                {
+                    b.Property<string>("id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("comment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("consultant_id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("rating")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("resolved")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("response")
+                        .HasColumnType("text");
+
+                    b.Property<int>("student_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ticket_id")
+                        .IsRequired()
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("consultant_id");
+
+                    b.HasIndex("student_id");
+
+                    b.HasIndex("ticket_id")
+                        .IsUnique();
+
+                    b.ToTable("Feedback");
+                });
+
             modelBuilder.Entity("BO.Models.Payments", b =>
                 {
                     b.Property<int>("Id")
@@ -196,6 +274,48 @@ namespace DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("BO.Models.Programs", b =>
+                {
+                    b.Property<string>("id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("admission_requirements")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("dormitory_info")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("is_active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<decimal>("tuition_fee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("updated_at")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Programs");
                 });
 
             modelBuilder.Entity("BO.Models.Role", b =>
@@ -309,6 +429,29 @@ namespace DAL.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("BO.Models.Applications", b =>
+                {
+                    b.HasOne("BO.Models.Programs", null)
+                        .WithMany("Applications")
+                        .HasForeignKey("Programsid");
+
+                    b.HasOne("BO.Models.Programs", "Programs")
+                        .WithMany()
+                        .HasForeignKey("programs_id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BO.Models.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("student_id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Programs");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("BO.Models.Appointments", b =>
                 {
                     b.HasOne("BO.Models.User", "Consultant")
@@ -348,6 +491,33 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BO.Models.Feedback", b =>
+                {
+                    b.HasOne("BO.Models.User", "Consultant")
+                        .WithMany()
+                        .HasForeignKey("consultant_id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BO.Models.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("student_id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BO.Models.Tickets", "Ticket")
+                        .WithOne("Feedback")
+                        .HasForeignKey("BO.Models.Feedback", "ticket_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Consultant");
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("BO.Models.Payments", b =>
@@ -403,9 +573,20 @@ namespace DAL.Migrations
                     b.Navigation("Payments");
                 });
 
+            modelBuilder.Entity("BO.Models.Programs", b =>
+                {
+                    b.Navigation("Applications");
+                });
+
             modelBuilder.Entity("BO.Models.Role", b =>
                 {
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BO.Models.Tickets", b =>
+                {
+                    b.Navigation("Feedback")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BO.Models.User", b =>
