@@ -1,23 +1,22 @@
 ﻿using BO.Models;
 using DAL;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repo
 {
-    public class AppointmentRepo : IApointmentRepo
+    public class AppointmentRepo : IAppointmentRepo
     {
         private readonly AppDbContext _context;
+
         public AppointmentRepo(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<Appointments> GetByIdAsync(string id)
+        public async Task<Appointments> GetByIdAsync(int id)
             => await _context.Appointments.FindAsync(id);
 
         public async Task<List<Appointments>> GetAllAsync()
@@ -35,7 +34,7 @@ namespace Repo
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(int id)
         {
             var entity = await _context.Appointments.FindAsync(id);
             if (entity != null)
@@ -45,29 +44,35 @@ namespace Repo
             }
         }
 
-        public Task<Appointments> GetAppointmentsByIdAsync(int id)
+        public async Task<List<int>> GetBusyConsultantIdsAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Appointments
+                .Where(a => a.Status == "Pending" || a.Status == "InProcess")
+                .Select(a => a.ConsultantId)
+                .ToListAsync();
         }
 
-        public Task<List<Appointments>> GetAllAppointmentsAsync()
+        public async Task<List<User>> GetAvailableConsultantsAsync(List<int> busyConsultantIds)
         {
-            throw new NotImplementedException();
+            return await _context.User
+                .Include(u => u.Role)
+                .Where(u => u.Role.Name == "Consultant" && !busyConsultantIds.Contains(u.Id))
+                .ToListAsync();
         }
 
-        public Task AddAppointmentAsync(Appointments appointment)
+        public async Task<List<User>> GetAllConsultantsAsync()
         {
-            throw new NotImplementedException();
+            return await _context.User
+                .Include(u => u.Role)
+                .Where(u => u.Role.Name == "Consultant")
+                .ToListAsync();
         }
 
-        public Task UpdateAppointmentAsync(Appointments appointment)
+        public async Task<User> GetStudentByIdAsync(int studentId)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAppointmentAsync(int id)
-        {
-            throw new NotImplementedException();
+            return await _context.User
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == studentId && u.Role.Name == "Student");
         }
     }
 }
