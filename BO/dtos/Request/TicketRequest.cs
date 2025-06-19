@@ -16,4 +16,5 @@ namespace BO.dtos.Request
         public string Message { get; set; }
       
     }
+
 }

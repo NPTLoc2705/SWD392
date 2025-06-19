@@ -25,8 +25,15 @@ namespace Services.Ticket
         public Task<TicketResponse> CreateTicketAsync(TicketRequest request, int studentId)
         => _ticketRepository.CreateTicketAsync(request, studentId);
 
+        public Task<List<Status>> GetAllowedStatusesAsync(string ticketId)
+        => _ticketRepository.GetAllowedStatusesAsync(ticketId);
+
         public Task<IEnumerable<TicketResponse>> GetAllTicketsAsync()
         => _ticketRepository.GetAllTicketsAsync();
+
+        public Task<IEnumerable<ConsultantResponse>> GetAvailableConsultantsAsync()
+        => _ticketRepository.GetAvailableConsultantsAsync();
+
         public Task<TicketResponse> GetTicketByIdAsync(string ticketId)
         => _ticketRepository.GetTicketByIdAsync(ticketId);
 

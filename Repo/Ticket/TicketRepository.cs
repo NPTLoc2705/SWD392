@@ -24,8 +24,14 @@ namespace Repo.Ticket
         public Task<TicketResponse> CreateTicketAsync(TicketRequest request, int studentId)
         => TicketDAO.CreateTicketAsync(request, studentId);
 
+        public Task<List<Status>> GetAllowedStatusesAsync(string ticketId)
+        => TicketDAO.GetAllowedStatusesAsync(ticketId);
+
         public Task<IEnumerable<TicketResponse>> GetAllTicketsAsync()
         => TicketDAO.GetAllTicketsAsync();
+
+        public Task<IEnumerable<ConsultantResponse>> GetAvailableConsultantsAsync()
+        => TicketDAO.GetAvailableConsultantsAsync();
 
         public Task<TicketResponse> GetTicketByIdAsync(string ticketId)
         => TicketDAO.GetTicketByIdAsync(ticketId);

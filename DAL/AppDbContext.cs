@@ -12,14 +12,14 @@ namespace DAL
         public DbSet<ChatHistory> ChatHistories { get; set; }
         public DbSet<User> User { get; set; }
         public DbSet<Role> Role { get; set; }
-        //public DbSet<Programs> Programs { get; set; }
+        public DbSet<Programs> Programs { get; set; }
         public DbSet<Appointments> Appointments { get; set; }
         public DbSet<Tickets> Tickets { get; set; }
-        //public DbSet<Applications> Applications { get; set; }
+        public DbSet<Applications> Applications { get; set; }
         public DbSet<Articles> Articles { get; set; }
         //public DbSet<Email_verifications> Email_verifications { get; set; } 
         public DbSet<Payments> Payments { get; set; }
-        //public DbSet<Feedback> Feedback { get; set; } 
+        public DbSet<Feedback> Feedback { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -97,24 +97,37 @@ namespace DAL
             });
 
             //// Cấu hình cho Applications
-            //modelBuilder.Entity<Applications>(entity =>
-            //{
-            //    entity.HasKey(e => e.id);
-            //    entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-            //    entity.Property(e => e.submission_data).HasColumnType("jsonb");
-            //    entity.Property(e => e.submitted_at).IsRequired();
+            modelBuilder.Entity<Applications>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.submission_data).HasColumnType("jsonb");
+                entity.Property(e => e.submitted_at).IsRequired();
 
-            //    entity.HasOne(a => a.Student)
-            //          .WithMany()
-            //          .HasForeignKey(a => a.student_id)
-            //          .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(a => a.Student)
+                      .WithMany()
+                      .HasForeignKey(a => a.student_id)
+                      .OnDelete(DeleteBehavior.Restrict);
 
-            //    entity.HasOne(a => a.Programs)
-            //          .WithMany()
-            //          .HasForeignKey(a => a.programs_id)
-            //          .OnDelete(DeleteBehavior.Restrict);
-            //});
-
+                entity.HasOne(a => a.Programs)
+                      .WithMany()
+                      .HasForeignKey(a => a.programs_id)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            // Add Programs configuration
+            modelBuilder.Entity<Programs>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.title).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.description).IsRequired();
+                entity.Property(e => e.admission_requirements).IsRequired().HasColumnType("jsonb");
+                entity.Property(e => e.tuition_fee).IsRequired().HasColumnType("decimal(18,2)");
+                entity.Property(e => e.dormitory_info);
+                entity.Property(e => e.is_active).IsRequired().HasDefaultValue(true);
+                entity.Property(e => e.created_at).IsRequired();
+                entity.Property(e => e.updated_at);
+            });
             //// Cấu hình cho Articles
             modelBuilder.Entity<Articles>(entity =>
             {
@@ -179,27 +192,27 @@ namespace DAL
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Cấu hình cho Feedback
-            //modelBuilder.Entity<Feedback>(entity =>
-            //{
-            //    entity.HasKey(e => e.id);
-            //    entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-            //    entity.Property(e => e.rating).IsRequired();
-            //    entity.Property(e => e.comment);
-            //    entity.Property(e => e.response);
-            //    entity.Property(e => e.resolved).IsRequired();
-            //    entity.Property(e => e.created_at).IsRequired();
+            //Cấu hình cho Feedback
+            modelBuilder.Entity<Feedback>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.rating).IsRequired();
+                entity.Property(e => e.comment);
+                entity.Property(e => e.response);
+                entity.Property(e => e.resolved).IsRequired();
+                entity.Property(e => e.created_at).IsRequired();
 
-            //    entity.HasOne(f => f.Student)
-            //          .WithMany()
-            //          .HasForeignKey(f => f.student_id)
-            //          .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(f => f.Student)
+                      .WithMany()
+                      .HasForeignKey(f => f.student_id)
+                      .OnDelete(DeleteBehavior.Restrict);
 
-            //    entity.HasOne(f => f.Consultant)
-            //          .WithMany()
-            //          .HasForeignKey(f => f.consultant_id)
-            //          .OnDelete(DeleteBehavior.Restrict);
-            //});
+                entity.HasOne(f => f.Consultant)
+                      .WithMany()
+                      .HasForeignKey(f => f.consultant_id)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }
