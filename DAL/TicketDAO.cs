@@ -141,9 +141,16 @@ namespace DAL
             var ticket = await _context.Tickets.FindAsync(ticketId);
             if (ticket == null)
                 throw new Exception("Ticket not found");
-
-            if (ticket.Status != Status.Pending)
-                throw new Exception("Only pending tickets can be assigned");
+            var exitsConsultant = await _context.User.FindAsync(consultantId);
+            if (exitsConsultant == null || exitsConsultant.RoleId != 2) // Assuming RoleId 2 is for Consultant
+            { 
+                throw new Exception("Only users with consultant role can be assigned to tickets"); 
+            }
+            // this condition checks if the ticket is in a state that allows reassignment
+            if (ticket.Status != Status.Pending && ticket.Status != Status.Assigned && ticket.Status != Status.Answered) 
+            {
+                throw new Exception($"Ticket cannot be reassigned in {ticket.Status} status");
+            }
 
             ticket.ConsultantId = consultantId;
             ticket.Status = Status.Assigned;
@@ -173,5 +180,30 @@ namespace DAL
             })
             .FirstOrDefaultAsync();
     }
-}
+        public async Task<IEnumerable<ConsultantResponse>> GetAvailableConsultantsAsync()
+        {
+            return await _context.User
+                .Where(u => u.RoleId == 2) // Assuming RoleId 2 is for Consultant
+                .Select(u => new ConsultantResponse
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Email = u.Email
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<Status>> GetAllowedStatusesAsync(string ticketId)
+        {
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+            if (ticket == null) throw new Exception("Ticket not found");
+
+            return ticket.Status switch
+            {
+                Status.Assigned => new List<Status> { Status.Answered, Status.Cancelled },
+                Status.Answered => new List<Status> { Status.Completed },
+                _ => new List<Status>() // Block updates for Pending/Completed/Cancelled
+            };
+        }
+    }
 }

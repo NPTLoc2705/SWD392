@@ -49,6 +49,8 @@ namespace SWD392.Server
             builder.Services.AddScoped<IArticleRepo, ArticlesRepo>();
             builder.Services.AddScoped<IUserRepo, UserRepo>();
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+            builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            builder.Services.AddScoped<IProgramRepository, ProgramRepository>();
 
             //...................................................................................//
 
@@ -56,6 +58,9 @@ namespace SWD392.Server
             //...................................................................................//
             builder.Services.AddScoped<AuthDAO>();
             builder.Services.AddScoped<TicketDAO>();
+            builder.Services.AddScoped<FeedbackDAO>();
+            builder.Services.AddScoped<IProgramService, ProgramService>();
+            builder.Services.AddScoped<IFeedBackService, FeedbackService>();
             builder.Services.AddScoped<ITicketService, TicketService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IArticleService, ArticleService>();

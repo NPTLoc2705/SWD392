@@ -13,28 +13,32 @@ namespace BO.Models
             if (string.IsNullOrEmpty(id))
                 id = Guid.NewGuid().ToString("N");
         }
-
         [Required]
-        [ForeignKey("Student")]
-        public string student_id { get; set; }
+        [ForeignKey("Ticket")]
+        public string ticket_id { get; set; }
+        public Tickets Ticket { get; set; }
+        [Required]
+        [ForeignKey("User")]
+        public int student_id { get; set; }
         public User Student { get; set; }
 
         [Required]
-        [ForeignKey("Consultant")]
-        public string consultant_id { get; set; }
+        [ForeignKey("User")]
+        public int consultant_id { get; set; }
         public User Consultant { get; set; }
 
         [Required]
+        [Range(1, 5)]
         public int rating { get; set; }
 
         public string comment { get; set; }
 
-        public string response { get; set; }
+        public string? response { get; set; }
 
         [Required]
-        public bool resolved { get; set; }
+        public bool resolved { get; set; } = false;
 
         [Required]
-        public DateTime created_at { get; set; }
+        public DateTime created_at { get; set; } = DateTime.UtcNow;
     }
 }

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250613080653_new")]
-    partial class @new
+    [Migration("20250612144556_AddFeedback")]
+    partial class AddFeedback
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,35 +59,49 @@ namespace DAL.Migrations
                     b.ToTable("Articles");
                 });
 
-            modelBuilder.Entity("BO.Models.ChatHistory", b =>
+            modelBuilder.Entity("BO.Models.Feedback", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("comment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("consultant_id")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("Response")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
-
-                    b.Property<DateTime>("Timestamp")
+                    b.Property<DateTime>("created_at")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("rating")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.Property<bool>("resolved")
+                        .HasColumnType("boolean");
 
-                    b.HasIndex("UserId");
+                    b.Property<string>("response")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.ToTable("ChatHistories");
+                    b.Property<int>("student_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ticket_id")
+                        .IsRequired()
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("consultant_id");
+
+                    b.HasIndex("student_id");
+
+                    b.HasIndex("ticket_id")
+                        .IsUnique();
+
+                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("BO.Models.Role", b =>
@@ -212,15 +226,31 @@ namespace DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BO.Models.ChatHistory", b =>
+            modelBuilder.Entity("BO.Models.Feedback", b =>
                 {
-                    b.HasOne("BO.Models.User", "User")
+                    b.HasOne("BO.Models.User", "Consultant")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("consultant_id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BO.Models.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("student_id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BO.Models.Tickets", "Ticket")
+                        .WithOne("Feedback")
+                        .HasForeignKey("BO.Models.Feedback", "ticket_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Consultant");
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("BO.Models.Tickets", b =>
@@ -255,6 +285,12 @@ namespace DAL.Migrations
             modelBuilder.Entity("BO.Models.Role", b =>
                 {
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BO.Models.Tickets", b =>
+                {
+                    b.Navigation("Feedback")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BO.Models.User", b =>

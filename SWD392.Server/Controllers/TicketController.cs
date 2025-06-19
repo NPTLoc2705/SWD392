@@ -172,7 +172,39 @@ namespace API.Controllers
             }
         }
 
-        // GET: api/ticket/consultant/assigned
+
+
+
+        //Get all the consultants which is currently available
+        [HttpGet("consultants-available")]
+        [Authorize(Roles = "Admin")] // Only admin can view available consultants
+        public async Task<ActionResult<IEnumerable<ConsultantResponse>>> GetAvailableConsultants()
+        {
+            try
+            {
+                var consultants = await _ticketService.GetAvailableConsultantsAsync();
+                return Ok(new
+                {
+                    success = true,
+                    message = "Consultants retrieved successfully",
+                    data = consultants
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while retrieving consultants",
+                    error = ex.Message
+                });
+            }
+        }
+
+        
+
+        // Get all the tickets assigned to the consultant
+        // GET: api/ticket/consultant/assigned        
         [HttpGet("consultant/assigned")]
         [Authorize(Roles = "Consultant")] // Only consultants can view their assigned tickets
         public async Task<ActionResult<IEnumerable<TicketResponse>>> GetAssignedTickets()
@@ -202,7 +234,7 @@ namespace API.Controllers
 
         // PUT: api/ticket/{id}/assign
         [HttpPut("{id}/assign")]
-        [Authorize(Roles = "Admin")] // Admin or consultants can assign tickets
+        [Authorize(Roles = "Admin")] // only Admin can assign the consultant to the ticket 
         public async Task<ActionResult<TicketResponse>> AssignTicket(string id, [FromBody] AssignTicketRequest request)
         {
             try
@@ -269,6 +301,34 @@ namespace API.Controllers
                 });
             }
         }
+
+
+        //To get allowed statuses for a ticket
+        // Get: api/ticket/{id}/allowed-statuses
+        [HttpGet("{id}/allowed-statuses")]
+        [Authorize(Roles = "Consultant")]
+        public async Task<ActionResult<List<Status>>> GetAllowedStatuses(string id)
+        {
+            try
+            {
+                var allowedStatuses = await _ticketService.GetAllowedStatusesAsync(id);
+                return Ok(new
+                {
+                    success = true,
+                    message = "Allowed statuses retrieved",
+                    data = allowedStatuses
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
     }
 
     // Additional DTOs for specific requests
