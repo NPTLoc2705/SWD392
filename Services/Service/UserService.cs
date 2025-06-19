@@ -41,9 +41,9 @@ namespace Services.Service
             var existinguser = await _userRepo.UpdateUser(user);
             return MapToUserResponse(existinguser);
         }
-        public async Task<bool>DeleteUserById(int id)
+        public async Task<bool> BanUserById(int id)
         {
-            return await _userRepo.DeleteUserById(id);
+            return await _userRepo.BanUserById(id);
         }
 
         private UserResponse MapToUserResponse(User user)

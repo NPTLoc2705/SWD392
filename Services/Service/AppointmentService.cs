@@ -1,53 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BO.dtos.Request;
+﻿using BO.dtos.Request;
 using BO.dtos.Response;
 using BO.Models;
-using DAL;
-using Microsoft.EntityFrameworkCore;
+using Repo;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Services.Service
 {
     public class AppointmentService : IAppointmentService
     {
-        private readonly AppDbContext _context;
+        private readonly IAppointmentRepo _appointmentRepo;
         private readonly VNPayService _vnpay;
 
-        public AppointmentService(AppDbContext context, VNPayService vnpay)
+        public AppointmentService(IAppointmentRepo appointmentRepo, VNPayService vnpay)
         {
-            _context = context;
+            _appointmentRepo = appointmentRepo;
             _vnpay = vnpay;
         }
 
         public async Task<BookAppointmentResponse> BookAppointmentAsync(BookAppointmentRequest request)
         {
-
-            var student = await _context.User
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Id == request.StudentId && u.Role.Name == "Student");
+            var student = await _appointmentRepo.GetStudentByIdAsync(request.StudentId);
             if (student == null)
                 return new BookAppointmentResponse { Messsage = "User không hợp lệ hoặc không phải student." };
 
-            // Lấy danh sách consultant chưa có lịch hẹn Pending/InProcess
-            var busyConsultantIds = await _context.Appointments
-                .Where(a => a.Status == "Pending" || a.Status == "InProcess")
-                .Select(a => a.ConsultantId)
-                .ToListAsync();
-
-            var availableConsultants = await _context.User
-                .Include(u => u.Role)
-                .Where(u => u.Role.Name == "Consultant" && !busyConsultantIds.Contains(u.Id))
-                .ToListAsync();
+            var busyConsultantIds = await _appointmentRepo.GetBusyConsultantIdsAsync();
+            var availableConsultants = await _appointmentRepo.GetAvailableConsultantsAsync(busyConsultantIds);
 
             if (!availableConsultants.Any())
             {
-                availableConsultants = await _context.User
-                    .Include(u => u.Role)
-                    .Where(u => u.Role.Name == "Consultant")
-                    .ToListAsync();
+                availableConsultants = await _appointmentRepo.GetAllConsultantsAsync();
             }
 
             if (!availableConsultants.Any())
@@ -58,7 +41,6 @@ namespace Services.Service
 
             var appointment = new Appointments
             {
-                // Id is auto-generated (int)
                 StudentId = request.StudentId,
                 StudentName = request.StudentName,
                 ConsultantId = consultant.Id,
@@ -68,8 +50,8 @@ namespace Services.Service
                 Create_at = DateTime.UtcNow,
                 Update_at = DateTime.UtcNow
             };
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
+
+            await _appointmentRepo.AddAsync(appointment);
 
             var paymentUrl = _vnpay.CreatePaymentUrl(appointment.Id.ToString(), 100000, "Thanh toán đặt lịch hẹn");
 
@@ -84,13 +66,9 @@ namespace Services.Service
             };
         }
 
-        public async Task<AppointmentPaymentResultResponse> HandlePaymentCallbackAsync(string appointmentId, string vnpResponseCode)
+        public async Task<AppointmentPaymentResultResponse> HandlePaymentCallbackAsync(int appointmentId, string vnpResponseCode)
         {
-            // Parse appointmentId from string to int
-            if (!int.TryParse(appointmentId, out int id))
-                return new AppointmentPaymentResultResponse { Messsage = "Không tìm thấy lịch hẹn." };
-
-            var appointment = await _context.Appointments.FirstOrDefaultAsync(a => a.Id == id);
+            var appointment = await _appointmentRepo.GetByIdAsync(appointmentId);
             if (appointment == null)
                 return new AppointmentPaymentResultResponse { Messsage = "Không tìm thấy lịch hẹn." };
 
@@ -98,7 +76,7 @@ namespace Services.Service
             {
                 appointment.Status = "InProcess";
                 appointment.Update_at = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
+                await _appointmentRepo.UpdateAsync(appointment);
 
                 return new AppointmentPaymentResultResponse
                 {
@@ -111,7 +89,8 @@ namespace Services.Service
             else
             {
                 appointment.Status = "Pending";
-                await _context.SaveChangesAsync();
+                await _appointmentRepo.UpdateAsync(appointment);
+
                 return new AppointmentPaymentResultResponse
                 {
                     AppointmentId = appointment.Id.ToString(),

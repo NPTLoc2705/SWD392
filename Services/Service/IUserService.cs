@@ -13,6 +13,6 @@ namespace Services.Service
         Task<List<UserResponse>> GetUsers();
         Task<UserResponse> UpdateUser(User user);
         Task<UserResponse> GetUserById(int id);
-        Task<bool> DeleteUserById(int id);
+        Task<bool> BanUserById(int id);
     }
 }

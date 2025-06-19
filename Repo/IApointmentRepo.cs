@@ -1,18 +1,20 @@
 ﻿using BO.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repo
 {
-    public interface IApointmentRepo
+    public interface IAppointmentRepo
     {
-        Task<Appointments> GetAppointmentsByIdAsync(int id);
-        Task<List<Appointments>> GetAllAppointmentsAsync();
-        Task AddAppointmentAsync(Appointments appointment);
-        Task UpdateAppointmentAsync(Appointments appointment);
-        Task DeleteAppointmentAsync(int id);
+        Task<Appointments> GetByIdAsync(int id);
+        Task<List<Appointments>> GetAllAsync();
+        Task AddAsync(Appointments appointment);
+        Task UpdateAsync(Appointments appointment);
+        Task DeleteAsync(int id);
+
+        Task<List<int>> GetBusyConsultantIdsAsync();
+        Task<List<User>> GetAvailableConsultantsAsync(List<int> busyConsultantIds);
+        Task<List<User>> GetAllConsultantsAsync();
+        Task<User> GetStudentByIdAsync(int studentId);
     }
 }

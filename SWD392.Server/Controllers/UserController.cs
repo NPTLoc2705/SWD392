@@ -102,31 +102,32 @@ namespace SWD392.Server.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPut("BanUser/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult>DeleteUserById(int id)
+        public async Task<IActionResult> BanUserById(int id)
         {
             try
             {
                 var existingUser = await _userService.GetUserById(id);
                 if (existingUser == null)
                     return NotFound(new { success = false, message = "User not found" });
-                var deleted = await _userService.DeleteUserById(id);
-                if (!deleted)
-                    return NotFound(new { success = false, message = "User not found or could not be deleted" });
+
+                var banned = await _userService.BanUserById(id);
+                if (!banned)
+                    return BadRequest(new { success = false, message = "Failed to ban user" });
 
                 return Ok(new
                 {
                     success = true,
-                    message = "User deleted successfully"
+                    message = "User banned successfully"
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new
                 {
                     success = false,
-                    message = "An error occurred while deleting the article",
+                    message = "An error occurred while banning the user",
                     error = ex.Message
                 });
             }

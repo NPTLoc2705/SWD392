@@ -19,6 +19,7 @@ import UploadArticlePage from "../Pages/UploadArticlePage";
 import ArticleListPage from "../Pages/ArticleListPage"; 
 import ArticleDetailPage from "../Pages/ArticleDetailPage"; 
 import EditArticlePage from "../Pages/EditArticlePage"; 
+import Admin from "../Admin/AdminHomepage";
 const MainLayout = () => (
   <>
     <Header />
@@ -47,6 +48,7 @@ const MainRoutes = () => {
 <Route path="/articles" element={<ArticleListPage />} />
 <Route path="/articles/:id" element={<ArticleDetailPage />} />
 <Route path="/articles/edit/:id" element={<EditArticlePage />} />
+<Route path="/admin" element={<Admin/>}/>
           <Route path="*" element={<PageNotFound />} />
         </Route>
 

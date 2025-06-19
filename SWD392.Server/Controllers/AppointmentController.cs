@@ -32,7 +32,7 @@ namespace SWD392.Server.Controllers
 
         [AllowAnonymous]
         [HttpGet("vnpay-callback")]
-        public async Task<ActionResult<AppointmentPaymentResultResponse>> VNPayCallback([FromQuery] string vnp_TxnRef, [FromQuery] string vnp_ResponseCode)
+        public async Task<ActionResult<AppointmentPaymentResultResponse>> VNPayCallback([FromQuery] int vnp_TxnRef, [FromQuery] string vnp_ResponseCode)
         {
             var result = await _appointmentService.HandlePaymentCallbackAsync(vnp_TxnRef, vnp_ResponseCode);
             if (result.Status == "InProcess")

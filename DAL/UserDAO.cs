@@ -59,18 +59,23 @@ namespace DAL
             var user = await _dbContext.User.FirstOrDefaultAsync(a => a.Id == id);
             return user;
         }
-        public async Task<bool> DeleteUserById(int id)
+        public async Task<bool> BanUserById(int id)
         {
             try
             {
-                var user = _dbContext.User.FirstOrDefault(a => a.Id == id);
-                _dbContext.User.Remove(user);
+                var user = await _dbContext.User.FirstOrDefaultAsync(a => a.Id == id);
+                if (user == null)
+                {
+                    return false;
+                }
+                user.IsBanned = true;
+                _dbContext.User.Update(user);
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
             catch (Exception e)
             {
-                throw new Exception($"Can not delete User:{e.Message}");
+                throw new Exception($"Cannot ban user: {e.Message}");
             }
         }
     }

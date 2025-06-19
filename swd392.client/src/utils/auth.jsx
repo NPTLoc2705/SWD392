@@ -11,6 +11,7 @@ export function getCurrentUser() {
       email: decoded.email,
       name: decoded.name,
       role: decoded.role,
+      isBanned: decoded.isBanned
     };
   } catch {
     return null;

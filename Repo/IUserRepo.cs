@@ -12,6 +12,6 @@ namespace Repo
         Task<List<User>> ViewUser();
         Task<User>UpdateUser(User user);
         Task<User> GetUserById(int id);
-        Task<bool> DeleteUserById(int id);
+        Task<bool> BanUserById(int id);
     }
 }
