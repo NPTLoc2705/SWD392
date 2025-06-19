@@ -37,11 +37,11 @@ namespace Repo
                 throw new Exception("Error while list user in Repo: " + ex.Message);
             }
         }
-        public async Task<bool> DeleteUserById(int id)
+        public async Task<bool> BanUserById(int id)
         {
             try
             {
-                return await _userDAO.DeleteUserById(id);
+                return await _userDAO.BanUserById(id);
             }
             catch (Exception ex)
             {

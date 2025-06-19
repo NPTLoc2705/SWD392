@@ -140,7 +140,7 @@ const TopBar = ({ isSticky }) => {
         </div>
       </div>
     </div>
-  );
+  );  
 };
 
 const NavItem = ({ item, isSticky, isActive }) => {

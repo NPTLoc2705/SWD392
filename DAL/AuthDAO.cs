@@ -40,6 +40,7 @@ namespace DAL
                 Phone = registerDto.phone,
                 Password = HashPassword(registerDto.password),
                 RoleId = 1,
+                IsBanned = false,
             };
 
             _context.User.Add(student);
@@ -127,10 +128,11 @@ namespace DAL
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Role, user.Role?.Name ?? "User") // Safe access with null coalescing
+                new Claim("nameid", user.Id.ToString()),
+                new Claim("email", user.Email),
+                new Claim("name", user.Name),
+                new Claim("role", user.Role?.Name ?? "User"), // Safe access with null coalescing
+                new Claim("isBanned", user.IsBanned.ToString())
             };
 
             var token = new JwtSecurityToken(
