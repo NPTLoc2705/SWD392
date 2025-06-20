@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { login, googleLogin } from "../Services/authService";
+import { getCurrentUser } from "../utils/auth";
 
 const LoginPage = () => {
     const [form, setForm] = useState({ email: "", password: "" });
@@ -19,7 +20,14 @@ const LoginPage = () => {
 
         try {
             await login(form.email, form.password);
-            navigate("/homepage");
+            const user = getCurrentUser();
+            if (user && user.isBanned === "True") {
+                setError("Tài khoản của bạn đã bị cấm.");
+            } else if (user && user.role === "Admin") {
+                navigate("/admin");
+            } else {
+                navigate("/gioi-thieu");
+            }
         } catch (err) {
             setError(err.message || "Đăng nhập thất bại");
         } finally {
@@ -33,7 +41,12 @@ const LoginPage = () => {
 
         try {
             await googleLogin(credentialResponse.credential);
-            navigate("/homepage");
+            const user = getCurrentUser();
+            if (user && user.isBanned === "True") {
+                setError("Tài khoản của bạn đã bị cấm.");
+            } else {
+                navigate("/gioi-thieu");
+            }
         } catch (err) {
             setError(err.message || "Đăng nhập Google thất bại");
         } finally {
@@ -50,13 +63,12 @@ const LoginPage = () => {
     };
 
     return (
-        <div> {/* Enclosing div added here */}
+        <div>
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ffb347] via-[#fff6e5] to-[#ffcc80]">
                 <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col items-center border border-orange-200 p-10">
                     <h2 className="text-4xl font-extrabold mb-2 text-orange-600 tracking-wide text-center uppercase">
-                        Hệ thống tuyển sinh   Đại học FPT
+                        Hệ thống tuyển sinh Đại học FPT
                     </h2>
-
 
                     {/* Email/Password Form */}
                     <form onSubmit={handleSubmit} className="w-full">

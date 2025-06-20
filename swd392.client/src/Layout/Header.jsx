@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Search, Globe, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getCurrentUser } from "../utils/auth";
 
 const languages = [
   { code: "en", name: "English" },
@@ -63,6 +64,7 @@ const SearchBar = () => {
 
 const TopBar = ({ isSticky }) => {
   const [isLanguageSelectorOpen, setIsLanguageSelectorOpen] = useState(false);
+  const user = getCurrentUser();
 
   const toggleLanguageSelector = () => {
     setIsLanguageSelectorOpen(!isLanguageSelectorOpen);
@@ -129,12 +131,16 @@ const TopBar = ({ isSticky }) => {
                   />
                 )}
               </div>
+              {/* Hiển thị role ở đây */}
+              <div className="ml-4 text-xs text-gray-600 font-semibold">
+                {user ? `Role: ${user.role}` : "Chưa đăng nhập"}
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  );  
 };
 
 const NavItem = ({ item, isSticky, isActive }) => {
@@ -204,7 +210,6 @@ const Header = () => {
 
   return (
     <div className="">
-
       <header
         className={`w-full transition-all duration-300 z-50 ${
           isSticky ? "fixed top-0 shadow-md" : "relative"
@@ -213,7 +218,7 @@ const Header = () => {
         <TopBar isSticky={isSticky} />
         <MainNavigation isSticky={isSticky} />
       </header>
-    // </div>
+    </div>
   );
 };
 

@@ -17,6 +17,11 @@ namespace Services.Service
             _userRepo = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
         }
 
+        public async Task<UserResponse> GetUserById(int id)
+        {
+            var user = await _userRepo.GetUserById(id);
+            return MapToUserResponse(user);
+        }
 
         public  async Task<List<UserResponse>> GetUsers()
         {
@@ -31,6 +36,16 @@ namespace Services.Service
             }
         }
 
+        public async Task<UserResponse> UpdateUser(User user)
+        {
+            var existinguser = await _userRepo.UpdateUser(user);
+            return MapToUserResponse(existinguser);
+        }
+        public async Task<bool> BanUserById(int id)
+        {
+            return await _userRepo.BanUserById(id);
+        }
+
         private UserResponse MapToUserResponse(User user)
         {
             if (user == null)
@@ -38,10 +53,10 @@ namespace Services.Service
 
             return new UserResponse
             {
-                Id = user.id,
-                Name = user.name,
-                Email = user.email,
-                Phone = user.phone,
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.Phone,
                 RoleName = user.Role?.Name
             };
         }

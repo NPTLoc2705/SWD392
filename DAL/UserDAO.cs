@@ -11,16 +11,17 @@ namespace DAL
     public class UserDAO
     {
         private readonly AppDbContext _dbContext;
-        public UserDAO(AppDbContext context) {
+        public UserDAO(AppDbContext context)
+        {
             _dbContext = context;
         }
-        public async Task<List<User>>  ViewUser()
+        public async Task<List<User>> ViewUser()
         {
             try
             {
-                return await _dbContext.Student
+                return await _dbContext.User
                     .Include(a => a.Role) //This fucking line added the role when fetch
-                    .OrderByDescending(a => a.name)
+                    .OrderByDescending(a => a.Name)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -28,6 +29,54 @@ namespace DAL
                 throw new Exception($"Error retrieving User from UserDAO: {ex.Message}", ex);
             }
 
+        }
+        public async Task<User> UpdateUser(User user)
+        {
+            try
+            {
+                var existingUser = await _dbContext.User.FirstOrDefaultAsync(u => u.Id == user.Id);
+                if (existingUser == null)
+                {
+                    throw new ArgumentException("User not found");
+                }
+                existingUser.Name = user.Name;
+                existingUser.Password = user.Password;
+                existingUser.Email = user.Email;
+                existingUser.Phone = user.Phone;
+
+                _dbContext.User.Update(existingUser);
+                await _dbContext.SaveChangesAsync();
+                return existingUser;
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error updating User: {e.Message}");
+            }
+        }
+        public async Task<User>GetUserById(int id)
+        {
+            var user = await _dbContext.User.FirstOrDefaultAsync(a => a.Id == id);
+            return user;
+        }
+        public async Task<bool> BanUserById(int id)
+        {
+            try
+            {
+                var user = await _dbContext.User.FirstOrDefaultAsync(a => a.Id == id);
+                if (user == null)
+                {
+                    return false;
+                }
+                user.IsBanned = true;
+                _dbContext.User.Update(user);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Cannot ban user: {e.Message}");
+            }
         }
     }
 }

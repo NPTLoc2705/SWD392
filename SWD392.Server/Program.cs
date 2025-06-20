@@ -1,3 +1,4 @@
+using BO.Models;
 using DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
@@ -5,8 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repo;
+using Repo.Ticket;
 using Scalar.AspNetCore;
+using Services;
 using Services.Service;
+using Services.Ticket;
 using System.Text;
 
 namespace SWD392.Server
@@ -39,18 +43,44 @@ namespace SWD392.Server
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Register custom repository
+            //...................................................................................//
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<IArticleRepo, ArticlesRepo>();
+            builder.Services.AddScoped<IUserRepo, UserRepo>();
+            builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+            builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            builder.Services.AddScoped<IProgramRepository, ProgramRepository>();
+            builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
+
+            //...................................................................................//
+
             // Register custom services
             //...................................................................................//
             builder.Services.AddScoped<AuthDAO>();
-            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<TicketDAO>();
+            builder.Services.AddScoped<FeedbackDAO>();
+            builder.Services.AddScoped<ApplicationDAO>();
+            builder.Services.AddScoped<IApplicationService, ApplicationService>();
+            builder.Services.AddScoped<IProgramService, ProgramService>();
+            builder.Services.AddScoped<IFeedBackService, FeedbackService>();
+            builder.Services.AddScoped<ITicketService, TicketService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IArticleRepo, ArticlesRepo>();
             builder.Services.AddScoped<IArticleService, ArticleService>();
             builder.Services.AddScoped<ArticlesDAO>();
-            builder.Services.AddScoped<IUserRepo, UserRepo>();
             builder.Services.AddScoped<IUserService,UserService>();
             builder.Services.AddScoped<UserDAO>();
+            builder.Services.AddScoped<IAppointmentRepo, AppointmentRepo>();
+
+            // Register other services
+            builder.Services.AddScoped<ChatHistoryDAO>();
+            builder.Services.AddScoped<IChatHistoryRepo, ChatHistoryRepo>();
+            builder.Services.AddScoped<IChatbotService, ChatbotService>();
+            builder.Services.Configure<LlmSettings>(builder.Configuration.GetSection("LlmSettings"));
             //...................................................................................//
+            builder.Services.AddScoped<VNPayService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+
             // Configure JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

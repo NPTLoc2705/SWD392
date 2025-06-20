@@ -15,6 +15,17 @@ namespace Repo
         {
             _userDAO = userDAO;
         }
+
+        public Task<User> GetUserById(int id)
+        {
+            return _userDAO.GetUserById(id);
+        }
+
+        public Task<User> UpdateUser(User user)
+        {
+            return _userDAO.UpdateUser(user);
+        }
+
         public async Task<List<User>> ViewUser()
         {
             try
@@ -23,7 +34,18 @@ namespace Repo
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while list user in Repo: " +  ex.Message);
+                throw new Exception("Error while list user in Repo: " + ex.Message);
+            }
+        }
+        public async Task<bool> BanUserById(int id)
+        {
+            try
+            {
+                return await _userDAO.BanUserById(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
     }

@@ -1,6 +1,5 @@
-// src/Pages/EditArticlePage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 
@@ -12,10 +11,10 @@ const EditArticlePage = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [coverImage, setCoverImage] = useState(null); // new file
-  const [currentImagePath, setCurrentImagePath] = useState(""); // existing image path
+  const [coverImage, setCoverImage] = useState(null);
+  const [currentImagePath, setCurrentImagePath] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -26,7 +25,7 @@ const EditArticlePage = () => {
         setContent(article.content);
         setCurrentImagePath(article.imagePath || "");
       } catch (error) {
-        setMessage("Failed to load article.");
+        setMessage({ text: "Failed to load article.", type: "error" });
       }
     };
 
@@ -38,23 +37,38 @@ const EditArticlePage = () => {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    if (coverImage) formData.append("image", coverImage);
+    formData.append("Title", title); // Match backend property name
+    formData.append("Content", content); // Match backend property name
+    formData.append("ImagePath", currentImagePath || ""); // Always send ImagePath, even if empty
+
+    if (coverImage) {
+      formData.append("image", coverImage); // Send new image if selected
+    }
 
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.put(`${API_BASE_URL}/api/Articles/${id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.put(
+        `${API_BASE_URL}/api/Articles/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      setMessage(res.data.message || "Article updated successfully!");
+      setMessage({ 
+        text: "Cập nhật bài viết thành công!", 
+        type: "success" 
+      });
       navigate(`/articles/${id}`);
     } catch (error) {
-      setMessage(error.response?.data?.message || "Failed to update article.");
+      console.error("Update error:", error.response?.data);
+      setMessage({ 
+        text: error.response?.data?.message || "Cập nhật bài viết thất bại.", 
+        type: "error" 
+      });
     } finally {
       setLoading(false);
     }
@@ -62,12 +76,26 @@ const EditArticlePage = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow rounded-lg mt-10">
-      <h1 className="text-2xl font-semibold mb-4">Edit Article</h1>
-      {message && <p className="mb-4 text-blue-500">{message}</p>}
+      <h1 className="text-2xl font-semibold mb-4 truncate" title={title}>
+        {title || "Edit Article"}
+      </h1>
+      
+      {message.text && (
+        <p className={`mb-4 ${
+          message.type === 'error' ? 'text-red-500' : 'text-green-500'
+        }`}>
+          {message.text}
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="article-title" className="block font-medium text-gray-700">Title</label>
+          <label
+            htmlFor="article-title"
+            className="block font-medium text-gray-700"
+          >
+            Title
+          </label>
           <input
             type="text"
             id="article-title"
@@ -79,7 +107,12 @@ const EditArticlePage = () => {
         </div>
 
         <div>
-          <label htmlFor="article-content" className="block font-medium text-gray-700">Content</label>
+          <label
+            htmlFor="article-content"
+            className="block font-medium text-gray-700"
+          >
+            Content
+          </label>
           <Editor
             id="article-content"
             tinymceScriptSrc="/tinymce/tinymce.min.js"
@@ -89,9 +122,24 @@ const EditArticlePage = () => {
               height: 400,
               menubar: true,
               plugins: [
-                "advlist", "autolink", "lists", "link", "image", "charmap", "preview",
-                "anchor", "searchreplace", "visualblocks", "code", "fullscreen",
-                "insertdatetime", "media", "table", "code", "help", "wordcount"
+                "advlist",
+                "autolink",
+                "lists",
+                "link",
+                "image",
+                "charmap",
+                "preview",
+                "anchor",
+                "searchreplace",
+                "visualblocks",
+                "code",
+                "fullscreen",
+                "insertdatetime",
+                "media",
+                "table",
+                "code",
+                "help",
+                "wordcount",
               ],
               toolbar:
                 "undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | " +
@@ -99,17 +147,18 @@ const EditArticlePage = () => {
               content_style:
                 "body { font-family:Helvetica,Arial,sans-serif; font-size:14px } img { max-width: 100%; height: auto; }",
               file_picker_callback: function (callback, value, meta) {
-                if (meta.filetype === 'image') {
-                  let input = document.createElement('input');
-                  input.setAttribute('type', 'file');
-                  input.setAttribute('accept', 'image/*');
+                if (meta.filetype === "image") {
+                  let input = document.createElement("input");
+                  input.setAttribute("type", "file");
+                  input.setAttribute("accept", "image/*");
                   input.onchange = function () {
                     let file = this.files[0];
                     let reader = new FileReader();
                     reader.onload = function () {
-                      let id = 'blobid' + (new Date()).getTime();
-                      let blobCache = window.tinymce.activeEditor.editorUpload.blobCache;
-                      let base64 = reader.result.split(',')[1];
+                      let id = "blobid" + new Date().getTime();
+                      let blobCache =
+                        window.tinymce.activeEditor.editorUpload.blobCache;
+                      let base64 = reader.result.split(",")[1];
                       let blobInfo = blobCache.create(id, file, base64);
                       blobCache.add(blobInfo);
                       callback(blobInfo.blobUri(), { title: file.name });
@@ -119,22 +168,28 @@ const EditArticlePage = () => {
                   input.click();
                 }
               },
-              images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                  resolve(reader.result);
-                };
-                reader.onerror = () => {
-                  reject('File reading failed');
-                };
-                reader.readAsDataURL(blobInfo.blob());
-              })
+              images_upload_handler: (blobInfo, progress) =>
+                new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    resolve(reader.result);
+                  };
+                  reader.onerror = () => {
+                    reject("File reading failed");
+                  };
+                  reader.readAsDataURL(blobInfo.blob());
+                }),
             }}
           />
         </div>
 
         <div>
-          <label htmlFor="cover-image-upload" className="block font-medium text-gray-700 mb-1">Update Cover Image</label>
+          <label
+            htmlFor="cover-image-upload"
+            className="block font-medium text-gray-700 mb-1"
+          >
+            Update Cover Image
+          </label>
           {currentImagePath && !coverImage && (
             <img
               src={`${API_BASE_URL}${currentImagePath}`}

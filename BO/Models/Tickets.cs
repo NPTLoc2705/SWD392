@@ -7,31 +7,32 @@ namespace BO.Models
     public class Tickets
     {
         [Key]
-        public string id { get; set; }
-        public Tickets()
-        {
-            if (string.IsNullOrEmpty(id))
-                id = Guid.NewGuid().ToString("N");
-        }
-
-        [ForeignKey("Student")]
-        public string student_id { get; set; }
-        public User Student { get; set; }
-
-        [ForeignKey("Consultant")]
-        public string consultant_id { get; set; }
-        public User Consultant { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
 
         [Required]
-        public string subject { get; set; }
+        [ForeignKey("User")]
+        public int StudentId { get; set; }  
+        public User Student { get; set; }      
+
+        [ForeignKey("User")]
+        public int? ConsultantId { get; set; } 
+        public User? Consultant { get; set; }
+        public Feedback Feedback { get; set; }
+
 
         [Required]
-        public string status { get; set; }
+        public Status Status { get; set; } = Status.Pending;
 
         [Required]
-        public DateTime created_at { get; set; }
+        public string Subject { get; set; }
 
         [Required]
-        public DateTime updated_at { get; set; }
+        public string Message { get; set; }
+
+        [Required]
+        public DateTime created_at { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public DateTime updated_at { get; set; } = DateTime.UtcNow;
     }
 }

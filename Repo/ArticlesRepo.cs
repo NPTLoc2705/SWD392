@@ -48,10 +48,6 @@ namespace Repo
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(id))
-                {
-                    throw new ArgumentException("Article ID cannot be null or empty");
-                }
 
                 return await _articlesDAO.GetArticleById(id);
             }

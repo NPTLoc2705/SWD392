@@ -1,4 +1,4 @@
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export function getCurrentUser() {
   const token = localStorage.getItem("token");
@@ -11,6 +11,7 @@ export function getCurrentUser() {
       email: decoded.email,
       name: decoded.name,
       role: decoded.role,
+      isBanned: decoded.isBanned
     };
   } catch {
     return null;

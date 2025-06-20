@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Services.Service;
-
+using BO.dtos.Request;
+using System.Security.Claims;
+using System.Text;
+using System.Security.Cryptography;
 namespace SWD392.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -26,7 +29,117 @@ namespace SWD392.Server.Controllers
 
             return Ok(result);
         }
+        [HttpPut("UpdateUser/{id}")]
+        [Authorize(Roles = "Student,Consultant,Admin")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserRequest request)
+        {
+            try
+            {
+                var existingUser = await _userService.GetUserById(id);
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid user authentication" });
+                }
 
-        
+                if (existingUser.Id != userId)
+                    return Forbid("You can only update your own account");
+
+                if (request == null)
+                {
+                    return BadRequest(new { success = false, message = "Invalid request data" });
+                }
+
+                var user = new User
+                {
+                    Id = id,
+                    Name = request.Name,
+                    Email = request.Email,
+                    Phone = request.Phone,
+                    Password = HashPassword(request.Password)
+                };
+
+                var result = await _userService.UpdateUser(user);
+                if (result == null)
+                {
+                    return NotFound(new { success = false, message = "User not found" });
+                }
+
+                return Ok(new { success = true, data = result, message = "User updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            try
+            {
+
+                var article = await _userService.GetUserById(id);
+
+                if (article == null)
+                    return NotFound(new { success = false, message = "User not found" });
+
+                return Ok(new
+                {
+                    success = true,
+                    data = article,
+                    message = "User retrieved successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while retrieving User",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("BanUser/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> BanUserById(int id)
+        {
+            try
+            {
+                var existingUser = await _userService.GetUserById(id);
+                if (existingUser == null)
+                    return NotFound(new { success = false, message = "User not found" });
+
+                var banned = await _userService.BanUserById(id);
+                if (!banned)
+                    return BadRequest(new { success = false, message = "Failed to ban user" });
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "User banned successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while banning the user",
+                    error = ex.Message
+                });
+            }
+        }
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
+            }
+        }
+
     }
 }
