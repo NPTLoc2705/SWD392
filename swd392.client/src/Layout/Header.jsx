@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Search, Globe, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Globe, ChevronDown, User, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../utils/auth";
+import AdmissionsPage from "../Pages/AdmissionsPage";
 
 const languages = [
   { code: "en", name: "English" },
@@ -28,6 +29,45 @@ const LanguageSelector = ({ onClose }) => {
           </li>
         ))}
       </ul>
+    </div>
+  );
+};
+
+const UserDropdown = ({ user, onClose }) => {
+  // const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Xóa token khỏi localStorage
+    localStorage.removeItem("token");
+    onClose();
+    // navigate("/tuyen-sinh");
+    window.location.reload(); // Refresh to update header state
+  };
+
+  return (
+    <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+      <div className="py-1">
+        <div className="px-4 py-2 border-b border-gray-200">
+          <p className="text-sm font-medium text-gray-900 truncate">
+            {user.name}
+          </p>
+          <p className="text-xs text-gray-500 truncate" title={user.email}>
+            {user.email}
+          </p>
+          {user.role && (
+            <p className="text-xs text-[#F2711F] font-semibold">
+              Role: {user.role}
+            </p>
+          )}
+        </div>
+        <button
+          onClick={handleLogout}
+          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 flex items-center"
+        >
+          <LogOut size={16} className="mr-2" />
+          Đăng xuất
+        </button>
+      </div>
     </div>
   );
 };
@@ -62,9 +102,62 @@ const SearchBar = () => {
   );
 };
 
+const AuthButtons = () => {
+  const [user, setUser] = useState(null);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+  }, []);
+
+  // Toggle thay vì mouseEnter
+  const toggleUserDropdown = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+  };
+
+  if (user) {
+    return (
+      <div className="relative">
+        <button
+          onClick={toggleUserDropdown}
+          className="flex items-center text-gray-600 hover:text-[#F2711F] bg-gray-50 hover:bg-orange-50 px-3 py-2 rounded-md transition-colors duration-200 max-w-48"
+        >
+          <User size={18} className="flex-shrink-0" />
+          <span className="ml-2 text-sm font-medium truncate">{user.name}</span>
+          <ChevronDown size={16} className="ml-1 flex-shrink-0" />
+        </button>
+
+        {isUserDropdownOpen && (
+          <UserDropdown
+            user={user}
+            onClose={() => setIsUserDropdownOpen(false)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center space-x-2">
+      <Link
+        to="/login"
+        className="bg-[#F2711F] hover:bg-[#E0601A] text-white px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-200"
+      >
+        Đăng nhập
+      </Link>
+      <Link
+        to="/register"
+        className="bg-white hover:bg-gray-50 text-[#F2711F] border border-[#F2711F] px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-200"
+      >
+        Đăng ký
+      </Link>
+    </div>
+  );
+};
+
 const TopBar = ({ isSticky }) => {
   const [isLanguageSelectorOpen, setIsLanguageSelectorOpen] = useState(false);
-  const user = getCurrentUser();
 
   const toggleLanguageSelector = () => {
     setIsLanguageSelectorOpen(!isLanguageSelectorOpen);
@@ -131,16 +224,14 @@ const TopBar = ({ isSticky }) => {
                   />
                 )}
               </div>
-              {/* Hiển thị role ở đây */}
-              <div className="ml-4 text-xs text-gray-600 font-semibold">
-                {user ? `Role: ${user.role}` : "Chưa đăng nhập"}
-              </div>
+
+              <AuthButtons />
             </div>
           </div>
         </div>
       </div>
     </div>
-  );  
+  );
 };
 
 const NavItem = ({ item, isSticky, isActive }) => {

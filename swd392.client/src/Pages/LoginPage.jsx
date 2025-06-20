@@ -26,7 +26,7 @@ const LoginPage = () => {
             } else if (user && user.role === "Admin") {
                 navigate("/admin");
             } else {
-                navigate("/gioi-thieu");
+                navigate("/tuyen-sinh");
             }
         } catch (err) {
             setError(err.message || "Đăng nhập thất bại");
@@ -45,7 +45,7 @@ const LoginPage = () => {
             if (user && user.isBanned === "True") {
                 setError("Tài khoản của bạn đã bị cấm.");
             } else {
-                navigate("/gioi-thieu");
+                navigate("/tuyen-sinh");
             }
         } catch (err) {
             setError(err.message || "Đăng nhập Google thất bại");
