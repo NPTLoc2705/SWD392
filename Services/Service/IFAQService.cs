@@ -9,8 +9,7 @@ namespace Services.Service
         Task<FAQResponse> CreateFAQAsync(FAQRequest request);
         Task<List<FAQResponse>> GetAllFAQsAsync();
         Task<FAQResponse> GetByIdAsync(int id);
-        Task<FAQ> UpdateAsync(int id, FAQRequest request);
-
+        Task<FAQResponse> UpdateAsync(int id, FAQRequest request);
         Task<bool> DeleteFAQAsync(int id);
     }
 }
