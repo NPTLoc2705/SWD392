@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class @new : Migration
+    public partial class appoint : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -184,6 +184,27 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FAQs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Question = table.Column<string>(type: "text", nullable: false),
+                    Answer = table.Column<string>(type: "text", nullable: false),
+                    Userid = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FAQs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FAQs_User_Userid",
+                        column: x => x.Userid,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tickets",
                 columns: table => new
                 {
@@ -331,6 +352,11 @@ namespace DAL.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FAQs_Userid",
+                table: "FAQs",
+                column: "Userid");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Feedback_consultant_id",
                 table: "Feedback",
                 column: "consultant_id");
@@ -383,6 +409,9 @@ namespace DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "ChatHistories");
+
+            migrationBuilder.DropTable(
+                name: "FAQs");
 
             migrationBuilder.DropTable(
                 name: "Feedback");

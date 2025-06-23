@@ -76,6 +76,9 @@ namespace SWD392.Server
             builder.Services.AddScoped<ChatHistoryDAO>();
             builder.Services.AddScoped<IChatHistoryRepo, ChatHistoryRepo>();
             builder.Services.AddScoped<IChatbotService, ChatbotService>();
+            builder.Services.AddScoped<FAQDAO>();
+            builder.Services.AddScoped<IFAQRepo, FAQRepo>();
+            builder.Services.AddScoped<IFAQService, FAQService>();
             builder.Services.Configure<LlmSettings>(builder.Configuration.GetSection("LlmSettings"));
             //...................................................................................//
             builder.Services.AddScoped<VNPayService>();

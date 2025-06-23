@@ -178,6 +178,32 @@ namespace DAL.Migrations
                     b.ToTable("ChatHistories");
                 });
 
+            modelBuilder.Entity("BO.Models.FAQ", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Userid")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Userid");
+
+                    b.ToTable("FAQs");
+                });
+
             modelBuilder.Entity("BO.Models.Feedback", b =>
                 {
                     b.Property<string>("id")
@@ -494,6 +520,17 @@ namespace DAL.Migrations
                     b.HasOne("BO.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BO.Models.FAQ", b =>
+                {
+                    b.HasOne("BO.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Userid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
