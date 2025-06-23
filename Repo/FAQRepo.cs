@@ -27,6 +27,11 @@ namespace Repo
             return await _faqDao.GetByIdAsync(id);
         }
 
+        public async Task<List<FAQ>> GetByUserIdAsync(int userId)
+        {
+            return await _faqDao.GetByUserIdAsync(userId);
+        }
+
         public async Task<FAQ> UpdateAsync(FAQ faq)
         {
             return await _faqDao.UpdateAsync(faq);
@@ -35,6 +40,11 @@ namespace Repo
         public async Task<bool> DeleteAsync(int id)
         {
             return await _faqDao.DeleteAsync(id);
+        }
+
+        public async Task<bool> ValidateUserExistsAsync(int userId)
+        {
+            return await _faqDao.ValidateUserExistsAsync(userId);
         }
     }
 }

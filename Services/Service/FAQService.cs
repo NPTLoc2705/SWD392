@@ -20,12 +20,20 @@ namespace Services.Service
             _faqRepo = faqRepo;
         }
 
-        public async Task<FAQResponse> CreateFAQAsync(FAQRequest request)
+        public async Task<FAQResponse> CreateFAQAsync(FAQRequest request, int userId)
         {
+            // Validate that the user exists
+            var userExists = await _faqRepo.ValidateUserExistsAsync(userId);
+            if (!userExists)
+            {
+                throw new ArgumentException("User does not exist");
+            }
+
             var faq = new FAQ
             {
                 Question = request.Question,
-                Answer = request.Answer
+                Answer = request.Answer,
+                Userid = userId
             };
 
             var result = await _faqRepo.CreateAsync(faq);
@@ -44,13 +52,27 @@ namespace Services.Service
             return MapToResponse(faq);
         }
 
-        public async Task<FAQResponse> UpdateAsync(int id, FAQRequest request)
+        public async Task<List<FAQResponse>> GetByUserIdAsync(int userId)
         {
+            var faqs = await _faqRepo.GetByUserIdAsync(userId);
+            return faqs.Select(MapToResponse).ToList();
+        }
+
+        public async Task<FAQResponse> UpdateAsync(int id, FAQRequest request, int userId)
+        {
+            // Validate that the user exists
+            var userExists = await _faqRepo.ValidateUserExistsAsync(userId);
+            if (!userExists)
+            {
+                throw new ArgumentException("User does not exist");
+            }
+
             var faq = new FAQ
             {
                 Id = id,
                 Question = request.Question,
-                Answer = request.Answer
+                Answer = request.Answer,
+                Userid = userId
             };
 
             var result = await _faqRepo.UpdateAsync(faq);
@@ -70,7 +92,9 @@ namespace Services.Service
             {
                 Id = faq.Id,
                 Question = faq.Question,
-                Answer = faq.Answer
+                Answer = faq.Answer,
+                UserId = faq.Userid,
+                UserName = faq.User?.Name ?? faq.User?.Name ?? "Unknown"
             };
         }
     }

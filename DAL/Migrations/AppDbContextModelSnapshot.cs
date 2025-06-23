@@ -194,7 +194,12 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Userid")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Userid");
 
                     b.ToTable("FAQs");
                 });
@@ -515,6 +520,17 @@ namespace DAL.Migrations
                     b.HasOne("BO.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BO.Models.FAQ", b =>
+                {
+                    b.HasOne("BO.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Userid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
