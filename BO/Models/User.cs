@@ -16,7 +16,6 @@ namespace BO.Models
 
         [Required]
         [StringLength(100)]
-        [JsonIgnore]
         public string Password { get; set; }
 
         [Required]

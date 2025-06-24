@@ -45,7 +45,7 @@ namespace Services.Service
                 StudentName = request.StudentName,
                 ConsultantId = consultant.Id,
                 ConsultantName = consultant.Name,
-                Status = "Pending",
+                Status = AppointmentStatus.Pending,
                 IsPriority = request.IsPriority,
                 Create_at = DateTime.UtcNow,
                 Update_at = DateTime.UtcNow
@@ -74,30 +74,46 @@ namespace Services.Service
 
             if (vnpResponseCode == "00")
             {
-                appointment.Status = "InProcess";
+                appointment.Status = AppointmentStatus.Confirmed;
                 appointment.Update_at = DateTime.UtcNow;
                 await _appointmentRepo.UpdateAsync(appointment);
 
                 return new AppointmentPaymentResultResponse
                 {
                     AppointmentId = appointment.Id.ToString(),
-                    Status = appointment.Status,
+                    Status = appointment.Status.ToString(),
                     ConsultantName = appointment.ConsultantName,
                     Messsage = "Đặt lịch thành công!"
                 };
             }
             else
             {
-                appointment.Status = "Pending";
+                appointment.Status = AppointmentStatus.Pending;
                 await _appointmentRepo.UpdateAsync(appointment);
 
                 return new AppointmentPaymentResultResponse
                 {
                     AppointmentId = appointment.Id.ToString(),
-                    Status = appointment.Status,
+                    Status = appointment.Status.ToString(),
                     Messsage = "Thanh toán không thành công."
                 };
             }
+        }
+
+        // New methods for consultant
+        public async Task<List<Appointments>> GetConsultantAppointmentsAsync(int consultantId)
+        {
+            return await _appointmentRepo.GetAppointmentsByConsultantIdAsync(consultantId);
+        }
+
+        public async Task<bool> UpdateAppointmentStatusAsync(int appointmentId, AppointmentStatus status)
+        {
+            var appointment = await _appointmentRepo.GetByIdAsync(appointmentId);
+            if (appointment == null)
+                return false;
+
+            await _appointmentRepo.UpdateAppointmentStatusAsync(appointmentId, status);
+            return true;
         }
     }
 }
