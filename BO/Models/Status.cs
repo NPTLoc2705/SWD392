@@ -14,4 +14,13 @@ namespace BO.Models
         Cancelled,  // When ticket is cancelled
         Completed   // When ticket is resolved
     }
+    public enum AppointmentStatus
+    {
+        Pending,     // Default status when created
+        Confirmed,   // Payment completed, ready for consultant
+        InProgress,  // Consultant is handling/calling
+        Completed,   // Call finished successfully
+        Cancelled,   // Appointment cancelled
+        NoShow       // Student didn't answer/show up
+    }
 }

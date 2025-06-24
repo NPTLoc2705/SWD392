@@ -47,7 +47,7 @@ namespace Repo
         public async Task<List<int>> GetBusyConsultantIdsAsync()
         {
             return await _context.Appointments
-                .Where(a => a.Status == "Pending" || a.Status == "InProcess")
+                .Where(a => a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.InProgress)
                 .Select(a => a.ConsultantId)
                 .ToListAsync();
         }
@@ -73,6 +73,27 @@ namespace Repo
             return await _context.User
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Id == studentId && u.Role.Name == "Student");
+        }
+
+        // New methods for consultant
+        public async Task<List<Appointments>> GetAppointmentsByConsultantIdAsync(int consultantId)
+        {
+            return await _context.Appointments
+                .Include(a => a.Student)
+                .Where(a => a.ConsultantId == consultantId)
+                .OrderBy(a => a.Create_at)
+                .ToListAsync();
+        }
+
+        public async Task UpdateAppointmentStatusAsync(int appointmentId, AppointmentStatus status)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            if (appointment != null)
+            {
+                appointment.Status = status;
+                appointment.Update_at = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -28,8 +28,7 @@ namespace BO.Models
         public string ConsultantName { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string Status { get; set; }
+        public AppointmentStatus Status { get; set; }
 
         public bool IsPriority { get; set; }
         public int QueuePosition { get; set; }
@@ -39,6 +38,7 @@ namespace BO.Models
 
         [Required]
         public DateTime Update_at { get; set; }
+
         public virtual ICollection<Payments> Payments { get; set; }
     }
 }

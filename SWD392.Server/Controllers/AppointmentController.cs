@@ -35,9 +35,28 @@ namespace SWD392.Server.Controllers
         public async Task<ActionResult<AppointmentPaymentResultResponse>> VNPayCallback([FromQuery] int vnp_TxnRef, [FromQuery] string vnp_ResponseCode)
         {
             var result = await _appointmentService.HandlePaymentCallbackAsync(vnp_TxnRef, vnp_ResponseCode);
-            if (result.Status == "InProcess")
+            if (result.Status == "Confirmed")
                 return Ok(result);
             return BadRequest(result);
+        }
+
+        // New endpoints for consultant
+        [Authorize(Roles = "Consultant")]
+        [HttpGet("consultant/{consultantId}")]
+        public async Task<ActionResult<List<Appointments>>> GetConsultantAppointments(int consultantId)
+        {
+            var appointments = await _appointmentService.GetConsultantAppointmentsAsync(consultantId);
+            return Ok(appointments);
+        }
+
+      //  [Authorize(Roles = "Consultant")]
+        [HttpPut("{appointmentId}/status")]
+        public async Task<ActionResult> UpdateAppointmentStatus(int appointmentId, [FromBody] AppointmentStatus status)
+        {
+            var result = await _appointmentService.UpdateAppointmentStatusAsync(appointmentId, status);
+            if (result)
+                return Ok(new { message = "Status updated successfully" });
+            return NotFound(new { message = "Appointment not found" });
         }
     }
 }

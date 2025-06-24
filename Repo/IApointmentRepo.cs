@@ -16,5 +16,8 @@ namespace Repo
         Task<List<User>> GetAvailableConsultantsAsync(List<int> busyConsultantIds);
         Task<List<User>> GetAllConsultantsAsync();
         Task<User> GetStudentByIdAsync(int studentId);
+
+        Task<List<Appointments>> GetAppointmentsByConsultantIdAsync(int consultantId);
+        Task UpdateAppointmentStatusAsync(int appointmentId, AppointmentStatus status);
     }
 }
