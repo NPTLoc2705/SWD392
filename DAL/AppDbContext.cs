@@ -20,6 +20,8 @@ namespace DAL
         //public DbSet<Email_verifications> Email_verifications { get; set; } 
         public DbSet<Payments> Payments { get; set; }
         public DbSet<Feedback> Feedback { get; set; }
+        public DbSet<FAQ> FAQs { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -212,6 +214,13 @@ namespace DAL
                       .WithMany()
                       .HasForeignKey(f => f.consultant_id)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<FAQ>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Question).IsRequired();
+                entity.Property(e => e.Answer).IsRequired();
             });
         }
     }

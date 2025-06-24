@@ -51,6 +51,7 @@ namespace SWD392.Server
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
             builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             builder.Services.AddScoped<IProgramRepository, ProgramRepository>();
+            builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 
             //...................................................................................//
 
@@ -59,6 +60,8 @@ namespace SWD392.Server
             builder.Services.AddScoped<AuthDAO>();
             builder.Services.AddScoped<TicketDAO>();
             builder.Services.AddScoped<FeedbackDAO>();
+            builder.Services.AddScoped<ApplicationDAO>();
+            builder.Services.AddScoped<IApplicationService, ApplicationService>();
             builder.Services.AddScoped<IProgramService, ProgramService>();
             builder.Services.AddScoped<IFeedBackService, FeedbackService>();
             builder.Services.AddScoped<ITicketService, TicketService>();
@@ -73,6 +76,9 @@ namespace SWD392.Server
             builder.Services.AddScoped<ChatHistoryDAO>();
             builder.Services.AddScoped<IChatHistoryRepo, ChatHistoryRepo>();
             builder.Services.AddScoped<IChatbotService, ChatbotService>();
+            builder.Services.AddScoped<FAQDAO>();
+            builder.Services.AddScoped<IFAQRepo, FAQRepo>();
+            builder.Services.AddScoped<IFAQService, FAQService>();
             builder.Services.Configure<LlmSettings>(builder.Configuration.GetSection("LlmSettings"));
             //...................................................................................//
             builder.Services.AddScoped<VNPayService>();

@@ -15,7 +15,7 @@ namespace BO.Models
         public string Name { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(100)]        
         public string Password { get; set; }
 
         [Required]

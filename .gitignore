@@ -15,3 +15,4 @@ SWD392.Server/bin/
 /Services/bin
 /swd392.client/obj
 /SWD392.Server/wwwroot
+DAL/Migrations/20250620050600_FixApplication.cs
