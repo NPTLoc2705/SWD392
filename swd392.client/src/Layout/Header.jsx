@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-<<<<<<< Updated upstream
 import { Search, Globe, ChevronDown, User, LogOut } from "lucide-react";
-=======
-import { Search, Globe, ChevronDown } from "lucide-react";
->>>>>>> Stashed changes
 import { Link, useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../utils/auth";
 import AdmissionsPage from "../Pages/AdmissionsPage";
@@ -162,12 +158,6 @@ const AuthButtons = () => {
 
 const TopBar = ({ isSticky }) => {
   const [isLanguageSelectorOpen, setIsLanguageSelectorOpen] = useState(false);
-<<<<<<< Updated upstream
-=======
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const user = getCurrentUser();
-  const navigate = useNavigate();
->>>>>>> Stashed changes
 
   const toggleLanguageSelector = () => {
     setIsLanguageSelectorOpen(!isLanguageSelectorOpen);
@@ -239,41 +229,8 @@ const TopBar = ({ isSticky }) => {
                   />
                 )}
               </div>
-<<<<<<< Updated upstream
 
               <AuthButtons />
-=======
-              {/* Hiển thị tên người dùng và menu logout */}
-              <div className="ml-4 text-xs text-gray-600 font-semibold relative">
-                {user ? (
-                  <div>
-                    <button
-                      onClick={() => setIsUserMenuOpen((v) => !v)}
-                      className="flex items-center gap-1 hover:text-[#F2711F] focus:outline-none"
-                    >
-                      {user.role === "Student"
-                        ? user.fullName // Sửa ở đây để hiện họ tên
-                        : user.role === "Admin"
-                        ? "Admin"
-                        : ""}
-                      <ChevronDown size={14} />
-                    </button>
-                    {isUserMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-lg z-50">
-                        <button
-                          onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-[#F2711F]"
-                        >
-                          Đăng xuất
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link to="/login" className="hover:text-[#F2711F]">Đăng nhập</Link>
-                )}
-              </div>
->>>>>>> Stashed changes
             </div>
           </div>
         </div>

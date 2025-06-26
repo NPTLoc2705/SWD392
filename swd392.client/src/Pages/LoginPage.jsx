@@ -25,6 +25,8 @@ const LoginPage = () => {
                 setError("Tài khoản của bạn đã bị cấm.");
             } else if (user && user.role === "Admin") {
                 navigate("/admin");
+            } else if (user && user.role === "Consultant") {
+                navigate("/consultant");
             } else {
                 navigate("/tuyen-sinh");
             }
@@ -46,6 +48,8 @@ const LoginPage = () => {
                 setError("Tài khoản của bạn đã bị cấm.");
             } else if (user && user.role === "Admin") {
                 navigate("/admin");
+            } else if (user && user.role === "Consultant") {
+                navigate("/consultant");
             } else {
                 navigate("/tuyen-sinh");
             }

@@ -20,9 +20,11 @@ import ArticleDetailPage from "../Pages/ArticleDetailPage";
 import EditArticlePage from "../Pages/EditArticlePage"; 
 import Admin from "../Admin/AdminHomepage";
 import AdminRoute from "./AdminRoutes";
+import ConsultantRoute from "./ConsultantRoutes";
+import Consultant from "../Consultant/ConsultantHomepage";
 import { getCurrentUser } from "../utils/auth";
 
-// MainLayout kiểm tra nếu là admin thì chuyển hướng về /admin
+// MainLayout kiểm tra nếu là admin thì chuyển hướng về /admin, consultant về /consultant
 const MainLayout = () => {
   const navigate = useNavigate();
 
@@ -30,6 +32,8 @@ const MainLayout = () => {
     const user = getCurrentUser();
     if (user && user.role === "Admin") {
       navigate("/admin", { replace: true });
+    } else if (user && user.role === "Consultant") {
+      navigate("/consultant", { replace: true });
     }
   }, [navigate]);
 
@@ -51,6 +55,9 @@ const AdminLayout = () => (
   </>
 );
 
+// ConsultantLayout - KHÔNG có Header/Footer vì ConsultantHomepage tự quản lý layout
+const ConsultantLayout = () => <Outlet />;
+
 const AuthLayout = () => <Outlet />;
 
 const MainRoutes = () => {
@@ -62,7 +69,7 @@ const MainRoutes = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/gioi-thieu" element={<AboutPage />} />
           <Route path="/tin-tuc-su-kien" element={<ArticleListPage />} />
-          <Route path="/tin-tuc/:id" element={<ArticleDetailPage />} /> {/* Student/khách xem detail */}
+          <Route path="/tin-tuc/:id" element={<ArticleDetailPage />} />
           <Route path="/nganh-hoc" element={<ProgramsPage />} />
           <Route path="/tuyen-sinh" element={<AdmissionsPage />} />
           <Route path="/trai-nghiem-toan-cau" element={<GlobalPage />} />
@@ -111,6 +118,18 @@ const MainRoutes = () => {
               <AdminRoute>
                 <Admin />
               </AdminRoute>
+            }
+          />
+        </Route>
+
+        {/* Các route dành riêng cho consultant - Sử dụng layout riêng */}
+        <Route element={<ConsultantLayout />}>
+          <Route
+            path="/consultant/*"
+            element={
+              <ConsultantRoute>
+                <Consultant />
+              </ConsultantRoute>
             }
           />
         </Route>
