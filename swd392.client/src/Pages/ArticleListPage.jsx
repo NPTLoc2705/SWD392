@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../utils/auth";
 
 const API_BASE_URL = "https://localhost:7013";
 
@@ -17,6 +18,7 @@ const ArticleListPage = () => {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const navigate = useNavigate();
+  const user = getCurrentUser();
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -49,6 +51,10 @@ const ArticleListPage = () => {
     }
   };
 
+  // Đường dẫn detail phù hợp với từng role
+  const getDetailLink = (id) =>
+    user && user.role === "Admin" ? `/articles/${id}` : `/tin-tuc/${id}`;
+
   return (
     <div className="bg-[#f7f7f7] min-h-screen pb-10">
       {/* Banner quản lý */}
@@ -74,12 +80,14 @@ const ArticleListPage = () => {
           <h2 className="text-xl md:text-2xl font-bold text-orange-700 uppercase tracking-wide">
             Danh sách bài viết
           </h2>
-          <Link
-            to="/upload-article"
-            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-xl font-semibold shadow transition"
-          >
-            Thêm bài viết
-          </Link>
+          {user && user.role === "Admin" && (
+            <Link
+              to="/upload-article"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-xl font-semibold shadow transition"
+            >
+              Thêm bài viết
+            </Link>
+          )}
         </div>
         {loading ? (
           <div className="text-center text-gray-500 py-10">Đang tải...</div>
@@ -92,7 +100,7 @@ const ArticleListPage = () => {
                 key={article.id}
                 className="rounded-2xl overflow-hidden shadow hover:shadow-xl transition bg-white border border-gray-100 flex flex-col"
               >
-                <Link to={`/articles/${article.id}`}>
+                <Link to={getDetailLink(article.id)}>
                   {article.imagePath ? (
                     <img
                       src={`${API_BASE_URL}${article.imagePath}`}
@@ -106,7 +114,7 @@ const ArticleListPage = () => {
                   )}
                 </Link>
                 <div className="p-5 flex-1 flex flex-col">
-                  <Link to={`/articles/${article.id}`}>
+                  <Link to={getDetailLink(article.id)}>
                     <h2
                       className="text-lg font-bold text-orange-700 mb-1 hover:underline transition line-clamp-2"
                       title={article.title}
@@ -120,21 +128,24 @@ const ArticleListPage = () => {
                   <p className="text-sm text-gray-700 line-clamp-3 mb-4">
                     {stripImageTags(article.content)}
                   </p>
-                  <div className="flex gap-2 mt-auto flex-wrap">
-                    <button
-                      onClick={() => navigate(`/articles/edit/${article.id}`)}
-                      className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow transition"
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(article.id)}
-                      disabled={deletingId === article.id}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow transition disabled:opacity-50"
-                    >
-                      {deletingId === article.id ? "Đang xóa..." : "Xóa"}
-                    </button>
-                  </div>
+                  {/* Chỉ admin mới có nút Sửa, Xóa */}
+                  {user && user.role === "Admin" && (
+                    <div className="flex gap-2 mt-auto flex-wrap">
+                      <button
+                        onClick={() => navigate(`/articles/edit/${article.id}`)}
+                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow transition"
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        onClick={() => handleDelete(article.id)}
+                        disabled={deletingId === article.id}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow transition disabled:opacity-50"
+                      >
+                        {deletingId === article.id ? "Đang xóa..." : "Xóa"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

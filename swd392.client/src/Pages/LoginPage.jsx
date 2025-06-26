@@ -44,6 +44,8 @@ const LoginPage = () => {
             const user = getCurrentUser();
             if (user && user.isBanned === "True") {
                 setError("Tài khoản của bạn đã bị cấm.");
+            } else if (user && user.role === "Admin") {
+                navigate("/admin");
             } else {
                 navigate("/tuyen-sinh");
             }

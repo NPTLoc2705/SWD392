@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { getCurrentUser } from "../utils/auth";
 
 const API_BASE_URL = "https://localhost:7013";
 
@@ -11,6 +12,7 @@ const ArticleDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [error, setError] = useState("");
+  const user = getCurrentUser();
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -80,24 +82,29 @@ const ArticleDetailPage = () => {
           </h1>
           <div className="flex gap-2 flex-wrap flex-shrink-0">
             <Link
-              to="/articles"
+              to={user && user.role === "Admin" ? "/articles" : "/tin-tuc-su-kien"}
               className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl font-semibold shadow transition"
             >
               Về danh sách
             </Link>
-            <Link
-              to={`/articles/edit/${article.id}`}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-semibold shadow transition"
-            >
-              Sửa
-            </Link>
-            <button
-              onClick={handleDelete}
-              disabled={deleteLoading}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-semibold shadow transition disabled:opacity-50"
-            >
-              {deleteLoading ? "Đang xóa..." : "Xóa"}
-            </button>
+            {/* Chỉ admin mới có nút Sửa, Xóa */}
+            {user && user.role === "Admin" && (
+              <>
+                <Link
+                  to={`/articles/edit/${article.id}`}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-semibold shadow transition"
+                >
+                  Sửa
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleteLoading}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-semibold shadow transition disabled:opacity-50"
+                >
+                  {deleteLoading ? "Đang xóa..." : "Xóa"}
+                </button>
+              </>
+            )}
           </div>
         </div>
         {(article.imagePath || article.image) && (
