@@ -15,7 +15,8 @@ namespace BO.dtos.Response
         public Status Status { get; set; }
         public string StatusName => Status.ToString();
         public DateTime CreatedAt { get; set; }
-        public string StudentName { get; set; }  // From User.name
+        public string StudentName { get; set; }
+        public string StudentEmail { get; set; }// From User.name
         public string? ConsultantName { get; set; }
     }
     public class ConsultantResponse

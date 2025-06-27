@@ -23,9 +23,11 @@ namespace BO.Models
         public string programs_id { get; set; }
         public Programs Programs { get; set; }
 
-        // Lưu dữ liệu JSON, dùng JsonDocument hoặc string tùy nhu cầu
-        [Column(TypeName = "jsonb")]
-        public string submission_data { get; set; }
+        public string ImagePath { get; set; }
+        [Column(TypeName = "text")]
+        public string DocumentPaths { get; set; } 
+        public string PortfolioLink { get; set; }
+        public string OtherLink { get; set; }
 
         [Required]
         public DateTime submitted_at { get; set; }

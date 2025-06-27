@@ -17,5 +17,7 @@ namespace Services.Ticket
         Task<List<ApplicationResponse>> GetByStudentAsync(int studentId);
         Task<ApplicationResponse> UpdateAsync(string id, UpdateApplicationRequest request);
         Task<ApplicationResponse> ChangeStatusAsync(string id, ApplicationStatus newStatus);
+
+
     }
 }

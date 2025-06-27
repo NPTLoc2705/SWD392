@@ -10,7 +10,7 @@ namespace Repo.Ticket
 {
     public interface IFeedbackRepository
     {
-        Task<FeedbackResponse> CreateFeedbackAsync(FeedbackRequest request, int studentId);
+        Task<FeedbackResponse> SubmitFeedbackAsync(string ticketId, FeedbackRatingRequest request, int studentId);
         Task<FeedbackResponse> GetFeedbackByIdAsync(string feedbackId);
         Task<IEnumerable<FeedbackResponse>> GetFeedbacksByConsultantAsync(int consultantId);
         Task<FeedbackResponse> UpdateFeedbackResponseAsync(string feedbackId, string response, int consultantId);

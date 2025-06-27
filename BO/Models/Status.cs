@@ -11,8 +11,8 @@ namespace BO.Models
         Pending,    // Default status when created
         Assigned,   // When consultant is assigned
         Answered,   // When consultant responds
-        Cancelled,  // When ticket is cancelled
-        Completed   // When ticket is resolved
+        Cancelled  // When ticket is cancelled
+         // When ticket is resolved
     }
     public enum AppointmentStatus
     {

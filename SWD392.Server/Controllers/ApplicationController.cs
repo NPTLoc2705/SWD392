@@ -29,9 +29,8 @@ namespace SWD392.Server.Controllers
         /// </summary>
         [HttpPost("draft")]
         [Authorize(Roles = "Student")]
-        public async Task<ActionResult<ApplicationResponse>> CreateDraft([FromBody] ApplicationRequest request)
+        public async Task<ActionResult<ApplicationResponse>> CreateDraft([FromForm] ApplicationRequest request)
         {
-
             try
             {
                 var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -131,7 +130,7 @@ namespace SWD392.Server.Controllers
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = "Student")]
-        public async Task<IActionResult> UpdateApplication(string id, [FromBody] UpdateApplicationRequest request)
+        public async Task<IActionResult> UpdateApplication(string id, [FromForm] UpdateApplicationRequest request)
         {
             try
             {
@@ -157,6 +156,7 @@ namespace SWD392.Server.Controllers
                 return StatusCode(500, new { message = "An error occurred while updating the application" });
             }
         }
+        
 
         /// <summary>
         /// Change application status (Admin only)

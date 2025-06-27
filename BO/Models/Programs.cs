@@ -16,8 +16,8 @@ namespace BO.Models
         public string description { get; set; }
 
         [Required]
-        [Column(TypeName = "jsonb")]
-        public string admission_requirements { get; set; } // Store as structured JSON
+        
+        public string admission_requirements { get; set; } 
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]

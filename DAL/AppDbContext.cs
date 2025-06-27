@@ -101,10 +101,40 @@ namespace DAL
             //// Cấu hình cho Applications
             modelBuilder.Entity<Applications>(entity =>
             {
+                entity.ToTable("Applications");
+
                 entity.HasKey(e => e.id);
-                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.submission_data).HasColumnType("jsonb");
-                entity.Property(e => e.submitted_at).IsRequired();
+                entity.Property(e => e.id)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                // Change nvarchar(max) to text for PostgreSQL
+                entity.Property(e => e.ImagePath)
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.Property(e => e.DocumentPaths)
+                      .HasColumnType("text") // Changed from nvarchar(max) to text
+                      .IsRequired(false);
+
+                entity.Property(e => e.PortfolioLink)
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.Property(e => e.OtherLink)
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.Property(e => e.submitted_at)
+                      .IsRequired();
+
+                entity.Property(e => e.updated_at)
+                      .IsRequired();
+
+                entity.Property(e => e.Status)
+                      .HasConversion<string>()
+                      .HasMaxLength(20)
+                      .IsRequired();
 
                 entity.HasOne(a => a.Student)
                       .WithMany()
@@ -112,23 +142,46 @@ namespace DAL
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(a => a.Programs)
-                      .WithMany()
+                      .WithMany(p => p.Applications)
                       .HasForeignKey(a => a.programs_id)
                       .OnDelete(DeleteBehavior.Restrict);
             });
             // Add Programs configuration
             modelBuilder.Entity<Programs>(entity =>
             {
+                entity.ToTable("Programs");
+
                 entity.HasKey(e => e.id);
-                entity.Property(e => e.id).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.title).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.description).IsRequired();
-                entity.Property(e => e.admission_requirements).IsRequired().HasColumnType("jsonb");
-                entity.Property(e => e.tuition_fee).IsRequired().HasColumnType("decimal(18,2)");
-                entity.Property(e => e.dormitory_info);
-                entity.Property(e => e.is_active).IsRequired().HasDefaultValue(true);
-                entity.Property(e => e.created_at).IsRequired();
-                entity.Property(e => e.updated_at);
+                entity.Property(e => e.id)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(e => e.title)
+                      .IsRequired()
+                      .HasMaxLength(200);
+
+                entity.Property(e => e.description)
+                      .IsRequired();
+
+                entity.Property(e => e.admission_requirements)
+                      .IsRequired();
+
+                entity.Property(e => e.tuition_fee)
+                      .IsRequired()
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.dormitory_info)
+                      .IsRequired(false);
+
+                entity.Property(e => e.is_active)
+                      .IsRequired()
+                      .HasDefaultValue(true);
+
+                entity.Property(e => e.created_at)
+                      .IsRequired();
+
+                entity.Property(e => e.updated_at)
+                      .IsRequired(false);
             });
             //// Cấu hình cho Articles
             modelBuilder.Entity<Articles>(entity =>

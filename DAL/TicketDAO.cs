@@ -91,6 +91,7 @@ namespace DAL
                 Status = t.Status,
                 CreatedAt = t.created_at,
                 StudentName = t.Student.Name,
+                StudentEmail = t.Student.Email,
                 ConsultantName = t.Consultant != null ? t.Consultant.Name : null
             })
             .ToListAsync();
@@ -120,13 +121,8 @@ namespace DAL
                     break;
 
                 case Status.Answered:
-                    if (status != Status.Completed)
-                        throw new Exception("Answered tickets can only be marked Completed");
-                    break;
-
-                case Status.Cancelled:
-                case Status.Completed:
                     throw new Exception($"Ticket is already {ticket.Status} (terminal state)");
+
             }
 
             ticket.Status = status;
@@ -176,6 +172,7 @@ namespace DAL
                 Status = t.Status,
                 CreatedAt = t.created_at,
                 StudentName = t.Student.Name,
+                StudentEmail = t.Student.Email,
                 ConsultantName = t.Consultant != null ? t.Consultant.Name : null
             })
             .FirstOrDefaultAsync();
@@ -201,7 +198,6 @@ namespace DAL
             return ticket.Status switch
             {
                 Status.Assigned => new List<Status> { Status.Answered, Status.Cancelled },
-                Status.Answered => new List<Status> { Status.Completed },
                 _ => new List<Status>() // Block updates for Pending/Completed/Cancelled
             };
         }
