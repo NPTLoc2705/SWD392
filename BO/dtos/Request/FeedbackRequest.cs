@@ -12,9 +12,16 @@ namespace BO.dtos.Request
         [Required]
         public string ticket_id { get; set; }
 
-        [Required]
-        public int consultant_id { get; set; }
+        
 
+        [Required]
+        [Range(1, 5)]
+        public int rating { get; set; }
+
+        public string comment { get; set; }
+    }
+    public class FeedbackRatingRequest
+    {
         [Required]
         [Range(1, 5)]
         public int rating { get; set; }

@@ -2,6 +2,7 @@
 using BO.dtos.Response;
 using BO.Models;
 using DAL;
+using DAL.Files;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,10 @@ namespace Repo.Ticket
     public class ApplicationRepository : IApplicationRepository
     {
         private readonly ApplicationDAO _applicationDAO;
-        public ApplicationRepository(AppDbContext appDbContext)
+        private readonly IFileService _fileService;
+        public ApplicationRepository(AppDbContext appDbContext, IFileService fileService)
         {
-            _applicationDAO = new ApplicationDAO(appDbContext);
+            _applicationDAO = new ApplicationDAO(appDbContext, fileService);
         }
 
         public Task<ApplicationResponse> ChangeStatusAsync(string id, ApplicationStatus newStatus)

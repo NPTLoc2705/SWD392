@@ -26,52 +26,38 @@ namespace SWD392.Server.Controllers
             _context = context;
         }
 
-        [HttpPost]
+        [HttpPost("{ticketId}")] // Get ticketId from URL
         [Authorize(Roles = "Student")]
-        public async Task<IActionResult> SubmitFeedback([FromBody] FeedbackRequest request)
+        public async Task<IActionResult> SubmitFeedback(
+    string ticketId, // From route
+    [FromBody] FeedbackRatingRequest request) // Only needs rating/comment
         {
             try
             {
-                // Safely get user ID from claims
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int studentId))
                 {
                     return Unauthorized("Invalid user identity");
                 }
 
-                // Verify ticket exists and is completed
                 var ticket = await _context.Tickets
-                    .FirstOrDefaultAsync(t => t.Id == request.ticket_id &&
+                    .FirstOrDefaultAsync(t => t.Id == ticketId &&
                                            t.StudentId == studentId &&
-                                           t.Status == Status.Completed);
+                                           t.Status == Status.Answered);
 
                 if (ticket == null)
-                {
-                    return BadRequest(new { Message = "Ticket not found, not owned by you, or not completed" });
-                }
+                    return BadRequest("Ticket not found/not completed");
 
-                // Verify consultant was assigned to this ticket
-                if (ticket.ConsultantId != request.consultant_id)
-                {
-                    return BadRequest(new { Message = "Consultant was not assigned to this ticket" });
-                }
+                if (await _context.Feedback.AnyAsync(f => f.ticket_id == ticketId))
+                    return BadRequest("Feedback already exists");
 
-                // Check for existing feedback
-                var existingFeedback = await _context.Feedback
-                    .AnyAsync(f => f.ticket_id == request.ticket_id);
+                var feedback = await _feedbackService.SubmitFeedbackAsync(ticketId, request, studentId);
 
-                if (existingFeedback)
-                {
-                    return BadRequest(new { Message = "Feedback already submitted for this ticket" });
-                }
-
-                var feedback = await _feedbackService.SubmitFeedbackAsync(request, studentId);
                 return Ok(feedback);
             }
             catch (Exception ex)
             {
-                // Log the exception here
-                return StatusCode(500, new { Message = "An error occurred while processing your request", Error = ex.Message });
+                return StatusCode(500, "Error submitting feedback");
             }
         }
 

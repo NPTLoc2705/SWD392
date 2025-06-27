@@ -16,7 +16,10 @@ namespace BO.dtos.Response
         public int StudentId { get; set; }
         public string ProgramId { get; set; }
         public string ProgramTitle { get; set; } // Added for convenience
-        public Dictionary<string, object> SubmissionData { get; set; }
+        public string ImageUrl { get; set; }
+        public List<string> DocumentUrls { get; set; }
+        public string PortfolioLink { get; set; }
+        public string OtherLink { get; set; }
         public DateTime SubmittedAt { get; set; }
         public string StatusName => Status.ToString();
         public ApplicationStatus Status { get; set; }
