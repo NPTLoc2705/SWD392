@@ -4,12 +4,12 @@ namespace Repo
 {
     public interface IFAQRepo
     {
-        Task<FAQ> CreateAsync(FAQ faq);
-        Task<List<FAQ>> GetAllAsync();
-        Task<FAQ> GetByIdAsync(int id);
-        Task<List<FAQ>> GetByUserIdAsync(int userId);
-        Task<FAQ> UpdateAsync(FAQ faq);
-        Task<bool> DeleteAsync(int id);
-        Task<bool> ValidateUserExistsAsync(int userId);
+        Task<FAQ> Create(FAQ faq);
+        Task<List<FAQ>> GetAll();
+        Task<FAQ> GetById(int id);
+        Task<List<FAQ>> GetByUserId(int userId);
+        Task<FAQ> Update(FAQ faq);
+        Task<bool> Delete(int id);
+        Task<bool> ValidateUserExists(int userId);
     }
 }

@@ -17,28 +17,28 @@ namespace DAL
             _context = context;
         }
 
-        public async Task<FAQ> CreateAsync(FAQ faq)
+        public async Task<FAQ> Create(FAQ faq)
         {
             await _context.FAQs.AddAsync(faq);
             await _context.SaveChangesAsync();
             return faq;
         }
 
-        public async Task<List<FAQ>> GetAllAsync()
+        public async Task<List<FAQ>> GetAll()
         {
             return await _context.FAQs
                 .Include(f => f.User)
                 .ToListAsync();
         }
 
-        public async Task<FAQ> GetByIdAsync(int id)
+        public async Task<FAQ> GetById(int id)
         {
             return await _context.FAQs
                 .Include(f => f.User)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 
-        public async Task<List<FAQ>> GetByUserIdAsync(int userId)
+        public async Task<List<FAQ>> GetByUserId(int userId)
         {
             return await _context.FAQs
                 .Include(f => f.User)
@@ -46,7 +46,7 @@ namespace DAL
                 .ToListAsync();
         }
 
-        public async Task<FAQ> UpdateAsync(FAQ faq)
+        public async Task<FAQ> Update(FAQ faq)
         {
             var existingFaq = await _context.FAQs.FindAsync(faq.Id);
             if (existingFaq == null) return null;
@@ -59,7 +59,7 @@ namespace DAL
             return existingFaq;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> Delete(int id)
         {
             var faq = await _context.FAQs.FindAsync(id);
             if (faq == null) return false;
@@ -69,7 +69,7 @@ namespace DAL
             return true;
         }
 
-        public async Task<bool> ValidateUserExistsAsync(int userId)
+        public async Task<bool> ValidateUserExists(int userId)
         {
             return await _context.User.AnyAsync(u => u.Id == userId);
         }

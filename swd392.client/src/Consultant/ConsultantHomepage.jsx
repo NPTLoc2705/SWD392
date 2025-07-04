@@ -24,6 +24,8 @@ const ConsultantHomepage = () => {
   const [error, setError] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
+  const [newStatus, setNewStatus] = useState(null);
 
   const supportItems = [
     {
@@ -53,6 +55,7 @@ const ConsultantHomepage = () => {
   const getAuthToken = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
+
   const fetchTickets = async () => {
     setLoading(true);
     setError(null);
@@ -67,7 +70,7 @@ const ConsultantHomepage = () => {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      const response = await axios.get("https://localhost:7013/api/Ticket", {
+      const response = await axios.get("https://localhost:7013/api/Ticket/consultant/assigned", {
         headers,
       });
 
@@ -75,12 +78,7 @@ const ConsultantHomepage = () => {
       const ticketsData = responseData.data || [];
 
       setTickets(Array.isArray(ticketsData) ? ticketsData : []);
-
-      console.log("Tickets fetched successfully:", ticketsData);
-      console.log("Full response:", responseData); 
     } catch (err) {
-      console.error("Error fetching tickets:", err);
-
       let errorMessage = "Có lỗi không xác định xảy ra";
 
       if (err.response) {
@@ -105,7 +103,6 @@ const ConsultantHomepage = () => {
             errorMessage = serverMessage || `Lỗi server (${status})`;
         }
       } else if (err.request) {
-        // Network error
         errorMessage =
           "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.";
       } else if (err.code === "ECONNABORTED") {
@@ -115,9 +112,74 @@ const ConsultantHomepage = () => {
       }
 
       setError(errorMessage);
-      setTickets([]); 
+      setTickets([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateTicketStatus = async (ticketId, status) => {
+    setStatusUpdating(true);
+    setError(null);
+
+    try {
+      const token = getAuthToken();
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      await axios.put(
+        `https://localhost:7013/api/Ticket/${ticketId}/status/update`,
+        { status },
+        { headers }
+      );
+
+      // Update the ticket in the local state
+      setTickets((prevTickets) =>
+        prevTickets.map((ticket) =>
+          ticket.id === ticketId ? { ...ticket, status } : ticket
+        )
+      );
+
+      // Update selected ticket if it's the one being modified
+      if (selectedTicket && selectedTicket.id === ticketId) {
+        setSelectedTicket((prev) => ({ ...prev, status }));
+      }
+    } catch (err) {
+      let errorMessage = "Có lỗi khi cập nhật trạng thái";
+
+      if (err.response) {
+        const status = err.response.status;
+        const serverMessage =
+          err.response.data?.message || err.response.data?.error;
+
+        switch (status) {
+          case 401:
+            errorMessage = "Bạn cần đăng nhập để thực hiện thao tác này";
+            break;
+          case 403:
+            errorMessage = "Bạn không có quyền cập nhật trạng thái";
+            break;
+          case 404:
+            errorMessage = "Không tìm thấy phiếu hỗ trợ";
+            break;
+          case 400:
+            errorMessage = serverMessage || "Dữ liệu không hợp lệ";
+            break;
+          default:
+            errorMessage = serverMessage || "Lỗi server";
+        }
+      } else if (err.request) {
+        errorMessage = "Không thể kết nối đến server";
+      }
+
+      setError(errorMessage);
+    } finally {
+      setStatusUpdating(false);
     }
   };
 
@@ -129,28 +191,28 @@ const ConsultantHomepage = () => {
 
   const getStatusDisplay = (status) => {
     switch (status) {
-      case 1:
+      case 0:
         return {
           color: "text-yellow-600",
           bgColor: "bg-yellow-100",
           icon: AlertCircle,
           text: "Chờ xử lý",
         };
-      case 2:
+      case 1:
         return {
           color: "text-blue-600",
           bgColor: "bg-blue-100",
           icon: Clock,
           text: "Đang xử lý",
         };
-      case 3:
+      case 2:
         return {
           color: "text-green-600",
           bgColor: "bg-green-100",
           icon: CheckCircle,
           text: "Hoàn thành",
         };
-      case 4:
+      case 3:
         return {
           color: "text-red-600",
           bgColor: "bg-red-100",
@@ -188,12 +250,14 @@ const ConsultantHomepage = () => {
 
   const handleViewTicket = (ticket) => {
     setSelectedTicket(ticket);
+    setNewStatus(ticket.status);
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedTicket(null);
+    setNewStatus(null);
   };
 
   const TicketDetailModal = () => {
@@ -202,10 +266,34 @@ const ConsultantHomepage = () => {
     const statusDisplay = getStatusDisplay(selectedTicket.status);
     const StatusIcon = statusDisplay.icon;
 
+ const statusFlow = {
+  0: [1],       // From "Chờ xử lý" → "Đang xử lý"
+  1: [2, 3],    // From "Đang xử lý" → "Hoàn thành" or "Đã hủy"
+  2: [],        // From "Hoàn thành" → no change allowed
+  3: [],        // From "Đã hủy" → no change allowed
+};
+
+const statusLabels = {
+  0: "Chờ xử lý",
+  1: "Đang xử lý",
+  2: "Hoàn thành",
+  3: "Đã hủy",
+};
+
+// Only allow forward transitions based on current status
+const statusOptions = statusFlow[selectedTicket.status].map((value) => ({
+  value,
+  label: statusLabels[value],
+}));
+    const handleStatusChange = async () => {
+      if (newStatus !== selectedTicket.status) {
+        await updateTicketStatus(selectedTicket.id, newStatus);
+      }
+    };
+
     return (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h3 className="text-xl font-semibold text-gray-800">
               Chi tiết phiếu hỗ trợ
@@ -218,9 +306,7 @@ const ConsultantHomepage = () => {
             </button>
           </div>
 
-          {/* Content */}
           <div className="p-6 space-y-6">
-            {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-3">
                 <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
@@ -293,7 +379,7 @@ const ConsultantHomepage = () => {
 
               {selectedTicket.updatedAt && (
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-indigo-100 rounded-lg">
+                  <div className="flex items-center justify-center w-10 tap-10 bg-indigo-100 rounded-lg">
                     <CalendarIcon size={20} className="text-indigo-600" />
                   </div>
                   <div>
@@ -365,6 +451,35 @@ const ConsultantHomepage = () => {
                 </div>
               </div>
             )}
+
+            <div className="space-y-2">
+              <h4 className="font-semibold text-gray-800">Cập nhật trạng thái</h4>
+              <div className="flex items-center space-x-4">
+<select
+  value={newStatus}
+  onChange={(e) => setNewStatus(Number(e.target.value))}
+  className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+  disabled={statusUpdating || statusOptions.length === 0}
+>
+  {statusOptions.map((option) => (
+    <option key={option.value} value={option.value}>
+      {option.label}
+    </option>
+  ))}
+</select>
+
+                <button
+                  onClick={handleStatusChange}
+                  disabled={statusUpdating || newStatus === selectedTicket.status}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {statusUpdating ? "Đang cập nhật..." : "Cập nhật"}
+                </button>
+              </div>
+              {error && (
+                <p className="text-red-600 text-sm mt-2">{error}</p>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end p-6 border-t border-gray-200">
@@ -618,7 +733,7 @@ const ConsultantHomepage = () => {
       panelTitle="Consultant Panel"
     >
       {renderContent()}
-    </AdminConsultantLayout>
+    </ AdminConsultantLayout>
   );
 };
 

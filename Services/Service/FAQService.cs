@@ -20,14 +20,9 @@ namespace Services.Service
             _faqRepo = faqRepo;
         }
 
-        public async Task<FAQResponse> CreateFAQAsync(FAQRequest request, int userId)
+        public async Task<FAQResponse> CreateFAQ(FAQRequest request, int userId)
         {
-            // Validate that the user exists
-            var userExists = await _faqRepo.ValidateUserExistsAsync(userId);
-            if (!userExists)
-            {
-                throw new ArgumentException("User does not exist");
-            }
+           
 
             var faq = new FAQ
             {
@@ -36,36 +31,30 @@ namespace Services.Service
                 Userid = userId
             };
 
-            var result = await _faqRepo.CreateAsync(faq);
+            var result = await _faqRepo.Create(faq);
             return MapToResponse(result);
         }
 
-        public async Task<List<FAQResponse>> GetAllFAQsAsync()
+        public async Task<List<FAQResponse>> GetAllFAQs()
         {
-            var faqs = await _faqRepo.GetAllAsync();
+            var faqs = await _faqRepo.GetAll();
             return faqs.Select(MapToResponse).ToList();
         }
 
-        public async Task<FAQResponse> GetByIdAsync(int id)
+        public async Task<FAQResponse> GetById(int id)
         {
-            var faq = await _faqRepo.GetByIdAsync(id);
+            var faq = await _faqRepo.GetById(id);
             return MapToResponse(faq);
         }
 
-        public async Task<List<FAQResponse>> GetByUserIdAsync(int userId)
+        public async Task<List<FAQResponse>> GetByUserId(int userId)
         {
-            var faqs = await _faqRepo.GetByUserIdAsync(userId);
+            var faqs = await _faqRepo.GetByUserId(userId);
             return faqs.Select(MapToResponse).ToList();
         }
 
-        public async Task<FAQResponse> UpdateAsync(int id, FAQRequest request, int userId)
+        public async Task<FAQResponse> Update(int id, FAQRequest request, int userId)
         {
-            // Validate that the user exists
-            var userExists = await _faqRepo.ValidateUserExistsAsync(userId);
-            if (!userExists)
-            {
-                throw new ArgumentException("User does not exist");
-            }
 
             var faq = new FAQ
             {
@@ -75,13 +64,13 @@ namespace Services.Service
                 Userid = userId
             };
 
-            var result = await _faqRepo.UpdateAsync(faq);
+            var result = await _faqRepo.Update(faq);
             return MapToResponse(result);
         }
 
-        public async Task<bool> DeleteFAQAsync(int id)
+        public async Task<bool> DeleteFAQ(int id)
         {
-            return await _faqRepo.DeleteAsync(id);
+            return await _faqRepo.Delete(id);
         }
 
         private static FAQResponse MapToResponse(FAQ faq)
