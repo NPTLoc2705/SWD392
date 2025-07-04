@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Services.Service;
+using System.Security.Claims;
 
 namespace SWD392.Server.Controllers
 {
@@ -24,6 +25,16 @@ namespace SWD392.Server.Controllers
         [HttpPost("book")]
         public async Task<ActionResult<BookAppointmentResponse>> BookAppointment([FromBody] BookAppointmentRequest request)
         {
+            // Get user ID from JWT token claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int studentId))
+            {
+                return Unauthorized(new { success = false, message = "Invalid user authentication" });
+            }
+
+            // Set the studentId from JWT token
+            request.StudentId = studentId;
+
             var result = await _appointmentService.BookAppointmentAsync(request);
             if (!string.IsNullOrEmpty(result.AppointmentId))
                 return Ok(result);
@@ -49,7 +60,7 @@ namespace SWD392.Server.Controllers
             return Ok(appointments);
         }
 
-      //  [Authorize(Roles = "Consultant")]
+        [Authorize(Roles = "Consultant")]
         [HttpPut("{appointmentId}/status")]
         public async Task<ActionResult> UpdateAppointmentStatus(int appointmentId, [FromBody] AppointmentStatus status)
         {

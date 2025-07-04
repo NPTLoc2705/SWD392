@@ -45,7 +45,7 @@ namespace SWD392.Server.Controllers
                     return Unauthorized(new { success = false, message = "Invalid user authentication" });
                 }
 
-                var result = await _faqService.CreateFAQAsync(request, userId);
+                var result = await _faqService.CreateFAQ(request, userId);
                 return CreatedAtAction(
                     nameof(GetFAQById),
                     new { id = result.Id },
@@ -76,7 +76,7 @@ namespace SWD392.Server.Controllers
         {
             try
             {
-                var faqs = await _faqService.GetAllFAQsAsync();
+                var faqs = await _faqService.GetAllFAQs();
                 return Ok(new
                 {
                     success = true,
@@ -100,7 +100,7 @@ namespace SWD392.Server.Controllers
         {
             try
             {
-                var faq = await _faqService.GetByIdAsync(id);
+                var faq = await _faqService.GetById(id);
                 if (faq == null)
                     return NotFound(new
                     {
@@ -155,7 +155,7 @@ namespace SWD392.Server.Controllers
                     return Unauthorized(new { success = false, message = "Invalid user authentication" });
                 }
 
-                var updatedFaq = await _faqService.UpdateAsync(id, request, userId);
+                var updatedFaq = await _faqService.Update(id, request, userId);
                 if (updatedFaq == null)
                     return NotFound(new
                     {
@@ -191,7 +191,7 @@ namespace SWD392.Server.Controllers
         {
             try
             {
-                var result = await _faqService.DeleteFAQAsync(id);
+                var result = await _faqService.DeleteFAQ(id);
                 if (!result)
                     return NotFound(new
                     {

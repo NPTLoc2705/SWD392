@@ -231,13 +231,9 @@ namespace SWD392.Server.Controllers
                     return Unauthorized(new { success = false, message = "Invalid user authentication" });
                 }
 
-                // Check if article exists 
                 var existingArticle = await _articleService.GetArticleById(id);
                 if (existingArticle == null)
                     return NotFound(new { success = false, message = "Article not found" });
-
-                //if (existingArticle.PublishedBy != userId)
-                //    return Forbid("You can only update your own articles");
 
                 byte[] imageData = null;
                 if (image != null)

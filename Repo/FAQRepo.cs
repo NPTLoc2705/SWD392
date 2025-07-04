@@ -12,39 +12,39 @@ namespace Repo
             _faqDao = faqDao;
         }
 
-        public async Task<FAQ> CreateAsync(FAQ faq)
+        public async Task<FAQ> Create(FAQ faq)
         {
-            return await _faqDao.CreateAsync(faq);
+            return await _faqDao.Create(faq);
         }
 
-        public async Task<List<FAQ>> GetAllAsync()
+        public async Task<List<FAQ>> GetAll()
         {
-            return await _faqDao.GetAllAsync();
+            return await _faqDao.GetAll();
         }
 
-        public async Task<FAQ> GetByIdAsync(int id)
+        public async Task<FAQ> GetById(int id)
         {
-            return await _faqDao.GetByIdAsync(id);
+            return await _faqDao.GetById(id);
         }
 
-        public async Task<List<FAQ>> GetByUserIdAsync(int userId)
+        public async Task<List<FAQ>> GetByUserId(int userId)
         {
-            return await _faqDao.GetByUserIdAsync(userId);
+            return await _faqDao.GetByUserId(userId);
         }
 
-        public async Task<FAQ> UpdateAsync(FAQ faq)
+        public async Task<FAQ> Update(FAQ faq)
         {
-            return await _faqDao.UpdateAsync(faq);
+            return await _faqDao.Update(faq);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> Delete(int id)
         {
-            return await _faqDao.DeleteAsync(id);
+            return await _faqDao.Delete(id);
         }
 
-        public async Task<bool> ValidateUserExistsAsync(int userId)
+        public async Task<bool> ValidateUserExists(int userId)
         {
-            return await _faqDao.ValidateUserExistsAsync(userId);
+            return await _faqDao.ValidateUserExists(userId);
         }
     }
 }

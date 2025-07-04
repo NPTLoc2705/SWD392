@@ -5,11 +5,11 @@ namespace Services.Service
 {
     public interface IFAQService
     {
-        Task<FAQResponse> CreateFAQAsync(FAQRequest request, int userId);
-        Task<List<FAQResponse>> GetAllFAQsAsync();
-        Task<FAQResponse> GetByIdAsync(int id);
-        Task<List<FAQResponse>> GetByUserIdAsync(int userId);
-        Task<FAQResponse> UpdateAsync(int id, FAQRequest request, int userId);
-        Task<bool> DeleteFAQAsync(int id);
+        Task<FAQResponse> CreateFAQ(FAQRequest request, int userId);
+        Task<List<FAQResponse>> GetAllFAQs();
+        Task<FAQResponse> GetById(int id);
+        Task<List<FAQResponse>> GetByUserId(int userId);
+        Task<FAQResponse> Update(int id, FAQRequest request, int userId);
+        Task<bool> DeleteFAQ(int id);
     }
 }
