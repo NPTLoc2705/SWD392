@@ -20,6 +20,38 @@ const ContactPage = () => {
   const [errors, setErrors] = useState({});
   const [alert, setAlert] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+const campuses = [
+    {
+      city: 'HÀ NỘI',
+      address: 'Khu Giáo dục và Đào tạo – Khu Công nghệ cao Hòa Lạc – Km29 Đại lộ Thăng Long, H. Thạch Thất, TP. Hà Nội',
+      phone: '(024) 7300 5588',
+      email: 'tuyensinh.hanoi@fpt.edu.vn'
+    },
+    {
+      city: 'TP. HỒ CHÍ MINH',
+      address: 'Lô E2a-7, Đường D1 Khu Công nghệ cao, P. Long Thạnh Mỹ, TP. Thủ Đức, TP. Hồ Chí Minh',
+      phone: '(028) 7300 5588',
+      email: 'daihoc.hcm@fpt.edu.vn'
+    },
+    {
+      city: 'ĐÀ NẴNG',
+      address: 'Khu đô thị công nghệ FPT Đà Nẵng, P. Hoà Hải, Q. Ngũ Hành Sơn, TP. Đà Nẵng',
+      phone: '(0236) 730 0999',
+      email: 'dnuni@fe.edu.vn'
+    },
+    {
+      city: 'CẦN THƠ',
+      address: 'Số 600 Đường Nguyễn Văn Cừ (nối dài), P. An Bình, Q. Ninh Kiều, TP. Cần Thơ',
+      phone: '(0292) 730 3636',
+      email: 'fptu.cantho@fe.edu.vn'
+    },
+    {
+      city: 'QUY NHƠN',
+      address: 'Khu đô thị mới An Phú Thịnh, Phường Nhơn Bình & Phường Đống Đa, TP. Quy Nhơn, Bình Định',
+      phone: '(0256) 7300 999',
+      email: 'qnuni@fe.edu.vn'
+    }
+  ];
 
   const validateForm = () => {
     const newErrors = {};
@@ -224,17 +256,93 @@ const ContactPage = () => {
       </div>
 
       <div className="container mx-auto px-4 py-12">
-        <div className="mb-16">
+          <div className="mb-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
-              Thông tin các Campus
-            </h2>
-            <div
-              className="w-20 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto rounded-full"
-              style={{
-                background: "linear-gradient(to right, #E0601A, #E0601A)",
-              }}
-            ></div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">Thông tin các Campus</h2>
+            <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto rounded-full" style={{background: 'linear-gradient(to right, #E0601A, #E0601A)'}}></div>
+          </div>
+          
+          <div className="hidden lg:block">
+            <div className="grid grid-cols-3 gap-6 mb-6">
+              {campuses.slice(0, 3).map((campus, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 border-l-4" style={{borderColor: '#E0601A'}}>
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 text-center" style={{color: '#E0601A'}}>
+                    {campus.city}
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-3">
+                      <MapPin className="mt-1 flex-shrink-0" style={{color: '#E0601A'}} size={16} />
+                      <p className="text-gray-700 text-xs leading-relaxed">{campus.address}</p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Phone className="text-blue-500 flex-shrink-0" size={16} />
+                      <p className="text-gray-700 font-medium text-sm">{campus.phone}</p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Mail className="text-green-500 flex-shrink-0" size={16} />
+                      <p className="text-gray-700 text-sm">{campus.email}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto">
+              {campuses.slice(3).map((campus, index) => (
+                <div key={index + 3} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 border-l-4" style={{borderColor: '#E0601A'}}>
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 text-center" style={{color: '#E0601A'}}>
+                    {campus.city}
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-3">
+                      <MapPin className="mt-1 flex-shrink-0" style={{color: '#E0601A'}} size={16} />
+                      <p className="text-gray-700 text-xs leading-relaxed">{campus.address}</p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Phone className="text-blue-500 flex-shrink-0" size={16} />
+                      <p className="text-gray-700 font-medium text-sm">{campus.phone}</p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Mail className="text-green-500 flex-shrink-0" size={16} />
+                      <p className="text-gray-700 text-sm">{campus.email}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="lg:hidden space-y-6">
+            {campuses.map((campus, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 border-l-4" style={{borderColor: '#E0601A'}}>
+                <h3 className="text-xl font-bold text-gray-800 mb-4 text-center" style={{color: '#E0601A'}}>
+                  {campus.city}
+                </h3>
+                
+                <div className="space-y-3">
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="mt-1 flex-shrink-0" style={{color: '#E0601A'}} size={18} />
+                    <p className="text-gray-700 text-sm leading-relaxed">{campus.address}</p>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <Phone className="text-blue-500 flex-shrink-0" size={18} />
+                    <p className="text-gray-700 font-medium">{campus.phone}</p>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <Mail className="text-green-500 flex-shrink-0" size={18} />
+                    <p className="text-gray-700">{campus.email}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -242,7 +350,7 @@ const ContactPage = () => {
           <div className="bg-white rounded-xl shadow-lg p-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                Tạo ticket hỗ trợ
+                Đăng ký tư vấn
               </h2>
               <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto rounded-full"></div>
               <p className="text-gray-600 mt-4">
