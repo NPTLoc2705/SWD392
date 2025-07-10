@@ -40,9 +40,16 @@ namespace DAL
                     throw new ArgumentException("User not found");
                 }
                 existingUser.Name = user.Name;
-                existingUser.Password = user.Password;
                 existingUser.Email = user.Email;
                 existingUser.Phone = user.Phone;
+                if (user.Password != null)
+                {
+                    existingUser.Password = user.Password;
+                }
+                else
+                {
+                    existingUser.Password = existingUser.Password;
+                }
 
                 _dbContext.User.Update(existingUser);
                 await _dbContext.SaveChangesAsync();

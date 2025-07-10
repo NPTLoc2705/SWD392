@@ -37,6 +37,7 @@ namespace SWD392.Server.Controllers
             {
                 var existingUser = await _userService.GetUserById(id);
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 {
                     return Unauthorized(new { success = false, message = "Invalid user authentication" });
@@ -50,16 +51,24 @@ namespace SWD392.Server.Controllers
                     return BadRequest(new { success = false, message = "Invalid request data" });
                 }
 
-                var user = new User
+                // Create a User object from the UserResponse and update it
+                var userToUpdate = new User
                 {
-                    Id = id,
+                    Id = existingUser.Id,
                     Name = request.Name,
                     Email = request.Email,
                     Phone = request.Phone,
-                    Password = HashPassword(request.Password)
+                    Password = existingUser.Password, // Keep existing password
                 };
 
-                var result = await _userService.UpdateUser(user);
+                // Only update password if a new one is provided
+                if (!string.IsNullOrWhiteSpace(request.Password))
+                {
+                    userToUpdate.Password = HashPassword(request.Password);
+                }
+
+                var result = await _userService.UpdateUser(userToUpdate);
+
                 if (result == null)
                 {
                     return NotFound(new { success = false, message = "User not found" });

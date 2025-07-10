@@ -33,15 +33,12 @@ const LanguageSelector = ({ onClose }) => {
   );
 };
 
-const UserDropdown = ({ user, onClose }) => {
-  // const navigate = useNavigate();
 
+const UserDropdown = ({ user, onClose }) => {
   const handleLogout = () => {
-    // Xóa token khỏi localStorage
     localStorage.removeItem("token");
     onClose();
-    // navigate("/tuyen-sinh");
-    window.location.reload(); // Refresh to update header state
+    window.location.reload();
   };
 
   return (
@@ -60,9 +57,17 @@ const UserDropdown = ({ user, onClose }) => {
             </p>
           )}
         </div>
+        <Link
+          to="/profile"
+          onClick={onClose}
+          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-[#F2711F] flex items-center"
+        >
+          <User size={16} className="mr-2" />
+          Xem profile
+        </Link>
         <button
           onClick={handleLogout}
-          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 flex items-center"
+          className="cursor-pointer w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 flex items-center"
         >
           <LogOut size={16} className="mr-2" />
           Đăng xuất
@@ -121,7 +126,7 @@ const AuthButtons = () => {
       <div className="relative">
         <button
           onClick={toggleUserDropdown}
-          className="flex items-center text-gray-600 hover:text-[#F2711F] bg-gray-50 hover:bg-orange-50 px-3 py-2 rounded-md transition-colors duration-200 max-w-48"
+          className="cursor-pointer flex items-center text-gray-600 hover:text-[#F2711F] bg-gray-50 hover:bg-orange-50 px-3 py-2 rounded-md transition-colors duration-200 max-w-48"
         >
           <User size={18} className="flex-shrink-0" />
           <span className="ml-2 text-sm font-medium truncate">{user.name}</span>
@@ -200,12 +205,7 @@ const TopBar = ({ isSticky }) => {
               >
                 Sinh Viên
               </Link>
-              <a
-                href="/alumni"
-                className="text-gray-600 hover:text-[#F2711F] text-sm font-semibold"
-              >
-                Cựu Sinh Viên
-              </a>
+             
             </div>
 
             <div className="flex items-center space-x-4">
@@ -265,7 +265,7 @@ const MainNavigation = ({ isSticky }) => {
     { label: "Tin Tức và Sự Kiện", path: "/tin-tuc-su-kien" },
     { label: "Ngành Học", path: "/nganh-hoc" },
     { label: "Tuyển Sinh", path: "/tuyen-sinh" },
-    { label: "Trải Nghiệm Toàn Cầu", path: "/trai-nghiem-toan-cau" },
+    { label: "FAQ", path: "/faq" },
   ];
 
   return (
