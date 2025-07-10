@@ -132,7 +132,8 @@ namespace DAL
                 new Claim("email", user.Email),
                 new Claim("name", user.Name),
                 new Claim("role", user.Role?.Name ?? "User"), // Safe access with null coalescing
-                new Claim("isBanned", user.IsBanned.ToString())
+                new Claim("isBanned", user.IsBanned.ToString()),
+                new Claim("phone",user.Phone)
             };
 
             var token = new JwtSecurityToken(
