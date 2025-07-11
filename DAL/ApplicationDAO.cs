@@ -2,22 +2,24 @@
 using BO.dtos.Response;
 using BO.Models;
 using DAL;
+using DAL.Files;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 public class ApplicationDAO
 {
     private readonly AppDbContext _context;
+    private readonly IFileService _fileService;
 
-    public ApplicationDAO(AppDbContext context)
+    public ApplicationDAO(AppDbContext context, IFileService fileService)
     {
         _context = context;
+        _fileService = fileService;
     }
 
     // 1. Create New Application (Draft)
-    public async Task<ApplicationResponse> CreateDraftAsync( int studentId, ApplicationRequest request)
+    public async Task<ApplicationResponse> CreateDraftAsync(int studentId, ApplicationRequest request)
     {
-        // Load program first to get the title
         var program = await _context.Programs
             .FirstOrDefaultAsync(p => p.id == request.ProgramId);
 
@@ -28,11 +30,28 @@ public class ApplicationDAO
         {
             student_id = studentId,
             programs_id = request.ProgramId,
-            submission_data = JsonSerializer.Serialize(request.SubmissionData),
             submitted_at = DateTime.UtcNow,
             Status = ApplicationStatus.Draft,
-            Programs = program // Set the navigation property
+            PortfolioLink = request.PortfolioLink,
+            OtherLink = request.OtherLink
         };
+
+        // Handle image upload
+        if (request.Image != null)
+        {
+            application.ImagePath = await _fileService.SaveFileAsync(request.Image);
+        }
+
+        // Handle document uploads
+        if (request.Documents != null && request.Documents.Count > 0)
+        {
+            var docPaths = new List<string>();
+            foreach (var doc in request.Documents)
+            {
+                docPaths.Add(await _fileService.SaveFileAsync(doc));
+            }
+            application.DocumentPaths = JsonSerializer.Serialize(docPaths);
+        }
 
         await _context.Applications.AddAsync(application);
         await _context.SaveChangesAsync();
@@ -51,6 +70,7 @@ public class ApplicationDAO
 
         application.Status = ApplicationStatus.Submitted;
         application.submitted_at = DateTime.UtcNow;
+        application.updated_at = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
         return MapToResponse(application);
@@ -63,8 +83,11 @@ public class ApplicationDAO
             .Include(a => a.Programs)
             .FirstOrDefaultAsync(a => a.id == id);
 
-        return application == null ? null : MapToResponse(application);
+        if (application == null) return null;
+
+        return MapToResponse(application);
     }
+
 
     // 4. Get Applications by Student
     public async Task<List<ApplicationResponse>> GetByStudentAsync(int studentId)
@@ -72,16 +95,7 @@ public class ApplicationDAO
         return await _context.Applications
             .Where(a => a.student_id == studentId)
             .Include(a => a.Programs)
-            .Select(a => new ApplicationResponse
-            {
-                Id = a.id,
-                StudentId = a.student_id,
-                ProgramId = a.programs_id,
-                ProgramTitle = a.Programs != null ? a.Programs.title : string.Empty,
-                SubmissionData = TryDeserializeSubmissionData(a.submission_data),
-                SubmittedAt = a.submitted_at,
-                Status = a.Status
-            })
+            .Select(a => MapToResponse(a))
             .ToListAsync();
     }
 
@@ -89,8 +103,8 @@ public class ApplicationDAO
     public async Task<ApplicationResponse> UpdateAsync(string id, UpdateApplicationRequest request)
     {
         var application = await _context.Applications
-            .Include(a => a.Student) // Load student data
-            .Include(a => a.Programs) // Load program data
+            .Include(a => a.Student)
+            .Include(a => a.Programs)
             .FirstOrDefaultAsync(a => a.id == id);
 
         if (application == null)
@@ -99,12 +113,7 @@ public class ApplicationDAO
         if (application.Status != ApplicationStatus.Draft)
             throw new InvalidOperationException("Only draft applications can be modified");
 
-        // Update only provided fields
-        if (request.SubmissionData != null)
-        {
-            application.submission_data = JsonSerializer.Serialize(request.SubmissionData);
-        }
-
+        // Update student info if provided
         if (!string.IsNullOrEmpty(request.StudentName) && application.Student != null)
         {
             application.Student.Name = request.StudentName;
@@ -113,6 +122,12 @@ public class ApplicationDAO
         if (!string.IsNullOrEmpty(request.Student_Phone) && application.Student != null)
         {
             application.Student.Phone = request.Student_Phone;
+        }
+
+        // Update program if changed
+        if (!string.IsNullOrEmpty(request.ProgramId))
+        {
+            application.programs_id = request.ProgramId;
         }
 
         application.updated_at = DateTime.UtcNow;
@@ -169,29 +184,36 @@ public class ApplicationDAO
     // Helper method
     private static ApplicationResponse MapToResponse(Applications application)
     {
-        return new ApplicationResponse
+        var response = new ApplicationResponse
         {
             Id = application.id,
             StudentId = application.student_id,
             ProgramId = application.programs_id,
             ProgramTitle = application.Programs?.title,
-            SubmissionData = JsonSerializer.Deserialize<Dictionary<string, object>>(application.submission_data),
+            ImageUrl = application.ImagePath,
+            PortfolioLink = application.PortfolioLink,
+            OtherLink = application.OtherLink,
             SubmittedAt = application.submitted_at,
-            Status = application.Status
+            Status = application.Status,
+            DocumentUrls = TryDeserializeDocumentPaths(application.DocumentPaths)
         };
+
+        return response;
     }
+
     // Helper method for safe deserialization
 
-    private static Dictionary<string, object> TryDeserializeSubmissionData(string json)
+    private static List<string> TryDeserializeDocumentPaths(string json)
     {
         try
         {
-            return JsonSerializer.Deserialize<Dictionary<string, object>>(json)
-                   ?? new Dictionary<string, object>();
+            return string.IsNullOrEmpty(json)
+                ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
         }
         catch
         {
-            return new Dictionary<string, object>();
+            return new List<string>();
         }
     }
 }

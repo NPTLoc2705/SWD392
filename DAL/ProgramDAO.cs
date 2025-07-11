@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text.Json;
-using static Google.Apis.Requests.BatchRequest;
 
 namespace DAL
 {
@@ -22,29 +20,23 @@ namespace DAL
 
         public async Task<ProgramResponse> CreateAsync(CreateProgramRequest program)
         {
-            string admissionRequirementsJson = program.AdmissionRequirements != null
-        ? JsonSerializer.Serialize(program.AdmissionRequirements)
-        : "{}";
-
             var newProgram = new Programs
             {
                 title = program.Title,
                 description = program.Description,
-                admission_requirements = admissionRequirementsJson,
+                admission_requirements = program.AdmissionRequirements, // Direct string assignment
                 tuition_fee = program.TuitionFee,
                 dormitory_info = program.DormitoryInfo,
                 is_active = program.IsActive,
                 created_at = DateTime.UtcNow,
                 updated_at = DateTime.UtcNow
             };
+
             await _context.Programs.AddAsync(newProgram);
             await _context.SaveChangesAsync();
-           return await GetByIdAsync(newProgram.id);
+            return await GetByIdAsync(newProgram.id);
         }
 
-
-        //Notbly, The program should not be deleted permanently,
-        //instead it should be soft deleted by setting is_active to false.
         public async Task<ProgramResponse> DeleteAsync(string id)
         {
             var response = new ProgramResponse();
@@ -61,14 +53,12 @@ namespace DAL
                 existingProgram.updated_at = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
 
-                
                 response.message = "Program deactivated successfully";
                 response.Id = id;
                 return response;
             }
             catch (Exception ex)
             {
-                
                 response.message = $"Error deactivating program: {ex.Message}";
                 return response;
             }
@@ -76,33 +66,39 @@ namespace DAL
 
         public async Task<IEnumerable<ProgramResponse>> GetAllAsync()
         {
-            return await _context.Programs.OrderByDescending(t => t.updated_at).Where(t => t.is_active).Select(t => new ProgramResponse
-            {
-                Id = t.id,
-                Title = t.title,
-                Description = t.description,
-                AdmissionRequirements = t.admission_requirements,
-                TuitionFee = t.tuition_fee,
-                DormitoryInfo = t.dormitory_info,
-                IsActive = t.is_active,
-                CreatedAt = t.created_at,
-                UpdatedAt = t.updated_at
-            }).ToListAsync();
+            return await _context.Programs
+                .OrderByDescending(t => t.updated_at)
+                .Where(t => t.is_active)
+                .Select(t => new ProgramResponse
+                {
+                    Id = t.id,
+                    Title = t.title,
+                    Description = t.description,
+                    AdmissionRequirements = t.admission_requirements,
+                    TuitionFee = t.tuition_fee,
+                    DormitoryInfo = t.dormitory_info,
+                    IsActive = t.is_active,
+                    CreatedAt = t.created_at,
+                    UpdatedAt = t.updated_at
+                }).ToListAsync();
         }
 
         public async Task<ProgramResponse> GetByIdAsync(string id)
         {
-            return await _context.Programs.Where(t => t.id == id).Select(t=> new ProgramResponse {
-                Id = t.id,
-                Title = t.title,
-                Description = t.description,
-                AdmissionRequirements = t.admission_requirements,
-                TuitionFee = t.tuition_fee,
-                DormitoryInfo = t.dormitory_info,
-                IsActive = t.is_active,
-                CreatedAt = t.created_at,
-                UpdatedAt = t.updated_at
-            }).FirstOrDefaultAsync();
+            return await _context.Programs
+                .Where(t => t.id == id)
+                .Select(t => new ProgramResponse
+                {
+                    Id = t.id,
+                    Title = t.title,
+                    Description = t.description,
+                    AdmissionRequirements = t.admission_requirements,
+                    TuitionFee = t.tuition_fee,
+                    DormitoryInfo = t.dormitory_info,
+                    IsActive = t.is_active,
+                    CreatedAt = t.created_at,
+                    UpdatedAt = t.updated_at
+                }).FirstOrDefaultAsync();
         }
 
         public async Task<bool> ProgramExistsAsync(string id)
@@ -125,9 +121,8 @@ namespace DAL
             if (program.Description != null)
                 existingProgram.description = program.Description;
 
-            existingProgram.admission_requirements = program.AdmissionRequirements != null
-                ? JsonSerializer.Serialize(program.AdmissionRequirements)
-                : existingProgram.admission_requirements;
+            if (program.AdmissionRequirements != null)
+                existingProgram.admission_requirements = program.AdmissionRequirements; // Direct string assignment
 
             if (program.TuitionFee != default)
                 existingProgram.tuition_fee = program.TuitionFee;
@@ -135,16 +130,14 @@ namespace DAL
             if (program.DormitoryInfo != null)
                 existingProgram.dormitory_info = program.DormitoryInfo;
 
-            // Bool should always be updated if provided (can't check for null)
             existingProgram.is_active = program.IsActive;
-
             existingProgram.updated_at = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
             return new ProgramResponse
             {
-                Id = existingProgram.id, // Don't forget to include ID!
+                Id = existingProgram.id,
                 Title = existingProgram.title,
                 Description = existingProgram.description,
                 AdmissionRequirements = existingProgram.admission_requirements,
@@ -155,6 +148,5 @@ namespace DAL
                 UpdatedAt = existingProgram.updated_at
             };
         }
-
     }
 }

@@ -16,8 +16,8 @@ namespace Repo.Ticket
         {
             _feedbackDAO = new FeedbackDAO(context);
         }
-        public Task<FeedbackResponse> CreateFeedbackAsync(FeedbackRequest request, int studentId)
-        => _feedbackDAO.CreateFeedbackAsync(request, studentId);
+        public Task<FeedbackResponse> SubmitFeedbackAsync(string ticketId, FeedbackRatingRequest request, int studentId)
+        => _feedbackDAO.SubmitFeedbackAsync(ticketId, request, studentId);
 
         public Task<FeedbackResponse> GetFeedbackByIdAsync(string feedbackId)
         => _feedbackDAO.GetFeedbackByIdAsync(feedbackId);

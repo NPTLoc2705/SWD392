@@ -18,32 +18,21 @@ namespace DAL
             _context = context;
         }
 
-        public async Task<FeedbackResponse> CreateFeedbackAsync(FeedbackRequest request, int studentId)
+        public async Task<FeedbackResponse> SubmitFeedbackAsync(string ticketId, FeedbackRatingRequest request, int studentId)
         {
             // Verify ticket exists and is completed
             var ticket = await _context.Tickets
-                .Include(t => t.Consultant)
-                .FirstOrDefaultAsync(t => t.Id == request.ticket_id && t.Status == Status.Completed);
+         .Include(t => t.Consultant)
+         .FirstOrDefaultAsync(t => t.Id == ticketId && t.Status == Status.Answered);
 
             if (ticket == null)
                 throw new Exception("Ticket not found or not completed");
 
-            // Verify consultant was assigned to this ticket
-            if (ticket.ConsultantId != request.consultant_id)
-                throw new Exception("Consultant was not assigned to this ticket");
-
-            // Check if feedback already exists for this ticket
-            var existingFeedback = await _context.Feedback
-                .FirstOrDefaultAsync(f => f.ticket_id == request.ticket_id);
-
-            if (existingFeedback != null)
-                throw new Exception("Feedback already submitted for this ticket");
-
             var feedback = new Feedback
             {
-                ticket_id = request.ticket_id,
+                ticket_id = ticketId.ToString(),
                 student_id = studentId,
-                consultant_id = request.consultant_id,
+                consultant_id = ticket.ConsultantId.Value, // Auto-assigned
                 rating = request.rating,
                 comment = request.comment,
                 created_at = DateTime.UtcNow

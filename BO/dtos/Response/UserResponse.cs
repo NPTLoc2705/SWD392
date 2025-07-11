@@ -14,6 +14,7 @@ namespace BO.dtos.Response
         public string Phone { get; set; }
         public int RoleId { get; set; }
         public string RoleName { get; set; }
+        public string Password { get; set; }
         
     }
 }

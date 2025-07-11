@@ -1,6 +1,8 @@
 using BO.Models;
 using DAL;
+using DAL.Files;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +25,7 @@ namespace SWD392.Server
 
             // Add services to the container.
             builder.Services.AddControllers();
+            builder.Services.AddHttpContextAccessor();
 
             // Configure CORS
             builder.Services.AddCors(options =>
@@ -45,6 +48,29 @@ namespace SWD392.Server
 
             // Register IHttpContextAccessor for session access in ChatbotService
             builder.Services.AddHttpContextAccessor();
+            // Configure form options for file uploads - ENHANCED
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 100 * 1024 * 1024; // 100MB
+                options.ValueLengthLimit = 100 * 1024 * 1024; // 100MB
+                options.MultipartHeadersLengthLimit = 100 * 1024 * 1024; // 100MB
+                options.MultipartBoundaryLengthLimit = 128;
+                options.KeyLengthLimit = 2048;
+                options.ValueCountLimit = 1024;
+                options.MemoryBufferThreshold = 1024 * 1024; // 1MB
+            });
+
+            // Configure Kestrel server limits - IMPORTANT
+            builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
+            {
+                options.Limits.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB
+            });
+
+            // Configure IIS server limits (if using IIS)
+            builder.Services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB
+            });
 
             // Add OpenAPI with Bearer auth support
             builder.Services.AddOpenApi("v1", options =>
@@ -67,6 +93,7 @@ namespace SWD392.Server
 
             // Register custom services
             builder.Services.AddScoped<AuthDAO>();
+            builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<TicketDAO>();
             builder.Services.AddScoped<FeedbackDAO>();
             builder.Services.AddScoped<ApplicationDAO>();
@@ -113,6 +140,8 @@ namespace SWD392.Server
 
             var app = builder.Build();
 
+            // Enable static files FIRST - VERY IMPORTANT
+            app.UseStaticFiles();
             app.UseDefaultFiles();
             app.MapStaticAssets();
 

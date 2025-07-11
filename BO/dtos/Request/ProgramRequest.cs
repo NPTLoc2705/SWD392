@@ -17,7 +17,7 @@ namespace BO.dtos.Request
         public string Description { get; set; }
 
         [Required]
-        public Dictionary<string, object> AdmissionRequirements { get; set; }
+        public string AdmissionRequirements { get; set; }
         [Required]
         public decimal TuitionFee { get; set; }
 
@@ -33,7 +33,7 @@ namespace BO.dtos.Request
         [StringLength(200)]
         public string? Title { get; set; }
         public string? Description { get; set; }
-        public Dictionary<string, object>? AdmissionRequirements { get; set; }
+        public string AdmissionRequirements { get; set; }
         public decimal? TuitionFee { get; set; }  // Nullable decimal
         public string? DormitoryInfo { get; set; }
         public bool IsActive { get; set; }

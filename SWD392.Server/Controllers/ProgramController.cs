@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Services.Ticket;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 
 namespace YourProjectName.Controllers
 {
@@ -25,9 +24,6 @@ namespace YourProjectName.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Get all active programs
-        /// </summary>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ProgramResponse>>> GetAllPrograms()
@@ -44,10 +40,6 @@ namespace YourProjectName.Controllers
             }
         }
 
-        /// <summary>
-        /// Get program by ID
-        /// </summary>
-        /// <param name="id">Program ID</param>
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<ProgramResponse>> GetProgramById(string id)
@@ -66,9 +58,6 @@ namespace YourProjectName.Controllers
             }
         }
 
-        /// <summary>
-        /// Create a new program (Admin only)
-        /// </summary>
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProgramResponse>> CreateProgram([FromBody] CreateProgramRequest request)
@@ -80,8 +69,8 @@ namespace YourProjectName.Controllers
                     return BadRequest(ModelState);
                 }
 
-                // Additional JSON validation
-                if (request.AdmissionRequirements == null || request.AdmissionRequirements.Count == 0)
+                // Updated validation for string requirements
+                if (string.IsNullOrWhiteSpace(request.AdmissionRequirements))
                 {
                     ModelState.AddModelError("AdmissionRequirements", "Admission requirements cannot be empty");
                     return BadRequest(ModelState);
@@ -97,9 +86,6 @@ namespace YourProjectName.Controllers
             }
         }
 
-        /// <summary>
-        /// Update an existing program (Admin only)
-        /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProgramResponse>> UpdateProgram([FromRoute] string id, [FromBody] UpdateProgramRequest request)
@@ -110,8 +96,8 @@ namespace YourProjectName.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-              
-                var updatedProgram = await _programService.UpdateAsync(id,request);
+
+                var updatedProgram = await _programService.UpdateAsync(id, request);
                 return Ok(updatedProgram);
             }
             catch (KeyNotFoundException ex)
@@ -126,9 +112,6 @@ namespace YourProjectName.Controllers
             }
         }
 
-        /// <summary>
-        /// Soft delete a program (Admin only)
-        /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProgram(string id)
@@ -139,10 +122,10 @@ namespace YourProjectName.Controllers
 
                 if (result.error == 1)
                 {
-                    return NotFound(result); // Returns 404 with error message
+                    return NotFound(result);
                 }
 
-                return Ok(result); // Returns 200 with success message
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -154,45 +137,5 @@ namespace YourProjectName.Controllers
                 });
             }
         }
-
-        /// <summary>
-        /// Toggle program active status (Admin only)
-        /// </summary>
-        //[HttpPatch("{id}/toggle-active")]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<ActionResult<ProgramResponse>> ToggleProgramActive(string id)
-        //{
-        //    try
-        //    {
-        //        var program = await _programService.GetByIdAsync(id);
-        //        if (program == null)
-        //        {
-        //            return NotFound(new { message = $"Program with ID {id} not found" });
-        //        }
-
-        //        var updateRequest = new UpdateProgramRequest
-        //        {
-        //            Id = id,
-        //            Title = program.Title,
-        //            Description = program.Description,
-        //            AdmissionRequirements = program.AdmissionRequirements,
-        //            TuitionFee = program.TuitionFee,
-        //            DormitoryInfo = program.DormitoryInfo,
-        //            IsActive = !program.IsActive
-        //        };
-
-        //        var updatedProgram = await _programService.UpdateAsync(updateRequest);
-        //        return Ok(new
-        //        {
-        //            message = "Program status toggled successfully",
-        //            program = updatedProgram
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, $"Error toggling active status for program with ID {id}");
-        //        return StatusCode(500, new { message = "An error occurred while toggling program status" });
-        //    }
-        //}
     }
 }

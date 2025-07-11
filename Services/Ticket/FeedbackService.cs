@@ -26,7 +26,7 @@ namespace Services.Ticket
         public Task<FeedbackResponse> RespondToFeedbackAsync(string feedbackId, string response, int consultantId)
         => _feedbackRepository.UpdateFeedbackResponseAsync(feedbackId, response, consultantId);
 
-        public Task<FeedbackResponse> SubmitFeedbackAsync(FeedbackRequest request, int studentId)
-        => _feedbackRepository.CreateFeedbackAsync(request, studentId);
+        public Task<FeedbackResponse> SubmitFeedbackAsync(string ticketId, FeedbackRatingRequest request, int studentId)
+        => _feedbackRepository.SubmitFeedbackAsync(ticketId, request, studentId);
     }
 }

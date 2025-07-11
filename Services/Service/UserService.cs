@@ -57,7 +57,8 @@ namespace Services.Service
                 Name = user.Name,
                 Email = user.Email,
                 Phone = user.Phone,
-                RoleName = user.Role?.Name
+                RoleName = user.Role?.Name,
+                Password = user.Password,
             };
         }
     }
