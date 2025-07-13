@@ -24,7 +24,7 @@ namespace DAL
             _configuration = configuration;
         }
 
-        public async Task<User> Register(RegisterRequest registerDto)
+        public  async Task<User> Register(RegisterRequest registerDto)
         {
             // Check if user already exists
             if (await _context.User.AnyAsync(s => s.Email == registerDto.email))

@@ -48,7 +48,8 @@ namespace Services.Service
                 Status = AppointmentStatus.Pending,
                 IsPriority = request.IsPriority,
                 Create_at = DateTime.UtcNow,
-                Update_at = DateTime.UtcNow
+                Update_at = DateTime.UtcNow,
+                Phone = request.Phone,
             };
 
             await _appointmentRepo.AddAsync(appointment);
@@ -62,7 +63,8 @@ namespace Services.Service
                 ConsultantName = consultant.Name,
                 ConsultantEmail = consultant.Email,
                 PaymentUrl = paymentUrl,
-                Messsage = "Đặt lịch thành công! Vui lòng thanh toán để hoàn tất đặt lịch."
+                Messsage = "Đặt lịch thành công! Vui lòng thanh toán để hoàn tất đặt lịch.",
+                Phone = request.Phone
             };
         }
 
