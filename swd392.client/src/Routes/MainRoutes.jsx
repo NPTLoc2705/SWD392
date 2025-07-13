@@ -24,6 +24,7 @@ import ConsultantRoute from "./ConsultantRoutes";
 import Consultant from "../Consultant/ConsultantHomepage";
 import { getCurrentUser } from "../utils/auth";
 import Profile from "../Layout/Profile";
+import FAQ from "../Pages/FAQ";
 
 // MainLayout kiểm tra nếu là admin thì chuyển hướng về /admin, consultant về /consultant
 const MainLayout = () => {
@@ -77,6 +78,7 @@ const MainRoutes = () => {
           <Route path="/lien-he" element={<ContactPage />} />
           <Route path="/sinh-vien" element={<StudentPage />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/FAQ" element={<FAQ />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
 
