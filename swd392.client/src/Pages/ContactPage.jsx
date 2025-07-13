@@ -509,30 +509,17 @@ const ContactPage = () => {
           </p>
         </div>
 
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-          <h4 className="font-medium text-blue-900 mb-2">
+        <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+          <h4 className="font-medium text-orange-900 mb-2">
             Thông tin thanh toán:
           </h4>
-          <div className="text-sm text-blue-800 space-y-1">
+          <div className="text-sm text-orange-800 space-y-1">
             <p>
               • Phí tư vấn: <span className="font-semibold">100,000 VND</span>
             </p>
             <p>• Thanh toán qua VNPay an toàn và bảo mật</p>
-            <p>• Có thể hủy lịch và hoàn tiền trước 24h</p>
+            <p> • Sau khi thanh toán thành công, chúng tôi sẽ liên hệ xác nhận lịch hẹn</p>
           </div>
-        </div>
-
-        <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-          <h4 className="font-medium text-orange-900 mb-2">
-            Lưu ý quan trọng:
-          </h4>
-          <ul className="text-sm text-orange-800 space-y-1">
-            <li>• Vui lòng đảm bảo số điện thoại luôn liên lạc được</li>
-            <li>• Thông tin cá nhân được bảo mật tuyệt đối</li>
-            <li>
-              • Sau khi thanh toán thành công, chúng tôi sẽ liên hệ xác nhận lịch hẹn
-            </li>
-          </ul>
         </div>
 
         <button
@@ -607,7 +594,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+    <div className="min-h-screen bg-white">
       <AlertComponent alert={alert} onClose={() => setAlert(null)} />
 
       <div className="relative h-90 overflow-hidden">
@@ -787,7 +774,7 @@ const ContactPage = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm mb-8 p-2 max-w-4xl mx-auto">
+        <div className="bg-white rounded-lg shadow-lg mb-8 p-2 max-w-4xl mx-auto">
           <div className="flex space-x-2">
             <button
               onClick={() => setActiveTab("ticket")}
@@ -814,7 +801,7 @@ const ContactPage = () => {
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto ">
           {activeTab === "ticket" ? renderTicketTab() : renderAppointmentTab()}
         </div>
       </div>

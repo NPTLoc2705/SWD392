@@ -381,39 +381,6 @@ const ProgramsPage = () => {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="max-w-4xl mx-auto py-12 px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-orange-600 mb-10 text-center uppercase">
-          Câu hỏi thường gặp
-        </h2>
-        <div className="space-y-4">
-          {faqs.map((faq, idx) => (
-            <div
-              key={idx}
-              className="border border-orange-100 rounded-xl shadow-sm bg-white"
-            >
-              <button
-                className="w-full flex items-center justify-between px-6 py-4 text-left focus:outline-none"
-                onClick={() => setOpenFAQ(openFAQ === idx ? null : idx)}
-              >
-                <span className="flex items-center gap-2 font-semibold text-orange-700">
-                  <FaQuestionCircle className="text-orange-400" />
-                  {faq.question}
-                </span>
-                <span className="text-orange-500 text-2xl">
-                  {openFAQ === idx ? "-" : "+"}
-                </span>
-              </button>
-              {openFAQ === idx && (
-                <div className="px-6 pb-4 text-gray-700 animate-fade-in">
-                  {faq.answer}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Call to Action */}
       <section className="bg-gradient-to-r from-orange-500 to-orange-400 py-16 text-center text-white rounded-3xl max-w-5xl mx-auto mb-16 shadow-lg">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">Sẵn sàng trở thành sinh viên FPTU?</h2>
