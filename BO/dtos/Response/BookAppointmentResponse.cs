@@ -14,5 +14,6 @@ namespace BO.dtos.Response
         public string ConsultantName { get; set; }
         public string ConsultantEmail { get; set; }
         public string Messsage { get; set; }
+        public string Phone {  get; set; }
     }
 }

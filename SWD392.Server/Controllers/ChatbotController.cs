@@ -21,7 +21,7 @@ namespace SWD392.Server.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        // No [Authorize] to allow guest access
         public async Task<IActionResult> Chat([FromBody] ChatbotRequest request)
         {
             try
@@ -29,16 +29,21 @@ namespace SWD392.Server.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(new { success = false, message = "Invalid request" });
 
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!int.TryParse(userIdClaim, out int userId))
-                    return Unauthorized(new { success = false, message = "Invalid user authentication" });
+                int? userId = null;
+                if (User.Identity.IsAuthenticated)
+                {
+                    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    if (!int.TryParse(userIdClaim, out int parsedUserId))
+                        return Unauthorized(new { success = false, message = "Invalid user authentication" });
+                    userId = parsedUserId;
+                }
 
                 var response = await _chatbotService.GenerateResponse(request, userId);
                 return Ok(new { success = true, data = response, message = "Response generated" });
             }
             catch (ArgumentException ex)
             {
-            return BadRequest(new { success = false, message = ex.Message });
+                return BadRequest(new { success = false, message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -47,7 +52,7 @@ namespace SWD392.Server.Controllers
         }
 
         [HttpGet("history")]
-        [Authorize]
+        [Authorize] // Restricted to authenticated users
         public async Task<IActionResult> GetChatHistory()
         {
             try
