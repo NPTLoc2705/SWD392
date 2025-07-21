@@ -345,6 +345,14 @@ const AdminMajorsPage = () => {
           headers: getAuthHeaders(),
         });
         showToast("Cập nhật ngành học thành công!", "success");
+        // Nếu ngành học vừa chuyển sang ngừng tuyển, giữ modal mở và cập nhật trạng thái ngay
+        if (requestData.isActive === false) {
+          setForm((prev) => ({ ...prev, isActive: false }));
+          await fetchMajors();
+          // Không đóng modal, chỉ cập nhật lại danh sách majors để trạng thái hiển thị đúng
+          setIsSubmitting(false);
+          return;
+        }
       } else {
         await axios.post(`${API_BASE}/create`, requestData, {
           headers: getAuthHeaders(),
@@ -460,7 +468,7 @@ const AdminMajorsPage = () => {
       ? {
           color: "text-green-600",
           bgColor: "bg-green-100",
-          text: "Đang mở",
+          text: "Đang tuyển",
           dotColor: "bg-green-500",
         }
       : {
@@ -505,7 +513,7 @@ const AdminMajorsPage = () => {
               <div className="flex items-center space-x-4 text-sm text-gray-600">
                 <span>Tổng: {majors.length} ngành</span>
                 <span>
-                  Đang mở: {majors.filter((major) => major.isActive).length}
+                  Đang tuyển: {majors.filter((major) => major.isActive).length}
                 </span>
                 <span>
                   Ngừng tuyển:{" "}
@@ -721,7 +729,7 @@ const AdminMajorsPage = () => {
                               <div className="text-sm font-medium text-gray-900">
                                 {major.title}
                               </div>
-                              <div className="text-sm text-gray-500 line-clamp-2">
+                              <div className="text-sm text-gray-500 line-clamp-2 break-words max-w-[10rem] md:max-w-[14rem] lg:max-w-[18rem] xl:max-w-[22rem] 2xl:max-w-[26rem]" title={major.description}>
                                 {major.description}
                               </div>
                             </div>
@@ -732,14 +740,44 @@ const AdminMajorsPage = () => {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusDisplay.bgColor} ${statusDisplay.color}`}
-                            >
+                            <div className="flex items-center gap-2">
                               <span
-                                className={`w-2 h-2 rounded-full mr-2 ${statusDisplay.dotColor}`}
-                              ></span>
-                              {statusDisplay.text}
-                            </span>
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusDisplay.bgColor} ${statusDisplay.color}`}
+                              >
+                                <span
+                                  className={`w-2 h-2 rounded-full mr-2 ${statusDisplay.dotColor}`}
+                                ></span>
+                                {statusDisplay.text}
+                              </span>
+                              <input
+                                type="checkbox"
+                                checked={major.isActive}
+                                onChange={async (e) => {
+                                  const newStatus = e.target.checked;
+                                  // Chỉ gửi các trường cần thiết cho update
+                                  const updateData = {
+                                    title: major.title,
+                                    description: major.description,
+                                    admissionRequirements: major.admissionRequirements,
+                                    tuitionFee: major.tuitionFee,
+                                    dormitoryInfo: major.dormitoryInfo,
+                                    isActive: newStatus
+                                  };
+                                  try {
+                                    await axios.put(`${API_BASE}/update/${major.id}`,
+                                      updateData,
+                                      { headers: getAuthHeaders() }
+                                    );
+                                    showToast("Cập nhật trạng thái thành công!", "success");
+                                    await fetchMajors();
+                                  } catch (err) {
+                                    showToast("Lỗi khi cập nhật trạng thái", "error");
+                                  }
+                                }}
+                                className="ml-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded cursor-pointer"
+                                title="Bật/tắt trạng thái tuyển sinh"
+                              />
+                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-900 line-clamp-2">

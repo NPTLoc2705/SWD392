@@ -50,21 +50,42 @@ const ProgramsPage = () => {
         ) : error ? (
           <div className="text-center text-red-500 text-lg font-semibold">{error}</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {programs.map((p) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {(programs || []).map((p, idx) => (
               <div
                 key={p.id}
-                className="bg-white rounded-3xl p-8 hover:shadow-xl transition-shadow duration-300 flex flex-col gap-2 cursor-pointer border border-orange-100 hover:border-orange-400"
-                onClick={() => setSelected(p.id)}
+                className="bg-white rounded-2xl shadow-xl overflow-hidden border border-orange-100 flex flex-col md:flex-row items-stretch hover:shadow-2xl transition-all duration-200"
               >
-                <h3 className="text-2xl font-bold text-orange-500 mb-2 truncate" title={p.title}>{p.title}</h3>
-                <div className="text-gray-700 text-sm min-h-[48px] line-clamp-3" title={p.description}>{p.description}</div>
-                <div className="flex flex-wrap gap-2 text-sm mt-1">
-                  <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">Học phí: {p.tuitionFee}</span>
-                  <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">{p.isActive ? 'Đang mở' : 'Ngừng tuyển'}</span>
+                <div className="md:w-48 w-full h-48 md:h-auto flex-shrink-0 flex items-center justify-center bg-orange-50">
+                  <img
+                    src={"https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80"}
+                    alt="Program"
+                    className="w-32 h-32 object-cover rounded-2xl shadow border border-orange-100"
+                  />
                 </div>
-                <div className="text-xs text-gray-500 mt-1">Yêu cầu: {p.admissionRequirements}</div>
-                {p.dormitoryInfo && <div className="text-xs text-gray-500">KTX: {p.dormitoryInfo}</div>}
+                <div className="flex-1 flex flex-col justify-center p-6">
+                  <div className="mb-2">
+                    <h3 className="text-2xl font-bold text-orange-700 truncate text-center" title={p.title}>{p.title}</h3>
+                    <div className="flex flex-col items-center gap-1 mt-2">
+                      {p.admissionRequirements && (
+                        <span className="px-3 py-1 rounded-full font-semibold text-xs bg-orange-50 text-orange-700 border border-orange-200 text-center max-w-full truncate" title={p.admissionRequirements}>
+                          Yêu cầu: {p.admissionRequirements}
+                        </span>
+                      )}
+                      <span className={`px-3 py-1 rounded-full font-semibold text-xs ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'} border ${p.isActive ? 'border-green-200' : 'border-gray-300'} text-center max-w-full`}>
+                        {p.isActive ? 'Đang tuyển' : 'Ngừng tuyển'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-4">
+                    <button
+                      className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow transition text-sm"
+                      onClick={e => { e.stopPropagation(); setSelected(p.id); }}
+                    >
+                      Chi tiết
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -72,35 +93,73 @@ const ProgramsPage = () => {
 
         {/* Modal detail */}
         {selected && (
-          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setSelected(null)}>
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative" onClick={e => e.stopPropagation()}>
-              <button className="absolute top-3 right-3 text-gray-400 hover:text-orange-500 text-2xl font-bold" onClick={() => setSelected(null)}>&times;</button>
-              {loadingDetail ? (
-                <div className="text-orange-500 text-lg font-semibold animate-pulse">Đang tải chi tiết...</div>
-              ) : errorDetail ? (
-                <div className="text-red-500 text-lg font-semibold">{errorDetail}</div>
-              ) : detail ? (
-                <div>
-                  <h2 className="text-2xl font-bold text-orange-500 mb-2">{detail.title}</h2>
-                  <div className="text-gray-700 mb-2 whitespace-pre-line">{detail.description}</div>
-                  <div className="flex flex-wrap gap-2 text-sm mb-2">
-                    <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">Học phí: {detail.tuitionFee}</span>
-                    <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">{detail.isActive ? 'Đang mở' : 'Ngừng tuyển'}</span>
-                  </div>
-                  <div className="text-xs text-gray-500 mb-1">Yêu cầu: {detail.admissionRequirements}</div>
-                  {detail.dormitoryInfo && <div className="text-xs text-gray-500 mb-1">KTX: {detail.dormitoryInfo}</div>}
-                  {detail.courses && (
-                    <div className="mt-4">
-                      <div className="font-semibold text-orange-500 mb-1">Các môn học tiêu biểu:</div>
-                      <ul className="list-disc list-inside text-gray-700 text-sm">
-                        {detail.courses.map((c, i) => <li key={i}>{c}</li>)}
-                      </ul>
+          <>
+            {/* Disable body scroll when modal is open */}
+            <style>{`body { overflow: hidden !important; }`}</style>
+            <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setSelected(null)}>
+              <div
+                className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl p-0 relative animate-fade-in overflow-hidden"
+                style={{ maxHeight: '92vh', minWidth: '340px', display: 'flex', flexDirection: 'column' }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div
+                  className="overflow-y-auto scrollbar-thin scrollbar-thumb-orange-200 scrollbar-track-orange-50"
+                  style={{ maxHeight: '92vh', width: '100%' }}
+                >
+                  <button className="absolute top-3 right-3 text-gray-400 hover:text-orange-500 text-2xl font-bold z-10" onClick={() => setSelected(null)}>&times;</button>
+                  {loadingDetail ? (
+                    <div className="text-orange-500 text-lg font-semibold animate-pulse p-10">Đang tải chi tiết...</div>
+                  ) : errorDetail ? (
+                    <div className="text-red-500 text-lg font-semibold p-10">{errorDetail}</div>
+                  ) : detail ? (
+                    <div className="flex flex-col items-center p-0 w-full break-words">
+                      <div className="w-full h-48 md:h-56 bg-orange-50 flex items-center justify-center border-b border-orange-100 relative">
+                        <img
+                          src={"https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80"}
+                          alt="Program"
+                          className="w-36 h-36 md:w-44 md:h-44 object-cover rounded-2xl shadow-lg border-2 border-orange-200 bg-orange-50 absolute left-1/2 -translate-x-1/2 top-8"
+                          style={{zIndex:2}}
+                        />
+                      </div>
+                      <div className="w-full flex flex-col items-center px-6 pt-24 pb-8">
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-orange-500 drop-shadow-lg mb-2 text-center leading-tight break-words">{detail.title}</h2>
+                        <div className="flex flex-wrap gap-2 mb-4 justify-center">
+                          <span className="bg-orange-100 text-orange-700 px-4 py-2 rounded-xl font-bold text-lg">
+                            Học phí: {Number(detail.tuitionFee).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                          </span>
+                          <span className={`px-4 py-2 rounded-xl font-semibold text-base ${detail.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>{detail.isActive ? 'Đang tuyển' : 'Ngừng tuyển'}</span>
+                        </div>
+                        <div className="w-full bg-gray-50 rounded-xl p-4 mb-3">
+                          <div className="font-semibold text-orange-500 mb-1">Mô tả ngành học</div>
+                          <div className="text-gray-700 whitespace-pre-line text-base break-words">{detail.description}</div>
+                        </div>
+                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                          <div className="bg-orange-50 rounded-xl p-4">
+                            <div className="font-semibold text-orange-500 mb-1">Yêu cầu tuyển sinh</div>
+                            <div className="text-gray-700 text-sm break-words">{detail.admissionRequirements}</div>
+                          </div>
+                          {detail.dormitoryInfo && (
+                            <div className="bg-blue-50 rounded-xl p-4">
+                              <div className="font-semibold text-blue-500 mb-1">Ký túc xá</div>
+                              <div className="text-blue-900 text-sm break-words">{detail.dormitoryInfo}</div>
+                            </div>
+                          )}
+                        </div>
+                        {detail.courses && detail.courses.length > 0 && (
+                          <div className="w-full mt-2">
+                            <div className="font-semibold text-orange-500 mb-1">Các môn học tiêu biểu:</div>
+                            <ul className="list-disc list-inside text-gray-700 text-sm pl-4">
+                              {detail.courses.map((c, i) => <li key={i} className="break-words">{c}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
-              ) : null}
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
