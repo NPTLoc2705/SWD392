@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Globe, ChevronDown, User, LogOut } from "lucide-react";
+import { Search, FileText, ChevronDown, User, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../utils/auth";
 import AdmissionsPage from "../Pages/AdmissionsPage";
@@ -35,7 +35,15 @@ const UserDropdown = ({ user, onClose }) => {
           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-[#F2711F] flex items-center"
         >
           <User size={16} className="mr-2" />
-          Xem profile
+          Tài khoản
+        </Link>
+        <Link
+          to="/nop-ho-so/ho-so-cua-toi"
+          onClick={onClose}
+          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-[#F2711F] flex items-center"
+        >
+          <FileText size={16} className="mr-2" />
+          Xem hồ sơ
         </Link>
         <button
           onClick={handleLogout}
@@ -186,6 +194,7 @@ const MainNavigation = ({ isSticky }) => {
     { label: "Ngành Học", path: "/nganh-hoc" },
     { label: "Tuyển Sinh", path: "/tuyen-sinh" },
     { label: "FAQ", path: "/faq" },
+    { label: "Nộp Hồ Sơ", path: "/nop-ho-so" },
   ];
 
   return (

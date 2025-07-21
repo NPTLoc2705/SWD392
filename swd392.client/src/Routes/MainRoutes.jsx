@@ -24,7 +24,6 @@ import CreateApplicationPage from "../Pages/Application/CreateApplicationPage";
 import MyApplicationsPage from "../Pages/Application/MyApplicationsPage";
 import ApplicationDetail from "../Pages/Application/ApplicationDetail";
 import UpdateApplication from "../Pages/Application/UpdateApplication";
-import TicketDetail from "../Pages/TicketDetail";
 import UploadArticlePage from "../Pages/UploadArticlePage";
 import ArticleListPage from "../Pages/ArticleListPage";
 import ArticleDetailPage from "../Pages/ArticleDetailPage";
@@ -41,6 +40,7 @@ import ChatbotPopup from "../Chat/chatbot";
 import FAQService from "../Pages/FAQService";
 import TicketAssignmentPage from "../Admin/TicketAssignmentPage";
 import UserManagementPage from "../Admin/UserManagementPage";
+import ApplicationManagement from "../Admin/ApplicationManagement";
 
 // MainLayout kiểm tra nếu là admin thì chuyển hướng về /admin, consultant về /consultant
 const MainLayout = () => {
@@ -96,11 +96,16 @@ const MainRoutes = () => {
           <Route path="/FAQ" element={<FAQ />} />
           {/* Xóa route /chat vì chatbot sẽ luôn hiện */}
           <Route path="*" element={<PageNotFound />} />
-          <Route path="/applications/new" element={<CreateApplicationPage />} />
-          <Route path="/applications/my-applications" element={<MyApplicationsPage />} />
-          <Route path="/applications/:id" element={<ApplicationDetail />} />
-          <Route path="/applications/:id/edit" element={<UpdateApplication />} />
-          <Route path="/tickets/:id" element={<TicketDetail />} />
+          <Route path="/nop-ho-so/" element={<CreateApplicationPage />} />
+          <Route
+            path="/nop-ho-so/ho-so-cua-toi"
+            element={<MyApplicationsPage />}
+          />
+          <Route path="/nop-ho-so/:id" element={<ApplicationDetail />} />
+          <Route
+            path="/nop-ho-so/:id/chinh-sua"
+            element={<UpdateApplication />}
+          />
         </Route>
 
         {/* Các route dành riêng cho admin */}
@@ -122,7 +127,7 @@ const MainRoutes = () => {
             }
           />
           <Route
-            path="/admin/faq" 
+            path="/admin/faq"
             element={
               <AdminRoute>
                 <FAQService />
@@ -130,7 +135,7 @@ const MainRoutes = () => {
             }
           />
           <Route
-            path="/admin/articles/:id" 
+            path="/admin/articles/:id"
             element={
               <AdminRoute>
                 <ArticleDetailPage />
@@ -138,7 +143,7 @@ const MainRoutes = () => {
             }
           />
           <Route
-            path="/admin/articles/edit/:id" 
+            path="/admin/articles/edit/:id"
             element={
               <AdminRoute>
                 <EditArticlePage />
@@ -166,6 +171,14 @@ const MainRoutes = () => {
             element={
               <AdminRoute>
                 <UserManagementPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/applications"
+            element={
+              <AdminRoute>
+                <ApplicationManagement />
               </AdminRoute>
             }
           />

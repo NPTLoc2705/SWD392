@@ -16,6 +16,7 @@ import {
   Mail,
   Phone,
   Calendar,
+  BookOpen,
 } from "lucide-react";
 import {
   FaPlus,
@@ -126,6 +127,28 @@ const adminMenuItems = [
     onClick: () => (window.location.href = "/admin/ticket-assignment"),
     className: "cursor-pointer",
   },
+  {
+    id: "applications",
+    name: "Quản lý hồ sơ",
+    icon: FileText,
+    description: "Xem và quản lý hồ sơ xét tuyển.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/applications"),
+    className: "cursor-pointer",
+  },
+  {
+      id: "majors",
+      name: "Quản lý ngành học",
+      icon: BookOpen,
+      description: "Xem, thêm, sửa, xóa các ngành học.",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      active: false,
+      onClick: () => (window.location.href = "/admin/majors"),
+      className: "cursor-pointer",
+    },
 ];
 
 const UserManagementPage = () => {
@@ -420,9 +443,6 @@ const UserManagementPage = () => {
                         Trạng thái
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ngày tạo
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Thao tác
                       </th>
                     </tr>
@@ -492,14 +512,7 @@ const UserManagementPage = () => {
                               )}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                              {user.createdAt
-                                ? formatDate(user.createdAt)
-                                : "Không xác định"}
-                            </div>
-                          </td>
+                          
                           <td className="px-6 py-4 whitespace-nowrap">
                             {user.roleName !== "Admin" && (
                               <button
