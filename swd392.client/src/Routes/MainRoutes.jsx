@@ -41,6 +41,7 @@ import FAQService from "../Pages/FAQService";
 import TicketAssignmentPage from "../Admin/TicketAssignmentPage";
 import UserManagementPage from "../Admin/UserManagementPage";
 import ApplicationManagement from "../Admin/ApplicationManagement";
+import TicketDetail from "../Pages/TicketDetail";
 
 // MainLayout kiểm tra nếu là admin thì chuyển hướng về /admin, consultant về /consultant
 const MainLayout = () => {
@@ -107,6 +108,8 @@ const MainRoutes = () => {
             element={<UpdateApplication />}
           />
         </Route>
+        <Route path="/ticket/:id" element={<TicketDetail/>} />
+
 
         {/* Các route dành riêng cho admin */}
         <Route element={<AdminLayout />}>
