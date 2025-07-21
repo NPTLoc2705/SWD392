@@ -60,27 +60,39 @@ namespace DAL
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<TicketResponse>> GetTicketsByConsultantAsync(int consultantId)
-    {
-        return await _context.Tickets
-            .Where(t => t.ConsultantId == consultantId)
-            .Include(t => t.Student)
-            .Include(t => t.Consultant)
-            .OrderByDescending(t => t.created_at)
-            .Select(t => new TicketResponse
-            {
-                Id = t.Id,
-                Subject = t.Subject,
-                Question = t.Message,
-                Status = t.Status,
-                CreatedAt = t.created_at,
-                StudentName = t.Student.Name,
-                ConsultantName = t.Consultant != null ? t.Consultant.Name : null
-            })
-            .ToListAsync();
-    }
+        public async Task<IEnumerable<TicketResponse>> GetTicketsByConsultantAsync(int consultantId)
+        {
+            return await _context.Tickets
+                .Where(t => t.ConsultantId == consultantId)
+                .Include(t => t.Student)
+                .Include(t => t.Consultant)
+                .Include(t => t.Feedback) // Include the Feedback navigation property
+                .OrderByDescending(t => t.created_at)
+                .Select(t => new TicketResponse
+                {
+                    Id = t.Id,
+                    Subject = t.Subject,
+                    Question = t.Message,
+                    Status = t.Status,
+                    CreatedAt = t.created_at,
+                    StudentName = t.Student.Name,
+                    ConsultantName = t.Consultant != null ? t.Consultant.Name : null,
+                    Feedback = t.Feedback != null ? new FeedbackResponse
+                    {
+                        id = t.Feedback.id,
+                        ticket_id = t.Feedback.ticket_id,
+                        student_name = t.Student.Name,
+                        consultant_name = t.Consultant.Name,
+                        rating = t.Feedback.rating,
+                        comment = t.Feedback.comment,
+                        response = t.Feedback.response,
+                        created_at = t.Feedback.created_at
+                    } : null
+                })
+                .ToListAsync();
+        }
 
-    public async Task<IEnumerable<TicketResponse>> GetAllTicketsAsync()
+        public async Task<IEnumerable<TicketResponse>> GetAllTicketsAsync()
     {
         return await _context.Tickets
             .Include(t => t.Student)
