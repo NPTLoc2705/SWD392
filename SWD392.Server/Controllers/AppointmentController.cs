@@ -52,6 +52,18 @@ namespace SWD392.Server.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("studentGetAppointment/{studentId}")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> StudentGetAppointment(int studentId)
+        {
+            // Lấy userId từ token để đảm bảo chỉ lấy được lịch của chính mình
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId) || userId != studentId)
+                return Forbid("You can only view your own appointments");
+
+            var result = await _appointmentService.StudentGetAppointmentAsync(studentId);
+            return Ok(result);
+        }
         // New endpoints for consultant
         [Authorize(Roles = "Consultant")]
         [HttpGet("consultant/{consultantId}")]
