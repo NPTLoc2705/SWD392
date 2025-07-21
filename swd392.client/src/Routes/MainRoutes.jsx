@@ -29,6 +29,7 @@ import ArticleListPage from "../Pages/ArticleListPage";
 import ArticleDetailPage from "../Pages/ArticleDetailPage";
 import EditArticlePage from "../Pages/EditArticlePage";
 import Admin from "../Admin/AdminHomepage";
+import AdminMajorsPage from "../Admin/AdminMajorsPage";
 import AdminRoute from "./AdminRoutes";
 import ConsultantRoute from "./ConsultantRoutes";
 import Consultant from "../Consultant/ConsultantHomepage";
@@ -102,6 +103,14 @@ const MainRoutes = () => {
 
         {/* Các route dành riêng cho admin */}
         <Route element={<AdminLayout />}>
+          <Route
+            path="/admin/majors"
+            element={
+              <AdminRoute>
+                <AdminMajorsPage />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/admin/upload-article" 
             element={
