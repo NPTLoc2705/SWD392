@@ -10,7 +10,6 @@ namespace BO.Models
     {
         Draft,         // Application saved but not submitted
         Submitted,     // Successfully submitted (default)
-        UnderReview,   // Being reviewed by admissions
         Approved,     // Accepted into the program
         Rejected,     // Denied admission
     }

@@ -15,6 +15,9 @@ namespace BO.dtos.Request
         [Required(ErrorMessage = "ProgramId is required")]
         public string ProgramId { get; set; }
 
+        public string? StudentName { get; set; }
+        public string? Student_Phone { get; set; }
+
         public string? PortfolioLink { get; set; }
 
         public string? OtherLink { get; set; }
