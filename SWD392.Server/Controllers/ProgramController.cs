@@ -24,7 +24,7 @@ namespace YourProjectName.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("list-program")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ProgramResponse>>> GetAllPrograms()
         {
@@ -40,7 +40,7 @@ namespace YourProjectName.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("/program-detail/{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<ProgramResponse>> GetProgramById(string id)
         {
@@ -58,7 +58,7 @@ namespace YourProjectName.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProgramResponse>> CreateProgram([FromBody] CreateProgramRequest request)
         {
@@ -86,7 +86,7 @@ namespace YourProjectName.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProgramResponse>> UpdateProgram([FromRoute] string id, [FromBody] UpdateProgramRequest request)
         {
@@ -112,7 +112,7 @@ namespace YourProjectName.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProgram(string id)
         {

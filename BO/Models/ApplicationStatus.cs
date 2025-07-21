@@ -13,7 +13,5 @@ namespace BO.Models
         UnderReview,   // Being reviewed by admissions
         Approved,     // Accepted into the program
         Rejected,     // Denied admission
-        Waitlisted,   // Potential admission if spots open
-        Withdrawn     // Student withdrew the application
     }
 }

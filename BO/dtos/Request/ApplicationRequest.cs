@@ -27,14 +27,10 @@ namespace BO.dtos.Request
     }
     public class UpdateApplicationRequest
     {
-        public string StudentName { get; set; }
-        public string Student_Phone { get; set; }
-        public string ProgramId { get; set; }
-
-        // For single image upload
+        public string? StudentName { get; set; }
+        public string? Student_Phone { get; set; }
+        public string? ProgramId { get; set; }
         public IFormFile? Image { get; set; }
-
-        // Alternative for multiple documents
         public IFormFileCollection? Documents { get; set; }
         public string? PortfolioLink { get; set; }
         public string? OtherLink { get; set; }

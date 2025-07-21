@@ -43,6 +43,7 @@ namespace DAL
             .Where(t => t.StudentId == studentId)
             .Include(t => t.Student)
             .Include(t => t.Consultant)
+            .Include(t => t.Feedback) // Include Feedback if needed
             .OrderByDescending(t => t.created_at)
             .Select(t => new TicketResponse
             {
@@ -52,7 +53,8 @@ namespace DAL
                 Status = t.Status,
                 CreatedAt = t.created_at,
                 StudentName = t.Student.Name,
-                ConsultantName = t.Consultant != null ? t.Consultant.Name : null
+                ConsultantName = t.Consultant != null ? t.Consultant.Name : null,
+                feedbackId = t.Feedback != null ? t.Feedback.id : null
             })
             .ToListAsync();
     }

@@ -18,6 +18,7 @@ namespace BO.dtos.Response
         public string StudentName { get; set; }
         public string StudentEmail { get; set; }// From User.name
         public string? ConsultantName { get; set; }
+        public string feedbackId { get; set; } // Feedback ID if exists
     }
     public class ConsultantResponse
     {

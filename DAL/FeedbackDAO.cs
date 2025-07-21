@@ -98,7 +98,8 @@ namespace DAL
             // Verify consultant is the one who received the feedback
             if (feedback.consultant_id != consultantId)
                 throw new Exception("Unauthorized: Not your feedback");
-
+            if (feedback.resolved)
+                throw new Exception("Feedback already resolved");
             feedback.response = response;
             feedback.resolved = true;
             await _context.SaveChangesAsync();
