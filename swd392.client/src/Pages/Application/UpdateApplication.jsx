@@ -139,6 +139,7 @@ const handleDocumentChange = (e) => {
     const apiResponse = await ApplicationService.updateApplication(id, formDataToSend);
 console.log('Update successful:', apiResponse);
 navigate(`/applications/${id}`)
+
   } catch (err) {
     console.error('Error updating application:', err);
     setError(err.message || 'Failed to update application');

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DAL
 {
@@ -124,6 +125,9 @@ namespace DAL
 
                 case Status.Answered:
                     throw new Exception($"Ticket is already {ticket.Status} (terminal state)");
+                    break;
+                    case Status.Cancelled:
+                    throw new InvalidOperationException($"Application is already {ticket.Status} (terminal state)");
 
             }
 
@@ -177,6 +181,8 @@ namespace DAL
                 StudentName = t.Student.Name,
                 StudentEmail = t.Student.Email,
                 ConsultantName = t.Consultant != null ? t.Consultant.Name : null,
+                feedbackId = t.Feedback != null ? t.Feedback.id : null,
+
  Feedback = t.Feedback != null ? new FeedbackResponse
  {
      id = t.Feedback.id,

@@ -24,6 +24,7 @@ import CreateApplicationPage from "../Pages/Application/CreateApplicationPage";
 import MyApplicationsPage from "../Pages/Application/MyApplicationsPage";
 import ApplicationDetail from "../Pages/Application/ApplicationDetail";
 import UpdateApplication from "../Pages/Application/UpdateApplication";
+import TicketDetail from "../Pages/TicketDetail";
 import UploadArticlePage from "../Pages/UploadArticlePage";
 import ArticleListPage from "../Pages/ArticleListPage";
 import ArticleDetailPage from "../Pages/ArticleDetailPage";
@@ -98,6 +99,7 @@ const MainRoutes = () => {
           <Route path="/applications/my-applications" element={<MyApplicationsPage />} />
           <Route path="/applications/:id" element={<ApplicationDetail />} />
           <Route path="/applications/:id/edit" element={<UpdateApplication />} />
+          <Route path="/tickets/:id" element={<TicketDetail />} />
         </Route>
 
         {/* Các route dành riêng cho admin */}
