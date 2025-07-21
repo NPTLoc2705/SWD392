@@ -89,6 +89,17 @@ public class ApplicationDAO
         return MapToResponse(application);
     }
 
+    public async Task<List<ApplicationResponse>> GetSubmittedApplicationsAsync()
+    {
+        return await _context.Applications
+         .Where(a => a.Status != ApplicationStatus.Draft) // Exclude Draft
+         .Include(a => a.Programs)
+         .Include(a => a.Student)
+         .OrderByDescending(a => a.submitted_at) // Newest first
+         .Select(a => MapToResponse(a))
+         .ToListAsync();
+    }
+
 
     // 4. Get Applications by Student
     public async Task<List<ApplicationResponse>> GetByStudentAsync(int studentId)

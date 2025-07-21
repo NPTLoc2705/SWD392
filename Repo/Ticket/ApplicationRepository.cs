@@ -32,6 +32,9 @@ namespace Repo.Ticket
         public Task<List<ApplicationResponse>> GetByStudentAsync(int studentId)
         => _applicationDAO.GetByStudentAsync(studentId);
 
+        public Task<List<ApplicationResponse>> GetSubmittedApplicationsAsync()
+        => _applicationDAO.GetSubmittedApplicationsAsync();
+
         public Task<ApplicationResponse> SubmitApplicationAsync(string applicationId)
         => _applicationDAO.SubmitApplicationAsync(applicationId);
 

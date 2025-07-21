@@ -30,6 +30,9 @@ namespace Services.Ticket
         public Task<List<ApplicationResponse>> GetByStudentAsync(int studentId)
         => applicationRepository.GetByStudentAsync(studentId);
 
+        public Task<List<ApplicationResponse>> GetSubmittedApplicationsAsync()
+        => applicationRepository.GetSubmittedApplicationsAsync();
+
         public Task<ApplicationResponse> SubmitApplicationAsync(string applicationId)
         => applicationRepository.SubmitApplicationAsync(applicationId);
 

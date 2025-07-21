@@ -192,5 +192,26 @@ namespace SWD392.Server.Controllers
                 return StatusCode(500, new { message = "An error occurred while changing application status" });
             }
         }
+        [HttpGet("admin/submitted")]
+        [Authorize(Roles = "Admin")] // Restrict to Admin role
+        public async Task<ActionResult<List<ApplicationResponse>>> GetSubmittedApplications()
+        {
+            try
+            {
+                // Verify JWT role claim (redundant with [Authorize] but good practice)
+                if (!User.IsInRole("Admin"))
+                {
+                    return Forbid();
+                }
+
+                var applications = await _applicationService.GetSubmittedApplicationsAsync();
+                return Ok(applications);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving submitted applications");
+                return StatusCode(500, new { message = "Failed to retrieve applications" });
+            }
+        }
     }
 }
