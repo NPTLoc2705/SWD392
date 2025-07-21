@@ -9,91 +9,47 @@ namespace Repo
 {
     public class AppointmentRepo : IAppointmentRepo
     {
-        private readonly AppDbContext _context;
+        private readonly AppointmentDAO _dao;
 
-        public AppointmentRepo(AppDbContext context)
+        public AppointmentRepo(AppointmentDAO dao)
         {
-            _context = context;
+            _dao = dao;
         }
 
-        public async Task<Appointments> GetByIdAsync(int id)
-            => await _context.Appointments.FindAsync(id);
+        public Task<Appointments> GetByIdAsync(int id)
+            => _dao.GetByIdAsync(id);
 
-        public async Task<List<Appointments>> GetAllAsync()
-            => await _context.Appointments.ToListAsync();
+        public Task<List<Appointments>> GetAllAsync()
+            => _dao.GetAllAsync();
 
-        public async Task AddAsync(Appointments appointment)
-        {
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
-        }
+        public Task AddAsync(Appointments appointment)
+            => _dao.AddAsync(appointment);
 
-        public async Task UpdateAsync(Appointments appointment)
-        {
-            _context.Appointments.Update(appointment);
-            await _context.SaveChangesAsync();
-        }
+        public Task UpdateAsync(Appointments appointment)
+            => _dao.UpdateAsync(appointment);
 
-        public async Task DeleteAsync(int id)
-        {
-            var entity = await _context.Appointments.FindAsync(id);
-            if (entity != null)
-            {
-                _context.Appointments.Remove(entity);
-                await _context.SaveChangesAsync();
-            }
-        }
+        public Task DeleteAsync(int id)
+            => _dao.DeleteAsync(id);
 
-        public async Task<List<int>> GetBusyConsultantIdsAsync()
-        {
-            return await _context.Appointments
-                .Where(a => a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.InProgress)
-                .Select(a => a.ConsultantId)
-                .ToListAsync();
-        }
+        public Task<List<int>> GetBusyConsultantIdsAsync()
+            => _dao.GetBusyConsultantIdsAsync();
 
-        public async Task<List<User>> GetAvailableConsultantsAsync(List<int> busyConsultantIds)
-        {
-            return await _context.User
-                .Include(u => u.Role)
-                .Where(u => u.Role.Name == "Consultant" && !busyConsultantIds.Contains(u.Id))
-                .ToListAsync();
-        }
+        public Task<List<User>> GetAvailableConsultantsAsync(List<int> busyConsultantIds)
+            => _dao.GetAvailableConsultantsAsync(busyConsultantIds);
 
-        public async Task<List<User>> GetAllConsultantsAsync()
-        {
-            return await _context.User
-                .Include(u => u.Role)
-                .Where(u => u.Role.Name == "Consultant")
-                .ToListAsync();
-        }
+        public Task<List<User>> GetAllConsultantsAsync()
+            => _dao.GetAllConsultantsAsync();
 
-        public async Task<User> GetStudentByIdAsync(int studentId)
-        {
-            return await _context.User
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Id == studentId && u.Role.Name == "Student");
-        }
+        public Task<User> GetStudentByIdAsync(int studentId)
+            => _dao.GetStudentByIdAsync(studentId);
 
-        // New methods for consultant
-        public async Task<List<Appointments>> GetAppointmentsByConsultantIdAsync(int consultantId)
-        {
-            return await _context.Appointments
-                .Include(a => a.Student)
-                .Where(a => a.ConsultantId == consultantId)
-                .OrderBy(a => a.Create_at)
-                .ToListAsync();
-        }
+        public Task<List<Appointments>> GetAppointmentsByConsultantIdAsync(int consultantId)
+            => _dao.GetAppointmentsByConsultantIdAsync(consultantId);
 
-        public async Task UpdateAppointmentStatusAsync(int appointmentId, AppointmentStatus status)
-        {
-            var appointment = await _context.Appointments.FindAsync(appointmentId);
-            if (appointment != null)
-            {
-                appointment.Status = status;
-                appointment.Update_at = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-            }
-        }
+        public Task<List<Appointments>> StudentGetAppointmentsAsync(int studentId)
+    => _dao.StudentGetAppointmentsAsync(studentId);
+
+        public Task UpdateAppointmentStatusAsync(int appointmentId, AppointmentStatus status)
+            => _dao.UpdateAppointmentStatusAsync(appointmentId, status);
     }
 }

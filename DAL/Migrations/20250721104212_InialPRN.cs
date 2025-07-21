@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class appointmentwithPhone : Migration
+    public partial class InialPRN : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -76,6 +76,8 @@ namespace DAL.Migrations
                 {
                     id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     student_id = table.Column<int>(type: "integer", nullable: false),
+                    student_name = table.Column<string>(type: "text", nullable: false),
+                    MyPhone = table.Column<string>(type: "text", nullable: false),
                     programs_id = table.Column<string>(type: "character varying(50)", nullable: false),
                     ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     DocumentPaths = table.Column<string>(type: "text", nullable: true),

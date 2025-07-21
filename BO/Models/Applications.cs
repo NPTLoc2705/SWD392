@@ -17,6 +17,8 @@ namespace BO.Models
 
         [ForeignKey("User")]
         public int student_id { get; set; }
+        public string student_name { get; set; }
+        public string MyPhone { get; set; }
         public User Student { get; set; }
 
         [ForeignKey("Programs")]

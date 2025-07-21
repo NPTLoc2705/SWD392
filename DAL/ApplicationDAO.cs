@@ -19,9 +19,14 @@ public class ApplicationDAO
 
     // 1. Create New Application (Draft)
     public async Task<ApplicationResponse> CreateDraftAsync(int studentId, ApplicationRequest request)
-    {
+    {           
         var program = await _context.Programs
             .FirstOrDefaultAsync(p => p.id == request.ProgramId);
+        if (string.IsNullOrEmpty(request.StudentName))
+            throw new ArgumentException("Student name is required");
+
+        if (string.IsNullOrEmpty(request.Student_Phone))
+            throw new ArgumentException("Student phone is required");
 
         if (program == null)
             throw new KeyNotFoundException("Program not found");
@@ -29,13 +34,17 @@ public class ApplicationDAO
         var application = new Applications
         {
             student_id = studentId,
+            student_name = request.StudentName,
+            MyPhone = request.Student_Phone,
             programs_id = request.ProgramId,
-            submitted_at = DateTime.UtcNow,
+            submitted_at = DateTime.UtcNow,            
             Status = ApplicationStatus.Draft,
             PortfolioLink = request.PortfolioLink,
             OtherLink = request.OtherLink
         };
 
+
+       
         // Handle image upload
         if (request.Image != null)
         {
@@ -115,7 +124,6 @@ public class ApplicationDAO
     public async Task<ApplicationResponse> UpdateAsync(string id, UpdateApplicationRequest request)
     {
         var application = await _context.Applications
-            .Include(a => a.Student)            
             .Include(a => a.Programs)
             .FirstOrDefaultAsync(a => a.id == id);
 
@@ -126,14 +134,14 @@ public class ApplicationDAO
             throw new InvalidOperationException("Only draft applications can be modified");
 
         // Update student info if provided
-        if (!string.IsNullOrEmpty(request.StudentName) && application.Student != null)
+        if (!string.IsNullOrEmpty(request.StudentName))
         {
-            application.Student.Name = request.StudentName;
+            application.student_name = request.StudentName; // Update application's name field
         }
 
-        if (!string.IsNullOrEmpty(request.Student_Phone) && application.Student != null)
+        if (!string.IsNullOrEmpty(request.Student_Phone))
         {
-            application.Student.Phone = request.Student_Phone;
+            application.MyPhone = request.Student_Phone; // Update application's phone field
         }
 
         // Update program if changed
@@ -206,17 +214,11 @@ public class ApplicationDAO
                 break;
 
             case ApplicationStatus.Submitted:
-                if (newStatus != ApplicationStatus.UnderReview &&
+                if (newStatus != ApplicationStatus.Approved &&
                     newStatus != ApplicationStatus.Rejected)
                     throw new InvalidOperationException("Submitted applications can only move to UnderReview or Rejected");
                 break;
-
-            case ApplicationStatus.UnderReview:
-                if (newStatus != ApplicationStatus.Approved &&
-                    newStatus != ApplicationStatus.Rejected 
-                    )
-                    throw new InvalidOperationException("InReview applications can only move to Accepted, Rejected, or Waitlisted");
-                break;    
+               
             case ApplicationStatus.Approved:
             case ApplicationStatus.Rejected:
                 throw new InvalidOperationException($"Application is already {application.Status} (terminal state)");
@@ -242,13 +244,11 @@ public class ApplicationDAO
             OtherLink = application.OtherLink,
             SubmittedAt = application.submitted_at,
             Status = application.Status,
+            StudentName = application.student_name, // Now using application's name
+            StudentPhone = application.MyPhone,
             DocumentUrls = TryDeserializeDocumentPaths(application.DocumentPaths)
         };
-        if (application.Student != null)
-        {
-            response.StudentName = application.Student.Name;
-            response.StudentPhone = application.Student.Phone;
-        }
+       
         return response;
     }
 

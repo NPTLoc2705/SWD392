@@ -12,6 +12,8 @@ namespace Services.Service
         Task<AppointmentPaymentResultResponse> HandlePaymentCallbackAsync(int appointmentId, string vnpResponseCode);
 
         Task<List<Appointments>> GetConsultantAppointmentsAsync(int consultantId);
+        Task<List<Appointments>> StudentGetAppointmentAsync(int studentId);
+
         Task<bool> UpdateAppointmentStatusAsync(int appointmentId, AppointmentStatus status);
     }
 }

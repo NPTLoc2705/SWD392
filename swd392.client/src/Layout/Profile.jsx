@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import {
   User,
   Mail,
@@ -31,7 +32,7 @@ const Profile = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [activeTab, setActiveTab] = useState("profile");
-  
+  const navigate = useNavigate();
   // Tickets state
   const [tickets, setTickets] = useState([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
@@ -814,6 +815,7 @@ const Profile = () => {
                         <User size={14} className="mr-1" />
                         <span>Sinh viên: {ticket.studentName}</span>
                       </div>
+                      
                       {ticket.consultantName && (
                         <div className="flex items-center text-sm text-gray-600">
                           <User size={14} className="mr-1" />
@@ -821,8 +823,18 @@ const Profile = () => {
                         </div>
                       )}
                     </div>
+                     <div className="mt-4 text-right">
+  <button
+    onClick={() => navigate(`/ticket/${ticket.id}`)}
+    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded mr-2"
+  >
+    Chi tiết
+  </button>
+</div>
                   </div>
+                  
                 );
+                
               })}
             </div>
           </div>

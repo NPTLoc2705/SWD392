@@ -1,4 +1,5 @@
-﻿using BO.dtos.Request;
+﻿using API.Controllers;
+using BO.dtos.Request;
 using BO.dtos.Response;
 using BO.Models;
 using DAL;
@@ -51,6 +52,18 @@ namespace SWD392.Server.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("studentGetAppointment/{studentId}")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> StudentGetAppointment(int studentId)
+        {
+            // Lấy userId từ token để đảm bảo chỉ lấy được lịch của chính mình
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId) || userId != studentId)
+                return Forbid("You can only view your own appointments");
+
+            var result = await _appointmentService.StudentGetAppointmentAsync(studentId);
+            return Ok(result);
+        }
         // New endpoints for consultant
         [Authorize(Roles = "Consultant")]
         [HttpGet("consultant/{consultantId}")]
@@ -62,9 +75,15 @@ namespace SWD392.Server.Controllers
 
         [Authorize(Roles = "Consultant")]
         [HttpPut("{appointmentId}/status")]
-        public async Task<ActionResult> UpdateAppointmentStatus(int appointmentId, [FromBody] AppointmentStatus status)
+        public async Task<ActionResult> UpdateAppointmentStatus(int appointmentId, [FromBody] UpdateAppointmentStatusRequest request)
         {
-            var result = await _appointmentService.UpdateAppointmentStatusAsync(appointmentId, status);
+            // Validate the enum value
+            if (!Enum.IsDefined(typeof(AppointmentStatus), request.Status))
+            {
+                return BadRequest(new { message = "Invalid status value" });
+            }
+
+            var result = await _appointmentService.UpdateAppointmentStatusAsync(appointmentId, request.Status);
             if (result)
                 return Ok(new { message = "Status updated successfully" });
             return NotFound(new { message = "Appointment not found" });
