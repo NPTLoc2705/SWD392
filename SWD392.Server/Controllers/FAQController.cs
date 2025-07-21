@@ -46,6 +46,15 @@ namespace SWD392.Server.Controllers
                 }
 
                 var result = await _faqService.CreateFAQ(request, userId);
+                if (result == null)
+                {
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "Failed to create FAQ"
+                    });
+                }
+
                 return CreatedAtAction(
                     nameof(GetFAQById),
                     new { id = result.Id },

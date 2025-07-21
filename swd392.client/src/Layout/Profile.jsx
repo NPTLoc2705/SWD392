@@ -33,10 +33,16 @@ const Profile = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [activeTab, setActiveTab] = useState("profile");
   const navigate = useNavigate();
+
   // Tickets state
   const [tickets, setTickets] = useState([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
   const [ticketsError, setTicketsError] = useState(null);
+
+  // Appointments state
+  const [appointments, setAppointments] = useState([]);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
+  const [appointmentsError, setAppointmentsError] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -47,7 +53,6 @@ const Profile = () => {
 
   const [errors, setErrors] = useState({});
 
-  // Lấy thông tin user hiện tại
   const currentUser = getCurrentUser();
 
   useEffect(() => {
@@ -55,6 +60,7 @@ const Profile = () => {
       fetchUserProfile();
       if (currentUser?.role === "Student") {
         fetchUserTickets();
+        fetchUserAppointments();
       }
     } else {
       setLoading(false);
@@ -154,6 +160,43 @@ const Profile = () => {
     }
   };
 
+  const fetchUserAppointments = async () => {
+    try {
+      setAppointmentsLoading(true);
+      setAppointmentsError(null);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setAppointmentsError("Vui lòng đăng nhập để xem danh sách lịch hẹn");
+        return;
+      }
+
+      const response = await axios.get(
+        `https://localhost:7013/api/Appointment/studentGetAppointment/${currentUser.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setAppointments(response.data || []);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      
+      if (error.response?.status === 401) {
+        setAppointmentsError("Phiên đăng nhập đã hết hạn");
+      } else if (error.response?.status === 403) {
+        setAppointmentsError("Bạn không có quyền xem danh sách lịch hẹn");
+      } else {
+        setAppointmentsError("Không thể tải danh sách lịch hẹn");
+      }
+    } finally {
+      setAppointmentsLoading(false);
+    }
+  };
+
   const getStatusDisplay = (status) => {
     switch (status) {
       case 0:
@@ -221,7 +264,6 @@ const Profile = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate name - theo regex từ backend: ^[\p{L}\p{M}\s]+$
     if (!formData.name.trim()) {
       newErrors.name = "Tên không được để trống";
     } else if (!/^[\p{L}\p{M}\s]+$/u.test(formData.name.trim())) {
@@ -231,7 +273,6 @@ const Profile = () => {
       newErrors.name = "Tên không được vượt quá 100 ký tự";
     }
 
-    // Validate email - theo regex từ backend
     if (!formData.email.trim()) {
       newErrors.email = "Email không được để trống";
     } else if (
@@ -242,7 +283,6 @@ const Profile = () => {
       newErrors.email = "Email không được vượt quá 100 ký tự";
     }
 
-    // Validate phone - theo regex từ backend: ^(0[3|5|7|8|9])+([0-9]{8})$
     if (!formData.phone.trim()) {
       newErrors.phone = "Số điện thoại không được để trống";
     } else if (!/^(0[3|5|7|8|9])+([0-9]{8})$/.test(formData.phone)) {
@@ -251,7 +291,6 @@ const Profile = () => {
       newErrors.phone = "Số điện thoại phải có đúng 10 chữ số";
     }
 
-    // Validate password (chỉ khi có nhập)
     if (formData.password && formData.password.trim()) {
       if (formData.password.length < 6) {
         newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
@@ -270,7 +309,6 @@ const Profile = () => {
       [field]: value,
     }));
 
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -295,7 +333,6 @@ const Profile = () => {
         return;
       }
 
-      // Chuẩn bị data theo format API yêu cầu
       const updateData = {
         Name: formData.name.trim(),
         Email: formData.email.trim(),
@@ -303,12 +340,11 @@ const Profile = () => {
         Password: ""
       };
 
-      // Chỉ thêm password nếu user có nhập và không rỗng
       if (formData.password && formData.password.trim()) {
         updateData.Password = formData.password.trim();
       }
 
-      console.log("Sending update data:", updateData); // Debug log
+      console.log("Sending update data:", updateData);
 
       const response = await axios.put(
         `https://localhost:7013/api/User/UpdateUser/${currentUser.id}`,
@@ -322,11 +358,9 @@ const Profile = () => {
       );
 
       if (response.data.success) {
-        // Cập nhật user state với data mới từ server
         const updatedUserData = response.data.data;
         setUser(updatedUserData);
 
-        // Reset form và thoát edit mode
         setFormData({
           name: updatedUserData.name || "",
           email: updatedUserData.email || "",
@@ -338,7 +372,6 @@ const Profile = () => {
 
         showMessage("success", "Cập nhật thông tin thành công!");
 
-        // Cập nhật user trong localStorage để đồng bộ với header
         const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
         const updatedStoredUser = {
           ...storedUser,
@@ -382,7 +415,6 @@ const Profile = () => {
             errorMessage = serverMessage || `Lỗi server (${status})`;
         }
 
-        // Log chi tiết lỗi validation nếu có
         if (error.response.data?.errors) {
           console.error("Validation errors:", error.response.data.errors);
         }
@@ -398,7 +430,6 @@ const Profile = () => {
   };
 
   const handleCancel = () => {
-    // Reset form về giá trị ban đầu
     setFormData({
       name: user?.name || "",
       email: user?.email || "",
@@ -436,7 +467,6 @@ const Profile = () => {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white flex items-center justify-center">
@@ -448,7 +478,6 @@ const Profile = () => {
     );
   }
 
-  // Error state khi không có user
   if (!user && !loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white flex items-center justify-center">
@@ -470,7 +499,6 @@ const Profile = () => {
 
   const renderProfileTab = () => (
     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      {/* Card Header */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -500,10 +528,8 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Card Body */}
       <div className="p-8">
         <div className="space-y-6">
-          {/* Name Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Họ và tên *
@@ -537,7 +563,6 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Email Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Email *
@@ -571,7 +596,6 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Phone Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Số điện thoại *
@@ -582,7 +606,6 @@ const Profile = () => {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => {
-                    // Chỉ cho phép nhập số
                     const value = e.target.value.replace(/\D/g, "");
                     if (value.length <= 10) {
                       handleInputChange("phone", value);
@@ -614,7 +637,6 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Password Field - Only show in edit mode */}
           {editMode && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -652,7 +674,6 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Action Buttons */}
         {editMode && (
           <div className="flex space-x-4 mt-8">
             <button
@@ -683,7 +704,6 @@ const Profile = () => {
 
   const renderTicketsTab = () => (
     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -706,7 +726,6 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-8">
         {ticketsLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
@@ -734,7 +753,6 @@ const Profile = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Statistics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-yellow-50 rounded-lg p-4 text-center">
                 <div className="text-2xl font-bold text-yellow-600">
@@ -762,7 +780,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Tickets List */}
             <div className="space-y-4">
               {tickets.map((ticket) => {
                 const statusDisplay = getStatusDisplay(ticket.status);
@@ -823,18 +840,167 @@ const Profile = () => {
                         </div>
                       )}
                     </div>
-                     <div className="mt-4 text-right">
-  <button
-    onClick={() => navigate(`/ticket/${ticket.id}`)}
-    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded mr-2"
-  >
-    Chi tiết
-  </button>
-</div>
+                    <div className="mt-4 text-right">
+                      <button
+                        onClick={() => navigate(`/ticket/${ticket.id}`)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded mr-2"
+                      >
+                        Chi tiết
+                      </button>
+                    </div>
                   </div>
-                  
                 );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderAppointmentsTab = () => (
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+              <Calendar size={32} className="text-orange-500" />
+            </div>
+            <div className="ml-4 text-white">
+              <h2 className="text-xl font-semibold">Lịch hẹn</h2>
+              <p className="text-orange-100 text-sm">Danh sách các lịch hẹn của bạn</p>
+            </div>
+          </div>
+          <button
+            onClick={fetchUserAppointments}
+            disabled={appointmentsLoading}
+            className="bg-white bg-opacity-20 hover:bg-opacity-30 text-orange-600 px-4 py-2 rounded-lg transition-all duration-200 flex items-center cursor-pointer"
+          >
+            <RefreshCw size={16} className={`mr-2 ${appointmentsLoading ? 'animate-spin' : ''}`} />
+            Làm mới
+          </button>
+        </div>
+      </div>
+
+      <div className="p-8">
+        {appointmentsLoading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 size={32} className="animate-spin text-orange-500 mb-4" />
+            <span className="text-gray-600">Đang tải danh sách lịch hẹn...</span>
+          </div>
+        ) : appointmentsError ? (
+          <div className="text-center py-12">
+            <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
+            <p className="text-red-600 mb-4">{appointmentsError}</p>
+            <button
+              onClick={fetchUserAppointments}
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              Thử lại
+            </button>
+          </div>
+        ) : appointments.length === 0 ? (
+          <div className="text-center py-12">
+            <Calendar size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-600 mb-2">Bạn chưa có lịch hẹn nào</p>
+            <p className="text-gray-500 text-sm">
+              Các lịch hẹn bạn tạo sẽ hiển thị ở đây
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-yellow-50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {appointments.filter(a => a.status === 0).length}
+                </div>
+                <div className="text-sm text-yellow-700">Chờ xử lý</div>
+              </div>
+              <div className="bg-blue-50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {appointments.filter(a => a.status === 1).length}
+                </div>
+                <div className="text-sm text-blue-700">Đang xử lý</div>
+              </div>
+              <div className="bg-green-50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {appointments.filter(a => a.status === 2).length}
+                </div>
+                <div className="text-sm text-green-700">Hoàn thành</div>
+              </div>
+              <div className="bg-red-50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-red-600">
+                  {appointments.filter(a => a.status === 3).length}
+                </div>
+                <div className="text-sm text-red-700">Đã hủy</div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {appointments.map((appointment) => {
+                const statusDisplay = getStatusDisplay(appointment.status);
+                const StatusIcon = statusDisplay.icon;
                 
+                return (
+                  <div
+                    key={appointment.id}
+                    className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <Calendar size={20} className="text-gray-600 mr-2" />
+                          <h3 className="font-semibold text-gray-900">
+                            Lịch hẹn #{appointment.id}
+                          </h3>
+                        </div>
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusDisplay.bgColor} ${statusDisplay.color}`}
+                        >
+                          <StatusIcon size={14} className="mr-1" />
+                          {statusDisplay.text}
+                        </span>
+                      </div>
+                      <div className="text-right text-sm text-gray-500">
+                        <div className="flex items-center">
+    
+                          {formatDate(appointment.create_at)}
+                        </div>
+                        {appointment.update_at && (
+                          <div className="flex items-center mt-1">
+                            Cập nhật: {formatDate(appointment.update_at)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <User size={14} className="mr-1" />
+                        <span>Sinh viên: {appointment.studentName}</span>
+                      </div>
+                      
+                      {appointment.consultantName && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <User size={14} className="mr-1" />
+                          <span>Tư vấn viên: {appointment.consultantName}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center text-sm text-gray-600 mt-2">
+                      <Phone size={14} className="mr-1" />
+                      <span>Số điện thoại: {appointment.phone}</span>
+                    </div>
+
+                    {appointment.isPriority && (
+                      <div className="flex items-center text-sm text-yellow-600 mt-2">
+                        <AlertCircle size={14} className="mr-1" />
+                        <span>Ưu tiên</span>
+                      </div>
+                    )}
+                  </div>
+                );
               })}
             </div>
           </div>
@@ -846,7 +1012,6 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Thông tin cá nhân
@@ -854,7 +1019,6 @@ const Profile = () => {
           <div className="w-20 h-1 bg-orange-500 mx-auto rounded-full"></div>
         </div>
 
-        {/* Alert Message */}
         {message.text && (
           <div
             className={`mb-6 p-4 rounded-lg border ${
@@ -874,7 +1038,6 @@ const Profile = () => {
           </div>
         )}
 
-        {/* Tab Navigation - Only show for students */}
         {currentUser?.role === "Student" && (
           <div className="mb-8">
             <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
@@ -900,15 +1063,28 @@ const Profile = () => {
                 <HelpCircle size={16} className="inline mr-2" />
                 Tickets hỗ trợ ({tickets.length})
               </button>
+              <button
+                onClick={() => setActiveTab("appointments")}
+                className={`cursor-pointer flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === "appointments"
+                    ? "bg-white text-orange-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                <Calendar size={16} className="inline mr-2" />
+                Lịch hẹn ({appointments.length})
+              </button>
             </div>
           </div>
         )}
 
-        {/* Content */}
-        {currentUser?.role === "Student" && activeTab === "tickets" 
-          ? renderTicketsTab() 
-          : renderProfileTab()
-        }
+        {currentUser?.role === "Student" ? (
+          activeTab === "tickets" ? renderTicketsTab() :
+          activeTab === "appointments" ? renderAppointmentsTab() :
+          renderProfileTab()
+        ) : (
+          renderProfileTab()
+        )}
       </div>
     </div>
   );
