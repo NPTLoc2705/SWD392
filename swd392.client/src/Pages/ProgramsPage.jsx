@@ -1,5 +1,15 @@
-
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Calendar,
+  BookOpen,
+  DollarSign,
+  Users,
+  CheckCircle,
+  Clock,
+  X,
+  RefreshCw,
+} from "lucide-react";
 
 const API_BASE = "https://localhost:7013/api/programs";
 
@@ -7,159 +17,216 @@ const ProgramsPage = () => {
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selected, setSelected] = useState(null);
-  const [detail, setDetail] = useState(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
-  const [errorDetail, setErrorDetail] = useState("");
+
+  const fetchPrograms = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await fetch(`${API_BASE}/list-program`);
+      
+      if (!response.ok) {
+        throw new Error("Không thể tải danh sách chương trình đào tạo");
+      }
+      
+      const data = await response.json();
+      setPrograms(data);
+    } catch (err) {
+      setError(err.message || "Lỗi không xác định");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setLoading(true);
-    setError("");
-    fetch(`${API_BASE}/list-program`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Không thể tải danh sách chương trình đào tạo");
-        return res.json();
-      })
-      .then((data) => setPrograms(data))
-      .catch((err) => setError(err.message || "Lỗi không xác định"))
-      .finally(() => setLoading(false));
+    fetchPrograms();
   }, []);
 
-  // Fetch detail when selected
-  useEffect(() => {
-    if (!selected) return;
-    setLoadingDetail(true);
-    setErrorDetail("");
-    setDetail(null);
-    fetch(`https://localhost:7013/program-detail/${selected}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Không thể tải chi tiết chương trình");
-        return res.json();
-      })
-      .then((data) => setDetail(data))
-      .catch((err) => setErrorDetail(err.message || "Lỗi không xác định"))
-      .finally(() => setLoadingDetail(false));
-  }, [selected]);
+  const handleRefresh = () => {
+    fetchPrograms();
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-16">
-      <div className="container mx-auto px-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-orange-500 mb-10 text-center">Danh sách chương trình đào tạo</h1>
+    <div className="min-h-screen bg-gray-50">
+      {/* Banner Section */}
+      <div className="relative h-96 overflow-hidden">
+        <img
+          src="https://daihoc.fpt.edu.vn/wp-content/uploads/2024/05/doanh-nghiep-3.jpeg"
+          alt="Banner Chương trình đào tạo FPTU"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60"></div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg uppercase">
+            CHƯƠNG TRÌNH ĐÀO TẠO
+          </h1>
+          <p className="text-lg md:text-xl font-medium drop-shadow-lg mb-2">
+            Khám phá các ngành học hot, chuẩn xu thế AI & Kinh tế số
+          </p>
+          <div className="w-24 h-1 bg-orange-500 rounded-full mt-2"></div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-12">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+              Danh sách chương trình đào tạo
+            </h2>
+            <div className="w-20 h-1 bg-orange-500 rounded-full"></div>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {programs.length > 0 && (
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">{programs.length}</span> chương trình đào tạo
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Loading State */}
         {loading ? (
-          <div className="text-center text-orange-500 text-lg font-semibold animate-pulse">Đang tải...</div>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-600 text-lg">Đang tải chương trình đào tạo...</p>
+          </div>
         ) : error ? (
-          <div className="text-center text-red-500 text-lg font-semibold">{error}</div>
+          /* Error State */
+          <div className="text-center py-20">
+            <div className="w-24 h-24 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+              <X size={48} className="text-red-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-red-600 mb-2">
+              Có lỗi xảy ra
+            </h3>
+            <p className="text-red-500 mb-4">{error}</p>
+            <button
+              onClick={handleRefresh}
+              className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors"
+            >
+              Thử lại
+            </button>
+          </div>
+        ) : programs.length === 0 ? (
+          /* Empty State */
+          <div className="text-center py-20">
+            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+              <BookOpen size={48} className="text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              Chưa có chương trình đào tạo nào
+            </h3>
+            <p className="text-gray-500">
+              Hiện tại chưa có chương trình đào tạo nào được công bố.
+            </p>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {(programs || []).map((p, idx) => (
+          /* Programs Grid */
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {programs.map((program) => (
               <div
-                key={p.id}
-                className="bg-white rounded-2xl shadow-xl overflow-hidden border border-orange-100 flex flex-col md:flex-row items-stretch hover:shadow-2xl transition-all duration-200"
+                key={program.id}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
               >
-                <div className="md:w-48 w-full h-48 md:h-auto flex-shrink-0 flex items-center justify-center bg-orange-50">
-                  <img
-                    src={"https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80"}
-                    alt="Program"
-                    className="w-32 h-32 object-cover rounded-2xl shadow border border-orange-100"
-                  />
-                </div>
-                <div className="flex-1 flex flex-col justify-center p-6">
-                  <div className="mb-2">
-                    <h3 className="text-2xl font-bold text-orange-700 truncate text-center" title={p.title}>{p.title}</h3>
-                    <div className="flex flex-col items-center gap-1 mt-2">
-                      {p.admissionRequirements && (
-                        <span className="px-3 py-1 rounded-full font-semibold text-xs bg-orange-50 text-orange-700 border border-orange-200 text-center max-w-full truncate" title={p.admissionRequirements}>
-                          Yêu cầu: {p.admissionRequirements}
-                        </span>
-                      )}
-                      <span className={`px-3 py-1 rounded-full font-semibold text-xs ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'} border ${p.isActive ? 'border-green-200' : 'border-gray-300'} text-center max-w-full`}>
-                        {p.isActive ? 'Đang tuyển' : 'Ngừng tuyển'}
+                {/* Program Image */}
+                <Link to={`/nganh-hoc/${program.id}`} className="block">
+                  <div className="relative overflow-hidden h-48 bg-gradient-to-br from-orange-100 to-orange-200">
+                    <img
+                      src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=400&h=300&q=80"
+                      alt={program.title}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4">
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                          program.isActive
+                            ? "bg-green-100 text-green-800 border border-green-200"
+                            : "bg-gray-100 text-gray-600 border border-gray-200"
+                        }`}
+                      >
+                        {program.isActive ? (
+                          <>
+                            <CheckCircle size={12} className="mr-1" />
+                            Đang tuyển
+                          </>
+                        ) : (
+                          <>
+                            <Clock size={12} className="mr-1" />
+                            Ngừng tuyển
+                          </>
+                        )}
                       </span>
                     </div>
                   </div>
-                  <div className="flex justify-end mt-4">
-                    <button
-                      className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow transition text-sm"
-                      onClick={e => { e.stopPropagation(); setSelected(p.id); }}
+                </Link>
+
+                {/* Program Content */}
+                <div className="p-6">
+                  {/* Program Category */}
+                  <div className="flex items-center text-orange-500 text-sm font-medium mb-3">
+                    <BookOpen size={14} className="mr-2" />
+                    Chương trình đào tạo
+                  </div>
+
+                  {/* Title */}
+                  <Link to={`/nganh-hoc/${program.id}`}>
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2 leading-tight hover:text-orange-600 transition-colors duration-200">
+                      {program.title}
+                    </h3>
+                  </Link>
+
+                  {/* Requirements Preview */}
+                  {program.admissionRequirements && (
+                    <div className="mb-4">
+                      <div className="flex items-center text-gray-600 text-sm mb-1">
+                        <Users size={12} className="mr-2" />
+                        <span className="font-medium">Yêu cầu tuyển sinh:</span>
+                      </div>
+                      <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+                        {program.admissionRequirements}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Tuition Fee */}
+                  {program.tuitionFee && (
+                    <div className="flex items-center text-orange-600 text-sm font-medium mb-4">
+                      <DollarSign size={14} className="mr-2" />
+                      {Number(program.tuitionFee).toLocaleString("vi-VN")} VNĐ
+                    </div>
+                  )}
+
+                  {/* Read More Button */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <Link
+                      to={`/nganh-hoc/${program.id}`}
+                      className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium text-sm transition-colors duration-200"
                     >
-                      Chi tiết
-                    </button>
+                      Xem chi tiết
+                      <svg
+                        className="w-4 h-4 ml-1 transition-transform duration-200 hover:translate-x-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </Link>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        )}
-
-        {/* Modal detail */}
-        {selected && (
-          <>
-            {/* Disable body scroll when modal is open */}
-            <style>{`body { overflow: hidden !important; }`}</style>
-            <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setSelected(null)}>
-              <div
-                className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl p-0 relative animate-fade-in overflow-hidden"
-                style={{ maxHeight: '92vh', minWidth: '340px', display: 'flex', flexDirection: 'column' }}
-                onClick={e => e.stopPropagation()}
-              >
-                <div
-                  className="overflow-y-auto scrollbar-thin scrollbar-thumb-orange-200 scrollbar-track-orange-50"
-                  style={{ maxHeight: '92vh', width: '100%' }}
-                >
-                  <button className="absolute top-3 right-3 text-gray-400 hover:text-orange-500 text-2xl font-bold z-10" onClick={() => setSelected(null)}>&times;</button>
-                  {loadingDetail ? (
-                    <div className="text-orange-500 text-lg font-semibold animate-pulse p-10">Đang tải chi tiết...</div>
-                  ) : errorDetail ? (
-                    <div className="text-red-500 text-lg font-semibold p-10">{errorDetail}</div>
-                  ) : detail ? (
-                    <div className="flex flex-col items-center p-0 w-full break-words">
-                      <div className="w-full h-48 md:h-56 bg-orange-50 flex items-center justify-center border-b border-orange-100 relative">
-                        <img
-                          src={"https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80"}
-                          alt="Program"
-                          className="w-36 h-36 md:w-44 md:h-44 object-cover rounded-2xl shadow-lg border-2 border-orange-200 bg-orange-50 absolute left-1/2 -translate-x-1/2 top-8"
-                          style={{zIndex:2}}
-                        />
-                      </div>
-                      <div className="w-full flex flex-col items-center px-6 pt-24 pb-8">
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-orange-500 drop-shadow-lg mb-2 text-center leading-tight break-words">{detail.title}</h2>
-                        <div className="flex flex-wrap gap-2 mb-4 justify-center">
-                          <span className="bg-orange-100 text-orange-700 px-4 py-2 rounded-xl font-bold text-lg">
-                            Học phí: {Number(detail.tuitionFee).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                          </span>
-                          <span className={`px-4 py-2 rounded-xl font-semibold text-base ${detail.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>{detail.isActive ? 'Đang tuyển' : 'Ngừng tuyển'}</span>
-                        </div>
-                        <div className="w-full bg-gray-50 rounded-xl p-4 mb-3">
-                          <div className="font-semibold text-orange-500 mb-1">Mô tả ngành học</div>
-                          <div className="text-gray-700 whitespace-pre-line text-base break-words">{detail.description}</div>
-                        </div>
-                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                          <div className="bg-orange-50 rounded-xl p-4">
-                            <div className="font-semibold text-orange-500 mb-1">Yêu cầu tuyển sinh</div>
-                            <div className="text-gray-700 text-sm break-words">{detail.admissionRequirements}</div>
-                          </div>
-                          {detail.dormitoryInfo && (
-                            <div className="bg-blue-50 rounded-xl p-4">
-                              <div className="font-semibold text-blue-500 mb-1">Ký túc xá</div>
-                              <div className="text-blue-900 text-sm break-words">{detail.dormitoryInfo}</div>
-                            </div>
-                          )}
-                        </div>
-                        {detail.courses && detail.courses.length > 0 && (
-                          <div className="w-full mt-2">
-                            <div className="font-semibold text-orange-500 mb-1">Các môn học tiêu biểu:</div>
-                            <ul className="list-disc list-inside text-gray-700 text-sm pl-4">
-                              {detail.courses.map((c, i) => <li key={i} className="break-words">{c}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          </>
         )}
       </div>
     </div>
