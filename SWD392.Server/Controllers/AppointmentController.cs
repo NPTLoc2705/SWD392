@@ -1,4 +1,5 @@
-﻿using BO.dtos.Request;
+﻿using API.Controllers;
+using BO.dtos.Request;
 using BO.dtos.Response;
 using BO.Models;
 using DAL;
@@ -62,9 +63,15 @@ namespace SWD392.Server.Controllers
 
         [Authorize(Roles = "Consultant")]
         [HttpPut("{appointmentId}/status")]
-        public async Task<ActionResult> UpdateAppointmentStatus(int appointmentId, [FromBody] AppointmentStatus status)
+        public async Task<ActionResult> UpdateAppointmentStatus(int appointmentId, [FromBody] UpdateAppointmentStatusRequest request)
         {
-            var result = await _appointmentService.UpdateAppointmentStatusAsync(appointmentId, status);
+            // Validate the enum value
+            if (!Enum.IsDefined(typeof(AppointmentStatus), request.Status))
+            {
+                return BadRequest(new { message = "Invalid status value" });
+            }
+
+            var result = await _appointmentService.UpdateAppointmentStatusAsync(appointmentId, request.Status);
             if (result)
                 return Ok(new { message = "Status updated successfully" });
             return NotFound(new { message = "Appointment not found" });

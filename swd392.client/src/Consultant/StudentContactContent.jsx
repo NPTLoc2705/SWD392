@@ -123,9 +123,9 @@ const StudentContactContent = () => {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      await axios.patch(
+      await axios.put(
         `https://localhost:7013/api/Appointment/${appointmentId}/status`,
-        { statusValue: status },
+        { status: status },
         { headers }
       );
 
@@ -194,12 +194,12 @@ const StudentContactContent = () => {
           icon: CheckCircle,
           text: "Hoàn thành",
         };
-      case 3: // Cancelled
+      case 3: 
         return {
           color: "text-red-600",
           bgColor: "bg-red-100",
           icon: XCircle,
-          text: "Đã hủy",
+          text: "Lên lịch lại",
         };
       default:
         return {

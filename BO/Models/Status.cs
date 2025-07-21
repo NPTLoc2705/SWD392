@@ -18,9 +18,7 @@ namespace BO.Models
     {
         Pending,     // Default status when created
         Confirmed,   // Payment completed, ready for consultant
-        InProgress,  // Consultant is handling/calling
-        Completed,   // Call finished successfully
-        Cancelled,   // Appointment cancelled
-        NoShow       // Student didn't answer/show up
+        Rescheduled,
+        Finish
     }
 }
