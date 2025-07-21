@@ -21,6 +21,7 @@ import {
   Image as ImageIcon,
   Calendar as CalendarIcon,
   CheckCircle,
+  BookOpen,
 } from "lucide-react";
 import {
   FaPlus,
@@ -87,6 +88,17 @@ const adminMenuItems = [
     onClick: () => (window.location.href = "/admin/applications"),
     className: "cursor-pointer",
   },
+  {
+      id: "majors",
+      name: "Quản lý ngành học",
+      icon: BookOpen,
+      description: "Xem, thêm, sửa, xóa các ngành học.",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      active: false,
+      onClick: () => (window.location.href = "/admin/majors"),
+      className: "cursor-pointer",
+    },
 ];
 
 const API_BASE_URL = "https://localhost:7013";

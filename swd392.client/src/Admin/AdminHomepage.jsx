@@ -3,6 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../utils/auth";
 import AdminConsultantLayout from "../Layout/AdminConsultantLayout";
 import {
+  Users,
+  FileText,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  HelpCircle,
+  UserCheck,
+  RefreshCw,
+  Search,
+  PlusCircle,
+  BookOpen,
+} from "lucide-react";
+import {
   FaPlus,
   FaEdit,
   FaTrash,
@@ -67,6 +81,17 @@ const adminMenuItems = [
     onClick: () => (window.location.href = "/admin/applications"),
     className: "cursor-pointer",
   },
+  {
+      id: "majors",
+      name: "Quản lý ngành học",
+      icon: BookOpen,
+      description: "Xem, thêm, sửa, xóa các ngành học.",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      active: false,
+      onClick: () => (window.location.href = "/admin/majors"),
+      className: "cursor-pointer",
+    },
 ];
 
 
