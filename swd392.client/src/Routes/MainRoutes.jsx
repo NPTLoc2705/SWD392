@@ -41,6 +41,8 @@ import FAQService from "../Pages/FAQService";
 import TicketAssignmentPage from "../Admin/TicketAssignmentPage";
 import UserManagementPage from "../Admin/UserManagementPage";
 import ApplicationManagement from "../Admin/ApplicationManagement";
+import TicketDetail from "../Pages/TicketDetail";
+import ProgramDetailPage from "../Pages/ProgramDetailPage";
 
 // MainLayout kiểm tra nếu là admin thì chuyển hướng về /admin, consultant về /consultant
 const MainLayout = () => {
@@ -106,7 +108,9 @@ const MainRoutes = () => {
             path="/nop-ho-so/:id/chinh-sua"
             element={<UpdateApplication />}
           />
+          <Route path="/nganh-hoc/:id" element={<ProgramDetailPage />} />
         </Route>
+        <Route path="/ticket/:id" element={<TicketDetail />} />
 
         {/* Các route dành riêng cho admin */}
         <Route element={<AdminLayout />}>
@@ -119,7 +123,7 @@ const MainRoutes = () => {
             }
           />
           <Route
-            path="/admin/upload-article" 
+            path="/admin/upload-article"
             element={
               <AdminRoute>
                 <UploadArticlePage />
