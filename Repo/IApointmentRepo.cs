@@ -8,6 +8,7 @@ namespace Repo
     {
         Task<Appointments> GetByIdAsync(int id);
         Task<List<Appointments>> GetAllAsync();
+        Task<List<Appointments>> StudentGetAppointmentsAsync(int studentId);
         Task AddAsync(Appointments appointment);
         Task UpdateAsync(Appointments appointment);
         Task DeleteAsync(int id);

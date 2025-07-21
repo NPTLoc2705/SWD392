@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250721040828_Newest")]
-    partial class Newest
+    [Migration("20250721104212_InialPRN")]
+    partial class InialPRN
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,10 @@ namespace DAL.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("MyPhone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("OtherLink")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -57,6 +61,10 @@ namespace DAL.Migrations
 
                     b.Property<int>("student_id")
                         .HasColumnType("integer");
+
+                    b.Property<string>("student_name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("submitted_at")
                         .HasColumnType("timestamp with time zone");
