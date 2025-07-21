@@ -14,5 +14,6 @@ namespace Services.Service
         Task<UserResponse> UpdateUser(User user);
         Task<UserResponse> GetUserById(int id);
         Task<bool> BanUserById(int id);
+        Task<bool> UnbanUserById(int id);
     }
 }

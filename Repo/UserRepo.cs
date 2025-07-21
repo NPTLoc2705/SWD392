@@ -48,5 +48,17 @@ namespace Repo
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<bool> UnbanUserById(int id)
+        {
+            try
+            {
+                return await _userDAO.UnbanUserById(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

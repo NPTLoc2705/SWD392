@@ -43,36 +43,6 @@ namespace SWD392.Server.Controllers
             }
         }
 
-        [HttpGet("paginated")]
-        public async Task<IActionResult> GetArticlesPaginated([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            try
-            {
-                if (pageNumber <= 0)
-                    return BadRequest(new { success = false, message = "Page number must be greater than 0" });
-
-                if (pageSize <= 0 || pageSize > 100)
-                    return BadRequest(new { success = false, message = "Page size must be between 1 and 100" });
-
-                var paginatedResult = await _articleService.GetArticlesPaginated(pageNumber, pageSize);
-                return Ok(new
-                {
-                    success = true,
-                    data = paginatedResult,
-                    message = "Paginated articles retrieved successfully"
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "An error occurred while retrieving paginated articles",
-                    error = ex.Message
-                });
-            }
-        }
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetArticleById(string id)
         {

@@ -49,11 +49,9 @@ namespace DAL
         public async Task<FAQ> Update(FAQ faq)
         {
             var existingFaq = await _context.FAQs.FindAsync(faq.Id);
-            if (existingFaq == null) return null;
-
             existingFaq.Question = faq.Question;
             existingFaq.Answer = faq.Answer;
-            existingFaq.Userid = faq.Userid;
+            existingFaq.Userid = faq.Userid;    
 
             await _context.SaveChangesAsync();
             return existingFaq;
