@@ -47,7 +47,7 @@ namespace Repo
         public async Task<List<int>> GetBusyConsultantIdsAsync()
         {
             return await _context.Appointments
-                .Where(a => a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.InProgress)
+                .Where(a => a.Status == AppointmentStatus.Confirmed)
                 .Select(a => a.ConsultantId)
                 .ToListAsync();
         }
