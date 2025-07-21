@@ -20,6 +20,19 @@ public class ApplicationDAO
     // 1. Create New Application (Draft)
     public async Task<ApplicationResponse> CreateDraftAsync(int studentId, ApplicationRequest request)
     {
+        var getCurrentUser = await _context.User
+            .FindAsync(studentId);
+        if (getCurrentUser == null)
+            throw new KeyNotFoundException("User not found");
+        if (!string.IsNullOrEmpty(request.StudentName))
+        {
+            getCurrentUser.Name = request.StudentName;
+        }
+        if (!string.IsNullOrEmpty(request.Student_Phone))
+        {
+            getCurrentUser.Phone = request.Student_Phone;
+        }
+
         var program = await _context.Programs
             .FirstOrDefaultAsync(p => p.id == request.ProgramId);
 
@@ -31,11 +44,14 @@ public class ApplicationDAO
             student_id = studentId,
             programs_id = request.ProgramId,
             submitted_at = DateTime.UtcNow,
+            Student = getCurrentUser,
             Status = ApplicationStatus.Draft,
             PortfolioLink = request.PortfolioLink,
             OtherLink = request.OtherLink
         };
 
+
+       
         // Handle image upload
         if (request.Image != null)
         {
@@ -206,17 +222,11 @@ public class ApplicationDAO
                 break;
 
             case ApplicationStatus.Submitted:
-                if (newStatus != ApplicationStatus.UnderReview &&
+                if (newStatus != ApplicationStatus.Approved &&
                     newStatus != ApplicationStatus.Rejected)
                     throw new InvalidOperationException("Submitted applications can only move to UnderReview or Rejected");
                 break;
-
-            case ApplicationStatus.UnderReview:
-                if (newStatus != ApplicationStatus.Approved &&
-                    newStatus != ApplicationStatus.Rejected 
-                    )
-                    throw new InvalidOperationException("InReview applications can only move to Accepted, Rejected, or Waitlisted");
-                break;    
+               
             case ApplicationStatus.Approved:
             case ApplicationStatus.Rejected:
                 throw new InvalidOperationException($"Application is already {application.Status} (terminal state)");

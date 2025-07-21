@@ -166,6 +166,7 @@ namespace DAL
             .Where(t => t.Id == ticketId)
             .Include(t => t.Student)
             .Include(t => t.Consultant)
+            .Include(t => t.Feedback) // Include Feedback if needed
             .Select(t => new TicketResponse
             {
                 Id = t.Id,
@@ -175,7 +176,18 @@ namespace DAL
                 CreatedAt = t.created_at,
                 StudentName = t.Student.Name,
                 StudentEmail = t.Student.Email,
-                ConsultantName = t.Consultant != null ? t.Consultant.Name : null
+                ConsultantName = t.Consultant != null ? t.Consultant.Name : null,
+ Feedback = t.Feedback != null ? new FeedbackResponse
+ {
+     id = t.Feedback.id,
+     ticket_id = t.Feedback.ticket_id,
+     student_name = t.Student.Name,
+     consultant_name = t.Consultant.Name,
+     rating = t.Feedback.rating,
+     comment = t.Feedback.comment,
+     response = t.Feedback.response,
+     created_at = t.Feedback.created_at
+ } : null
             })
             .FirstOrDefaultAsync();
     }
