@@ -30,8 +30,11 @@ namespace Services.Service
                 Answer = request.Answer,
                 Userid = userId
             };
-
             var result = await _faqRepo.Create(faq);
+            if (result == null)
+            {
+                return null; // Indicate creation failure
+            }
             return MapToResponse(result);
         }
 
