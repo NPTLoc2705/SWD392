@@ -83,6 +83,11 @@ const ConsultantHomepage = () => {
     },
   ];
 
+  //feedback 
+const [feedbackResponse, setFeedbackResponse] = useState("");
+const [isResponding, setIsResponding] = useState(false);
+const [responseError, setResponseError] = useState(null);
+const [responseSuccess, setResponseSuccess] = useState(null);
   const getAuthToken = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
@@ -549,7 +554,51 @@ if (profileForm.password && profileForm.password.trim() !== '') {
         await updateTicketStatus(selectedTicket.id, newStatus);
       }
     };
+const handleFeedbackResponse = async () => {
+  if (!feedbackResponse.trim()) {
+    setResponseError("Vui lòng nhập phản hồi");
+    return;
+  }
 
+  setIsResponding(true);
+  setResponseError(null);
+  setResponseSuccess(null);
+
+  try {
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    const response = await axios.put(
+      `https://localhost:7013/api/Feedback/${selectedTicket.feedback.id}/response`,
+      { response: feedbackResponse },
+      { headers }
+    );
+
+    if (response.data.success) {
+      setResponseSuccess("Phản hồi đã được gửi thành công");
+      // Update the selected ticket with the new response
+      setSelectedTicket(prev => ({
+        ...prev,
+        feedback: {
+          ...prev.feedback,
+          response: feedbackResponse
+        }
+      }));
+      setFeedbackResponse("");
+    }
+  } catch (err) {
+    let errorMessage = "Có lỗi khi gửi phản hồi";
+    if (err.response) {
+      errorMessage = err.response.data?.message || errorMessage;
+    }
+    setResponseError(errorMessage);
+  } finally {
+    setIsResponding(false);
+  }
+};
     return (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -793,6 +842,72 @@ if (profileForm.password && profileForm.password.trim() !== '') {
             </div>
           </div>
         </div>
+        {selectedTicket.feedback && (
+  <div className="space-y-4">
+    <div className="border-t border-gray-200 pt-4">
+      <h4 className="font-semibold text-gray-800 flex items-center">
+        <CheckCircle className="mr-2 text-blue-600" size={16} />
+        Phản hồi từ sinh viên
+      </h4>
+      
+      <div className="mt-2 bg-blue-50 p-4 rounded-lg">
+        <div className="mb-2">
+          <span className="font-medium">Đánh giá: </span>
+          <span className="text-yellow-600">
+            {Array.from({ length: selectedTicket.feedback.rating }).map((_, i) => (
+              <span key={i}>★</span>
+            ))}
+          </span>
+        </div>
+        <div className="mb-2">
+          <span className="font-medium">Nhận xét: </span>
+          <p className="text-gray-800">{selectedTicket.feedback.comment}</p>
+        </div>
+        {selectedTicket.feedback.response && (
+          <div className="mt-3 pt-3 border-t border-blue-200">
+            <span className="font-medium">Phản hồi của bạn: </span>
+            <p className="text-gray-800">{selectedTicket.feedback.response}</p>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {!selectedTicket.feedback.response && (
+      <div className="space-y-3">
+        <h4 className="font-semibold text-gray-800 text-sm">
+          Phản hồi lại đánh giá
+        </h4>
+        <textarea
+          value={feedbackResponse}
+          onChange={(e) => setFeedbackResponse(e.target.value)}
+          placeholder="Nhập phản hồi của bạn..."
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors"
+          rows={3}
+        />
+        {responseError && (
+          <div className="text-red-600 text-sm">{responseError}</div>
+        )}
+        {responseSuccess && (
+          <div className="text-green-600 text-sm">{responseSuccess}</div>
+        )}
+        <button
+          onClick={handleFeedbackResponse}
+          disabled={isResponding}
+          className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+        >
+          {isResponding ? (
+            <div className="flex items-center justify-center">
+              <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+              Đang gửi...
+            </div>
+          ) : (
+            "Gửi phản hồi"
+          )}
+        </button>
+      </div>
+    )}
+  </div>
+)}
       </div>
     );
   };
