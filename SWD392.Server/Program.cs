@@ -107,6 +107,8 @@ namespace SWD392.Server
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<UserDAO>();
             builder.Services.AddScoped<IAppointmentRepo, AppointmentRepo>();
+            builder.Services.AddScoped<AppointmentDAO>();
+
 
             // Register other services
             builder.Services.AddScoped<ChatHistoryDAO>();
