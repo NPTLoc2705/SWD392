@@ -9,6 +9,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Loader2,
+  Phone,
 } from "lucide-react";
 import ApplicationService from "./applicationService";
 
@@ -16,6 +17,8 @@ const CreateApplicationPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     ProgramId: "",
+    StudentName: "",
+    Student_Phone: "",
     PortfolioLink: "",
     OtherLink: "",
   });
@@ -31,7 +34,7 @@ const CreateApplicationPage = () => {
     const fetchPrograms = async () => {
       try {
         const data = await ApplicationService.getPrograms();
-        console.log("Programs programs:", data);
+        console.log("Programs loaded:", data);
         setPrograms(data);
       } catch (err) {
         console.error("Failed to load programs:", err);
@@ -53,7 +56,15 @@ const CreateApplicationPage = () => {
 
   const handleFileChange = (setFileFunction) => (e) => {
     if (e.target.files && e.target.files[0]) {
-      setFileFunction(e.target.files[0]);
+      const file = e.target.files[0];
+      
+      // Check file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Ảnh không được vượt quá 5MB");
+        return;
+      }
+      
+      setFileFunction(file);
 
       // Clear validation error khi user chọn file
       setValidationErrors((prev) => ({ ...prev, image: "" }));
@@ -62,7 +73,16 @@ const CreateApplicationPage = () => {
 
   const handleDocumentChange = (e) => {
     if (e.target.files) {
-      setDocumentFiles(Array.from(e.target.files));
+      const filesArray = Array.from(e.target.files);
+      
+      // Check file size (5MB max for each file)
+      const validFiles = filesArray.filter(file => file.size <= 5 * 1024 * 1024);
+      
+      if (validFiles.length !== filesArray.length) {
+        setError('Một số tệp quá lớn (tối đa 5MB mỗi file)');
+      }
+      
+      setDocumentFiles(validFiles);
 
       // Clear validation error khi user chọn documents
       setValidationErrors((prev) => ({ ...prev, documents: "" }));
@@ -75,6 +95,11 @@ const CreateApplicationPage = () => {
     // Validate chương trình đào tạo
     if (!formData.ProgramId) {
       errors.programId = "Vui lòng chọn chương trình đào tạo";
+    }
+
+    // Validate tên sinh viên
+    if (!formData.StudentName.trim()) {
+      errors.studentName = "Vui lòng nhập họ và tên";
     }
 
     // Validate ảnh hồ sơ (bắt buộc)
@@ -125,12 +150,16 @@ const CreateApplicationPage = () => {
         Documents: documentFiles,
       };
 
+      console.log("Submitting application data:", request);
       const response = await ApplicationService.createDraft(request);
+      console.log("API Response:", response);
+      
       showMessage("success", "Hồ sơ đã được lưu thành bản nháp thành công!");
       setTimeout(() => {
-        navigate(`/nop-ho-so/ho-so-cua-toi`);
+        navigate("/nop-ho-so/ho-so-cua-toi");
       }, 2000);
     } catch (err) {
+      console.error("Error creating application:", err);
       showMessage("error", err.message || "Có lỗi xảy ra khi lưu hồ sơ");
     } finally {
       setIsSubmitting(false);
@@ -203,159 +232,255 @@ const CreateApplicationPage = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Chương trình đào tạo */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  <User size={16} className="inline mr-2" />
-                  Chương trình đào tạo <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="ProgramId"
-                  value={formData.ProgramId}
-                  onChange={handleInputChange}
-                  required
-                  disabled={isSubmitting}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
-                    validationErrors.programId
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                >
-                  <option value="">-- Chọn chương trình đào tạo --</option>
-                  {Array.isArray(programs) &&
-                    programs.map((program) =>
-                      program?.Id && program?.Title ? (
-                        <option key={program.Id} value={program.Id}>
-                          {program.Title}
-                        </option>
-                      ) : null
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Thông tin sinh viên */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">
+                  Thông tin sinh viên
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      <User size={16} className="inline mr-2" />
+                      Họ và tên <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="StudentName"
+                      value={formData.StudentName}
+                      onChange={handleInputChange}
+                      required
+                      disabled={isSubmitting}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                        validationErrors.studentName
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
+                      placeholder="Nhập họ và tên"
+                    />
+                    {validationErrors.studentName && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center">
+                        <AlertTriangle size={14} className="mr-1" />
+                        {validationErrors.studentName}
+                      </p>
                     )}
-                </select>
-                {validationErrors.programId && (
-                  <p className="text-red-500 text-sm mt-1 flex items-center">
-                    <AlertTriangle size={14} className="mr-1" />
-                    {validationErrors.programId}
-                  </p>
-                )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      <Phone size={16} className="inline mr-2" />
+                      Số điện thoại
+                    </label>
+                    <input
+                      type="tel"
+                      name="Student_Phone"
+                      value={formData.Student_Phone}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      placeholder="Nhập số điện thoại"
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Portfolio Link */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  <Link size={16} className="inline mr-2" />
-                  Liên kết Portfolio (Tùy chọn)
-                </label>
-                <input
-                  type="url"
-                  name="PortfolioLink"
-                  value={formData.PortfolioLink}
-                  onChange={handleInputChange}
-                  disabled={isSubmitting}
-                  placeholder="https://example.com/portfolio"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
+              {/* Chương trình đào tạo */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">
+                  Thông tin chương trình
+                </h3>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    <User size={16} className="inline mr-2" />
+                    Chương trình đào tạo <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="ProgramId"
+                    value={formData.ProgramId}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                      validationErrors.programId
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <option value="">-- Chọn chương trình đào tạo --</option>
+                    {Array.isArray(programs) &&
+                      programs.map((program) =>
+                        program?.Id && program?.Title ? (
+                          <option key={program.Id} value={program.Id}>
+                            {program.Title}
+                          </option>
+                        ) : null
+                      )}
+                  </select>
+                  {validationErrors.programId && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center">
+                      <AlertTriangle size={14} className="mr-1" />
+                      {validationErrors.programId}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Other Link */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  <Link size={16} className="inline mr-2" />
-                  Liên kết khác (Tùy chọn)
-                </label>
-                <input
-                  type="url"
-                  name="OtherLink"
-                  value={formData.OtherLink}
-                  onChange={handleInputChange}
-                  disabled={isSubmitting}
-                  placeholder="https://example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
+              {/* Liên kết */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">
+                  Liên kết
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Portfolio Link */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      <Link size={16} className="inline mr-2" />
+                      Liên kết Portfolio (Tùy chọn)
+                    </label>
+                    <input
+                      type="url"
+                      name="PortfolioLink"
+                      value={formData.PortfolioLink}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
+                      placeholder="https://example.com/portfolio"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    />
+                  </div>
+
+                  {/* Other Link */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      <Link size={16} className="inline mr-2" />
+                      Liên kết khác (Tùy chọn)
+                    </label>
+                    <input
+                      type="url"
+                      name="OtherLink"
+                      value={formData.OtherLink}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
+                      placeholder="https://example.com"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Ảnh hồ sơ */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  <Image size={16} className="inline mr-2" />
-                  Ảnh hồ sơ <span className="text-red-500">*</span>
-                </label>
-                <div className="flex items-center gap-4">
-                  <label
-                    className={`cursor-pointer flex items-center px-4 py-2 rounded-lg shadow transition-colors ${
-                      validationErrors.image
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-orange-500 hover:bg-orange-600"
-                    } text-white disabled:opacity-50`}
-                  >
-                    <Upload size={16} className="mr-2" />
-                    Chọn ảnh
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange(setImageFile)}
-                      disabled={isSubmitting}
-                      className="hidden"
-                    />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">
+                  Ảnh hồ sơ
+                </h3>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    <Image size={16} className="inline mr-2" />
+                    Ảnh hồ sơ <span className="text-red-500">*</span>
                   </label>
-                  {imageFile ? (
-                    <span className="text-sm text-gray-700">
-                      {imageFile.name}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-gray-500">Chưa chọn ảnh</span>
+                  <div className="flex items-center gap-4">
+                    <label
+                      className={`cursor-pointer flex items-center px-4 py-2 rounded-lg shadow transition-colors ${
+                        validationErrors.image
+                          ? "bg-red-500 hover:bg-red-600"
+                          : "bg-orange-500 hover:bg-orange-600"
+                      } text-white disabled:opacity-50`}
+                    >
+                      <Upload size={16} className="mr-2" />
+                      Chọn ảnh
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange(setImageFile)}
+                        disabled={isSubmitting}
+                        className="hidden"
+                      />
+                    </label>
+                    {imageFile ? (
+                      <span className="text-sm text-gray-700">
+                        {imageFile.name} ({Math.round(imageFile.size / 1024)} KB)
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-500">Chưa chọn ảnh</span>
+                    )}
+                  </div>
+                  {validationErrors.image && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center">
+                      <AlertTriangle size={14} className="mr-1" />
+                      {validationErrors.image}
+                    </p>
                   )}
-                </div>
-                {validationErrors.image && (
-                  <p className="text-red-500 text-sm mt-1 flex items-center">
-                    <AlertTriangle size={14} className="mr-1" />
-                    {validationErrors.image}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Chọn ảnh đại diện cho hồ sơ của bạn (định dạng: JPG, PNG, tối đa 5MB)
                   </p>
-                )}
-                <p className="text-xs text-gray-500 mt-1">
-                  Chọn ảnh đại diện cho hồ sơ của bạn (định dạng: JPG, PNG)
-                </p>
+                </div>
               </div>
 
               {/* Tài liệu hỗ trợ */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  <FileText size={16} className="inline mr-2" />
-                  Tài liệu hỗ trợ <span className="text-red-500">*</span>
-                </label>
-                <div className="flex items-center gap-4">
-                  <label
-                    className={`cursor-pointer flex items-center px-4 py-2 rounded-lg shadow transition-colors ${
-                      validationErrors.documents
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-orange-500 hover:bg-orange-600"
-                    } text-white disabled:opacity-50`}
-                  >
-                    <Upload size={16} className="mr-2" />
-                    Chọn tài liệu
-                    <input
-                      type="file"
-                      multiple
-                      onChange={handleDocumentChange}
-                      disabled={isSubmitting}
-                      className="hidden"
-                    />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">
+                  Tài liệu hỗ trợ
+                </h3>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    <FileText size={16} className="inline mr-2" />
+                    Tài liệu hỗ trợ <span className="text-red-500">*</span>
                   </label>
-                  <span className="text-sm text-gray-700">
-                    {documentFiles.length > 0
-                      ? `${documentFiles.length} tệp đã chọn`
-                      : "Chưa chọn tệp nào"}
-                  </span>
-                </div>
-                {validationErrors.documents && (
-                  <p className="text-red-500 text-sm mt-1 flex items-center">
-                    <AlertTriangle size={14} className="mr-1" />
-                    {validationErrors.documents}
+                  <div className="flex items-center gap-4">
+                    <label
+                      className={`cursor-pointer flex items-center px-4 py-2 rounded-lg shadow transition-colors ${
+                        validationErrors.documents
+                          ? "bg-red-500 hover:bg-red-600"
+                          : "bg-orange-500 hover:bg-orange-600"
+                      } text-white disabled:opacity-50`}
+                    >
+                      <Upload size={16} className="mr-2" />
+                      Chọn tài liệu
+                      <input
+                        type="file"
+                        multiple
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleDocumentChange}
+                        disabled={isSubmitting}
+                        className="hidden"
+                      />
+                    </label>
+                    <span className="text-sm text-gray-700">
+                      {documentFiles.length > 0
+                        ? `${documentFiles.length} tệp đã chọn`
+                        : "Chưa chọn tệp nào"}
+                    </span>
+                  </div>
+
+                  {/* Documents Preview */}
+                  {documentFiles.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Tài liệu đã chọn:</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {documentFiles.map((doc, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border">
+                            <div className="flex items-center">
+                              <FileText size={14} className="text-blue-600 mr-2" />
+                              <div className="text-sm">
+                                <p className="text-gray-700 truncate">{doc.name}</p>
+                                <p className="text-xs text-gray-500">{Math.round(doc.size / 1024)} KB</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {validationErrors.documents && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center">
+                      <AlertTriangle size={14} className="mr-1" />
+                      {validationErrors.documents}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Tải lên các tài liệu hỗ trợ như bằng cấp, chứng chỉ, v.v. (PDF, DOC, DOCX, tối đa 5MB mỗi file)
                   </p>
-                )}
-                <p className="text-xs text-gray-500 mt-1">
-                  Tải lên các tài liệu hỗ trợ như bằng cấp, chứng chỉ, v.v.
-                </p>
+                </div>
               </div>
 
               {/* Submit Button */}
