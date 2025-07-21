@@ -108,6 +108,16 @@ namespace Services.Service
             return await _appointmentRepo.GetAppointmentsByConsultantIdAsync(consultantId);
         }
 
+        //method for student to get their appointments
+        public async Task<List<Appointments>> StudentGetAppointmentAsync(int studentId)
+        {
+            var student = await _appointmentRepo.GetStudentByIdAsync(studentId);
+            if (student == null || student.Role.Name != "Student")
+                throw new UnauthorizedAccessException("Only students can access this API.");
+
+            return await _appointmentRepo.StudentGetAppointmentsAsync(studentId);
+        }
+
         public async Task<bool> UpdateAppointmentStatusAsync(int appointmentId, AppointmentStatus status)
         {
             var appointment = await _appointmentRepo.GetByIdAsync(appointmentId);
