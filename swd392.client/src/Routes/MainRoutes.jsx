@@ -94,10 +94,10 @@ const MainRoutes = () => {
           <Route path="/FAQ" element={<FAQ />} />
           {/* Xóa route /chat vì chatbot sẽ luôn hiện */}
           <Route path="*" element={<PageNotFound />} />
-          <Route path="/applications/new" element={<CreateApplicationPage />} />
-          <Route path="/applications/my-applications" element={<MyApplicationsPage />} />
-          <Route path="/applications/:id" element={<ApplicationDetail />} />
-          <Route path="/applications/:id/edit" element={<UpdateApplication />} />
+          <Route path="/nop-ho-so/" element={<CreateApplicationPage />} />
+          <Route path="/nop-ho-so/ho-so-cua-toi" element={<MyApplicationsPage />} />
+          <Route path="/nop-ho-so/:id" element={<ApplicationDetail />} />
+          <Route path="/nop-ho-so/:id/chinh-sua" element={<UpdateApplication />} />
         </Route>
 
         {/* Các route dành riêng cho admin */}

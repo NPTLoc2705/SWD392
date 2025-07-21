@@ -240,21 +240,7 @@ const ArticleListPage = () => {
           </div>
         )}
 
-        {/* Statistics Section */}
-        {articles.length > 0 && (
-          <div className="mt-16 text-center">
-            <div className="inline-flex items-center px-6 py-3 bg-white rounded-full shadow-lg border border-gray-100">
-              <Calendar size={20} className="text-orange-500 mr-2" />
-              <span className="text-gray-700 font-medium">
-                Tổng cộng{" "}
-                <span className="text-orange-600 font-bold">
-                  {articles.length}
-                </span>{" "}
-                bài viết
-              </span>
-            </div>
-          </div>
-        )}
+        
       </div>
     </div>
   );
