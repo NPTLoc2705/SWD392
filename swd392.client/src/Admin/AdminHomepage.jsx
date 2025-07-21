@@ -20,7 +20,7 @@ const adminMenuItems = [
     color: "text-orange-600",
     bgColor: "bg-orange-50",
     active: false,
-    onClick: () => (window.location.href = "/admin/faq"), 
+    onClick: () => (window.location.href = "/admin/faq"),
     className: "cursor-pointer",
   },
   {
@@ -31,7 +31,7 @@ const adminMenuItems = [
     color: "text-green-600",
     bgColor: "bg-green-50",
     active: false,
-    onClick: () => (window.location.href = "/admin/upload-article"), 
+    onClick: () => (window.location.href = "/admin/upload-article"),
     className: "cursor-pointer",
   },
   {
@@ -54,6 +54,17 @@ const adminMenuItems = [
     bgColor: "bg-indigo-50",
     active: false,
     onClick: () => (window.location.href = "/admin/ticket-assignment"),
+    className: "cursor-pointer",
+  },
+  {
+    id: "applications",
+    name: "Quản lý hồ sơ",
+    icon: FileText,
+    description: "Xem và quản lý hồ sơ xét tuyển.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/applications"),
     className: "cursor-pointer",
   },
 ];

@@ -76,6 +76,17 @@ const adminMenuItems = [
     onClick: () => (window.location.href = "/admin/ticket-assignment"),
     className: "cursor-pointer",
   },
+  {
+    id: "applications",
+    name: "Quản lý hồ sơ",
+    icon: FileText,
+    description: "Xem và quản lý hồ sơ xét tuyển.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/applications"),
+    className: "cursor-pointer",
+  },
 ];
 
 const API_BASE_URL = "https://localhost:7013";

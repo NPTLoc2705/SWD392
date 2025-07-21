@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   User,
@@ -13,23 +13,27 @@ import {
   Save,
   X,
   Download,
-  Eye
-} from 'lucide-react';
-import ApplicationService from './applicationService';
+  Eye,
+  ExternalLink,
+  ZoomIn,
+} from "lucide-react";
+import ApplicationService from "./applicationService";
+
+const API_BASE_URL = window.REACT_APP_API_BASE_URL || "https://localhost:7013";
 
 const UpdateApplication = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    programId: '',
-    programTitle: '',
-    studentName: '',
-    studentPhone: '',
-    portfolioLink: '',
-    otherLink: '',
+    programId: "",
+    programTitle: "",
+    studentName: "",
+    studentPhone: "",
+    portfolioLink: "",
+    otherLink: "",
     imageUrl: null,
-    documentUrls: []
+    documentUrls: [],
   });
   const [programs, setPrograms] = useState([]);
   const [imageFile, setImageFile] = useState(null);
@@ -47,24 +51,28 @@ const UpdateApplication = () => {
         const appData = await ApplicationService.getById(id);
         // Fetch programs list
         const programsData = await ApplicationService.getPrograms();
-        
-        console.log('Application data:', appData);
-        console.log('Programs data:', programsData);
-        
+
+        console.log("Application data:", appData);
+        console.log("Programs data:", programsData);
+
         setPrograms(programsData);
         setFormData({
-          programId: appData.programId || appData.ProgramId || '',
-          programTitle: appData.programTitle || appData.ProgramTitle || '',
-          studentName: appData.studentName || appData.StudentName || '',
-          studentPhone: appData.studentPhone || appData.StudentPhone || '',
-          portfolioLink: appData.portfolioLink || appData.PortfolioLink || '',
-          otherLink: appData.otherLink || appData.OtherLink || '',
-          imageUrl: appData.imageUrl || appData.ImageUrl || null,
-          documentUrls: appData.documentUrls || appData.DocumentUrls || []
+          programId: appData.programId || appData.ProgramId || "",
+          programTitle: appData.programTitle || appData.ProgramTitle || "",
+          studentName: appData.studentName || appData.StudentName || "",
+          studentPhone: appData.studentPhone || appData.StudentPhone || "",
+          portfolioLink: appData.portfolioLink || appData.PortfolioLink || "",
+          otherLink: appData.otherLink || appData.OtherLink || "",
+          imageUrl: appData.imageUrl
+            ? `${API_BASE_URL}${appData.imageUrl}`
+            : null,
+          documentUrls: appData.documentUrls
+            ? appData.documentUrls.map((url) => `${API_BASE_URL}${url}`)
+            : [],
         });
       } catch (err) {
-        console.error('Error loading data:', err);
-        setError(err.message || 'Không thể tải dữ liệu hồ sơ');
+        console.error("Error loading data:", err);
+        setError(err.message || "Không thể tải dữ liệu hồ sơ");
       } finally {
         setIsLoading(false);
       }
@@ -75,47 +83,47 @@ const UpdateApplication = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Clear validation error khi user thay đổi input
     if (validationErrors[name]) {
-      setValidationErrors(prev => ({ ...prev, [name]: '' }));
+      setValidationErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleProgramChange = (e) => {
-    const selectedProgram = programs.find(p => p.Id === e.target.value);
-    setFormData(prev => ({
+    const selectedProgram = programs.find((p) => p.Id === e.target.value);
+    setFormData((prev) => ({
       ...prev,
       programId: e.target.value,
-      programTitle: selectedProgram?.Title || ''
+      programTitle: selectedProgram?.Title || "",
     }));
 
     // Clear validation error
     if (validationErrors.programId) {
-      setValidationErrors(prev => ({ ...prev, programId: '' }));
+      setValidationErrors((prev) => ({ ...prev, programId: "" }));
     }
   };
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
-      
+
       // For preview
       const reader = new FileReader();
       reader.onload = (event) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          imageUrl: event.target.result
+          imageUrl: event.target.result,
         }));
       };
       reader.readAsDataURL(e.target.files[0]);
 
       // Clear validation error
-      setValidationErrors(prev => ({ ...prev, image: '' }));
+      setValidationErrors((prev) => ({ ...prev, image: "" }));
     }
   };
 
@@ -123,28 +131,42 @@ const UpdateApplication = () => {
     if (e.target.files && e.target.files.length > 0) {
       const filesArray = Array.from(e.target.files);
       // Check file size (5MB max)
-      const validFiles = filesArray.filter(file => file.size <= 5 * 1024 * 1024);
-      
+      const validFiles = filesArray.filter(
+        (file) => file.size <= 5 * 1024 * 1024
+      );
+
       if (validFiles.length !== filesArray.length) {
-        setError('Một số tệp quá lớn (tối đa 5MB)');
+        setError("Một số tệp quá lớn (tối đa 5MB)");
       }
-      
-      setDocumentFiles(prev => [...prev, ...validFiles]);
-      
+
+      setDocumentFiles((prev) => [...prev, ...validFiles]);
+
       // Clear validation error
-      setValidationErrors(prev => ({ ...prev, documents: '' }));
+      setValidationErrors((prev) => ({ ...prev, documents: "" }));
     }
   };
 
   const handleRemoveDocument = (index, isNew = false) => {
     if (isNew) {
-      setDocumentFiles(prev => prev.filter((_, i) => i !== index));
+      setDocumentFiles((prev) => prev.filter((_, i) => i !== index));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        documentUrls: prev.documentUrls.filter((_, i) => i !== index)
+        documentUrls: prev.documentUrls.filter((_, i) => i !== index),
       }));
     }
+  };
+
+  const handleViewImage = () => {
+    setShowImageModal(true);
+  };
+
+  const handleViewDocument = (documentUrl, index) => {
+    setSelectedDocument({
+      url: documentUrl,
+      title: `Tài liệu hỗ trợ ${index + 1}`,
+    });
+    setShowDocumentModal(true);
   };
 
   const validateForm = () => {
@@ -152,12 +174,12 @@ const UpdateApplication = () => {
 
     // Validate chương trình đào tạo
     if (!formData.programId) {
-      errors.programId = 'Vui lòng chọn chương trình đào tạo';
+      errors.programId = "Vui lòng chọn chương trình đào tạo";
     }
 
     // Validate tên sinh viên
     if (!formData.studentName.trim()) {
-      errors.studentName = 'Vui lòng nhập họ và tên';
+      errors.studentName = "Vui lòng nhập họ và tên";
     }
 
     setValidationErrors(errors);
@@ -165,7 +187,7 @@ const UpdateApplication = () => {
   };
 
   const showMessage = (type, message) => {
-    if (type === 'success') {
+    if (type === "success") {
       setSuccess(message);
       setError(null);
     } else {
@@ -180,45 +202,48 @@ const UpdateApplication = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form trước khi submit
     if (!validateForm()) {
-      showMessage('error', 'Vui lòng điền đầy đủ thông tin bắt buộc');
+      showMessage("error", "Vui lòng điền đầy đủ thông tin bắt buộc");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const formDataToSend = new FormData();
-      
+
       // Append all text fields with correct property names
-      formDataToSend.append('StudentName', formData.studentName);
-      formDataToSend.append('Student_Phone', formData.studentPhone);
-      formDataToSend.append('ProgramId', formData.programId);
-      formDataToSend.append('PortfolioLink', formData.portfolioLink);
-      formDataToSend.append('OtherLink', formData.otherLink);
-      
+      formDataToSend.append("StudentName", formData.studentName);
+      formDataToSend.append("Student_Phone", formData.studentPhone);
+      formDataToSend.append("ProgramId", formData.programId);
+      formDataToSend.append("PortfolioLink", formData.portfolioLink);
+      formDataToSend.append("OtherLink", formData.otherLink);
+
       // Append image file if a new one was selected
       if (imageFile) {
-        formDataToSend.append('Image', imageFile);
+        formDataToSend.append("Image", imageFile);
       }
-      
+
       // Append document files
-      documentFiles.forEach(doc => {
-        formDataToSend.append('Documents', doc);
+      documentFiles.forEach((doc) => {
+        formDataToSend.append("Documents", doc);
       });
 
-      const apiResponse = await ApplicationService.updateApplication(id, formDataToSend);
-      console.log('Update successful:', apiResponse);
-      
-      showMessage('success', 'Cập nhật hồ sơ thành công!');
+      const apiResponse = await ApplicationService.updateApplication(
+        id,
+        formDataToSend
+      );
+      console.log("Update successful:", apiResponse);
+
+      showMessage("success", "Cập nhật hồ sơ thành công!");
       setTimeout(() => {
         navigate(`/nop-ho-so/${id}`);
       }, 2000);
     } catch (err) {
-      console.error('Error updating application:', err);
-      showMessage('error', err.message || 'Không thể cập nhật hồ sơ');
+      console.error("Error updating application:", err);
+      showMessage("error", err.message || "Không thể cập nhật hồ sơ");
     } finally {
       setIsSubmitting(false);
     }
@@ -232,10 +257,12 @@ const UpdateApplication = () => {
     return (
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-12">
-        
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col items-center justify-center py-20">
-              <Loader2 size={48} className="animate-spin text-orange-500 mb-4" />
+              <Loader2
+                size={48}
+                className="animate-spin text-orange-500 mb-4"
+              />
               <p className="text-gray-600">Đang tải thông tin hồ sơ...</p>
             </div>
           </div>
@@ -255,9 +282,8 @@ const UpdateApplication = () => {
                 Không thể tải hồ sơ
               </h3>
               <p className="text-gray-600 mb-6">
-                {error || 'Hồ sơ này không tồn tại hoặc đã bị xóa'}
+                {error || "Hồ sơ này không tồn tại hoặc đã bị xóa"}
               </p>
-              
             </div>
           </div>
         </div>
@@ -292,14 +318,16 @@ const UpdateApplication = () => {
             </p>
           </div>
 
-          
           {/* Form */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             {/* Messages */}
             {error && (
               <div className="m-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-center">
-                  <AlertTriangle size={20} className="text-red-600 mr-2 flex-shrink-0" />
+                  <AlertTriangle
+                    size={20}
+                    className="text-red-600 mr-2 flex-shrink-0"
+                  />
                   <div className="flex-1">
                     <span className="text-red-700 font-medium">Lỗi:</span>
                     <p className="text-red-600 text-sm mt-1">{error}</p>
@@ -311,9 +339,14 @@ const UpdateApplication = () => {
             {success && (
               <div className="m-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-center">
-                  <CheckCircle size={20} className="text-green-600 mr-2 flex-shrink-0" />
+                  <CheckCircle
+                    size={20}
+                    className="text-green-600 mr-2 flex-shrink-0"
+                  />
                   <div className="flex-1">
-                    <span className="text-green-700 font-medium">Thành công:</span>
+                    <span className="text-green-700 font-medium">
+                      Thành công:
+                    </span>
                     <p className="text-green-600 text-sm mt-1">{success}</p>
                   </div>
                 </div>
@@ -339,7 +372,9 @@ const UpdateApplication = () => {
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
-                        validationErrors.studentName ? 'border-red-500' : 'border-gray-300'
+                        validationErrors.studentName
+                          ? "border-red-500"
+                          : "border-gray-300"
                       }`}
                       placeholder="Nhập họ và tên"
                       required
@@ -386,12 +421,14 @@ const UpdateApplication = () => {
                     onChange={handleProgramChange}
                     disabled={isSubmitting}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
-                      validationErrors.programId ? 'border-red-500' : 'border-gray-300'
+                      validationErrors.programId
+                        ? "border-red-500"
+                        : "border-gray-300"
                     }`}
                     required
                   >
                     <option value="">-- Chọn chương trình đào tạo --</option>
-                    {programs.map(program => (
+                    {programs.map((program) => (
                       <option key={program.Id} value={program.Id}>
                         {program.Title}
                       </option>
@@ -405,8 +442,12 @@ const UpdateApplication = () => {
                   )}
                   {formData.programTitle && (
                     <div className="p-3 bg-gray-50 rounded-lg mt-2">
-                      <p className="text-sm text-gray-600">Chương trình đã chọn:</p>
-                      <p className="font-medium text-gray-800">{formData.programTitle}</p>
+                      <p className="text-sm text-gray-600">
+                        Chương trình đã chọn:
+                      </p>
+                      <p className="font-medium text-gray-800">
+                        {formData.programTitle}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -459,23 +500,21 @@ const UpdateApplication = () => {
                 </h3>
                 <div className="space-y-4">
                   {formData.imageUrl && (
-                    <div className="flex items-center space-x-4">
-                      <img 
-                        src={formData.imageUrl} 
-                        alt="Ảnh hồ sơ hiện tại" 
-                        className="h-20 w-20 rounded-lg object-cover shadow-md"
-                      />
-                      <div className="text-sm text-gray-600">
-                        <p className="font-medium">Ảnh hiện tại</p>
-                        <p>Chọn ảnh mới để thay thế</p>
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="relative inline-block">
+                        <img
+                          src={formData.imageUrl}
+                          alt="Ảnh hồ sơ"
+                          className="max-w-xs h-auto rounded-lg shadow-md"
+                        />
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center gap-4">
                     <label className="cursor-pointer flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow transition-colors">
                       <Upload size={16} className="mr-2" />
-                      {formData.imageUrl ? 'Thay đổi ảnh' : 'Chọn ảnh'}
+                      {formData.imageUrl ? "Thay đổi ảnh" : "Chọn ảnh"}
                       <input
                         type="file"
                         accept="image/*"
@@ -501,39 +540,59 @@ const UpdateApplication = () => {
                 <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">
                   Tài liệu hỗ trợ
                 </h3>
-                
+
                 {/* Existing Documents */}
                 {formData.documentUrls.length > 0 && (
                   <div className="mb-6">
-                    <p className="text-sm font-medium text-gray-700 mb-3">Tài liệu hiện có:</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {formData.documentUrls.map((doc, index) => (
-                        <div key={index} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <FileText size={16} className="text-blue-600 mr-2" />
-                              <span className="text-sm text-gray-700">Tài liệu {index + 1}</span>
-                            </div>
-                            <div className="flex space-x-2">
-                              <a 
-                                href={doc} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 text-sm"
-                              >
-                                <Eye size={14} />
-                              </a>
+                    <p className="text-sm font-medium text-gray-700 mb-3">
+                      Tài liệu hiện có:
+                    </p>
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="space-y-3">
+                        {formData.documentUrls.map((doc, index) => (
+                          <div
+                            key={index}
+                            className="bg-white border border-gray-200 rounded-lg hover:shadow-md hover:border-orange-300 transition-all duration-200 group overflow-hidden"
+                          >
+                            <a
+                              href={doc}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-between p-3 cursor-pointer block"
+                            >
+                              <div className="flex items-center">
+                                <FileText
+                                  size={18}
+                                  className="text-orange-600 mr-3 group-hover:text-orange-700 transition-colors"
+                                />
+                                <span className="text-sm font-medium text-gray-700 group-hover:text-orange-700 transition-colors">
+                                  Tài liệu {index + 1}
+                                </span>
+                              </div>
+                              <div className="inline-flex items-center px-3 py-1.5 bg-orange-100 text-orange-700 rounded-md group-hover:bg-orange-200 transition-colors text-sm font-medium">
+                                <ExternalLink size={12} className="mr-1" />
+                                Mở mới
+                              </div>
+                            </a>
+                            <div className="px-3 pb-3">
                               <button
                                 type="button"
-                                onClick={() => handleRemoveDocument(index, false)}
-                                className="text-red-600 hover:text-red-800 text-sm"
+                                onClick={() =>
+                                  handleRemoveDocument(index, false)
+                                }
+                                className="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
                               >
-                                <X size={14} />
+                                <X size={12} className="mr-1" />
+                                Xóa
                               </button>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-3">
+                        Các tài liệu hỗ trợ như bằng cấp, chứng chỉ, v.v. (PDF,
+                        DOC, DOCX)
+                      </p>
                     </div>
                   </div>
                 )}
@@ -554,30 +613,44 @@ const UpdateApplication = () => {
                       />
                     </label>
                     <span className="text-sm text-gray-700">
-                      {documentFiles.length > 0 
-                        ? `${documentFiles.length} tệp mới đã chọn` 
-                        : 'Chưa chọn tệp mới nào'}
+                      {documentFiles.length > 0
+                        ? `${documentFiles.length} tệp mới đã chọn`
+                        : "Chưa chọn tệp mới nào"}
                     </span>
                   </div>
 
                   {/* New Documents Preview */}
                   {documentFiles.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-3">Tài liệu mới sẽ được thêm:</p>
+                      <p className="text-sm font-medium text-gray-700 mb-3">
+                        Tài liệu mới sẽ được thêm:
+                      </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {documentFiles.map((doc, index) => (
-                          <div key={index} className="border border-green-200 rounded-lg p-3 bg-green-50">
+                          <div
+                            key={index}
+                            className="border border-green-200 rounded-lg p-3 bg-green-50"
+                          >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center">
-                                <FileText size={16} className="text-green-600 mr-2" />
+                                <FileText
+                                  size={16}
+                                  className="text-green-600 mr-2"
+                                />
                                 <div className="text-sm">
-                                  <p className="text-gray-700 truncate">{doc.name}</p>
-                                  <p className="text-xs text-gray-500">{Math.round(doc.size / 1024)} KB</p>
+                                  <p className="text-gray-700 truncate">
+                                    {doc.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {Math.round(doc.size / 1024)} KB
+                                  </p>
                                 </div>
                               </div>
                               <button
                                 type="button"
-                                onClick={() => handleRemoveDocument(index, true)}
+                                onClick={() =>
+                                  handleRemoveDocument(index, true)
+                                }
                                 className="text-red-600 hover:text-red-800"
                               >
                                 <X size={14} />

@@ -11,6 +11,9 @@ import {
   XCircle,
   Loader2,
   RefreshCw,
+  User,
+  Phone,
+  X,
 } from "lucide-react";
 import ApplicationService from "./applicationService";
 
@@ -50,12 +53,147 @@ const getStatusIcon = (statusName) => {
   }
 };
 
+// Toast Component
+const Toast = ({ message, type = "info", onClose, autoClose = true }) => {
+  useEffect(() => {
+    if (autoClose) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [onClose, autoClose]);
+
+  const getToastStyles = () => {
+    switch (type) {
+      case "success":
+        return "bg-green-50 border-green-200 text-green-800";
+      case "error":
+        return "bg-red-50 border-red-200 text-red-800";
+      case "warning":
+        return "bg-yellow-50 border-yellow-200 text-yellow-800";
+      default:
+        return "bg-blue-50 border-blue-200 text-blue-800";
+    }
+  };
+
+  const getIcon = () => {
+    switch (type) {
+      case "success":
+        return <CheckCircle size={20} className="text-green-600" />;
+      case "error":
+        return <AlertTriangle size={20} className="text-red-600" />;
+      case "warning":
+        return <AlertTriangle size={20} className="text-yellow-600" />;
+      default:
+        return <AlertTriangle size={20} className="text-blue-600" />;
+    }
+  };
+
+  return (
+    <div className="fixed top-4 right-4 z-50 max-w-md">
+      <div
+        className={`flex items-center p-4 border rounded-lg shadow-lg transition-all duration-300 ${getToastStyles()}`}
+      >
+        <div className="flex-shrink-0 mr-3">{getIcon()}</div>
+        <div className="flex-1">
+          <p className="text-sm font-medium">{message}</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="flex-shrink-0 ml-3 hover:opacity-70 transition-opacity"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Confirm Modal Component
+const ConfirmModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Xác nhận",
+  cancelText = "Hủy",
+  type = "warning",
+}) => {
+  if (!isOpen) return null;
+
+  const getModalStyles = () => {
+    switch (type) {
+      case "danger":
+        return {
+          icon: <AlertTriangle size={24} className="text-red-600" />,
+          confirmButton: "bg-red-600 hover:bg-red-700 focus:ring-red-500",
+        };
+      case "success":
+        return {
+          icon: <CheckCircle size={24} className="text-green-600" />,
+          confirmButton: "bg-green-600 hover:bg-green-700 focus:ring-green-500",
+        };
+      default:
+        return {
+          icon: <AlertTriangle size={24} className="text-orange-600" />,
+          confirmButton:
+            "bg-orange-600 hover:bg-orange-700 focus:ring-orange-500",
+        };
+    }
+  };
+
+  const styles = getModalStyles();
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6">
+          <div className="flex items-center mb-4">
+            <div className="flex-shrink-0 mr-4">{styles.icon}</div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            </div>
+          </div>
+          <p className="text-gray-600 mb-6">{message}</p>
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+            >
+              {cancelText}
+            </button>
+            <button
+              onClick={onConfirm}
+              className={`px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 transition-colors ${styles.confirmButton}`}
+            >
+              {confirmText}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MyApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submittingId, setSubmittingId] = useState(null);
   const navigate = useNavigate();
+
+  // Toast and Confirm Modal states
+  const [toast, setToast] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [applicationToSubmit, setApplicationToSubmit] = useState(null);
 
   const fetchApplications = async () => {
     setIsLoading(true);
@@ -65,7 +203,12 @@ const MyApplicationsPage = () => {
       const transformedData = Array.isArray(data)
         ? data.map((app) => ({
             Id: app.id || app.Id,
-            ProgramTitle: app.programTitle || app.ProgramTitle,
+            StudentName:
+              app.studentName || app.StudentName || "Chưa có thông tin",
+            StudentPhone:
+              app.studentPhone || app.StudentPhone || "Chưa có thông tin",
+            ProgramTitle:
+              app.programTitle || app.ProgramTitle || "Chưa có thông tin",
             Status: app.status,
             StatusName:
               app.statusName ||
@@ -86,6 +229,7 @@ const MyApplicationsPage = () => {
     } catch (err) {
       console.error("Error loading applications:", err);
       setError(err.message || "Không thể tải danh sách hồ sơ");
+      showToast(err.message || "Không thể tải danh sách hồ sơ", "error");
     } finally {
       setIsLoading(false);
     }
@@ -95,24 +239,74 @@ const MyApplicationsPage = () => {
     fetchApplications();
   }, []);
 
-  const handleSubmitApplication = async (id) => {
-    setSubmittingId(id);
+  const showToast = (message, type = "info") => {
+    setToast({ message, type });
+  };
+
+  const hideToast = () => {
+    setToast(null);
+  };
+
+  const handleSubmitClick = (id) => {
+    setApplicationToSubmit(id);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    if (!applicationToSubmit) return;
+
+    setShowConfirmModal(false);
+    setSubmittingId(applicationToSubmit);
+
     try {
-      await ApplicationService.submitApplication(id);
+      await ApplicationService.submitApplication(applicationToSubmit);
+      showToast("Hồ sơ đã được nộp thành công!", "success");
       await fetchApplications(); // Refresh data
     } catch (err) {
       console.error("Error submitting application:", err);
-      setError(err.message || "Không thể nộp hồ sơ");
+      const errorMessage = err.message || "Không thể nộp hồ sơ";
+      setError(errorMessage);
+      showToast(errorMessage, "error");
     } finally {
       setSubmittingId(null);
+      setApplicationToSubmit(null);
     }
   };
 
+  const handleCancelSubmit = () => {
+    setShowConfirmModal(false);
+    setApplicationToSubmit(null);
+  };
+
   const showMessage = (type, message) => {
-    setError(type === "error" ? message : null);
+    if (type === "success") {
+      showToast(message, "success");
+      setError(null);
+    } else {
+      setError(message);
+      showToast(message, "error");
+    }
     setTimeout(() => {
       setError(null);
     }, 5000);
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Chưa nộp";
+      }
+      return date.toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      return "Chưa nộp";
+    }
   };
 
   return (
@@ -234,13 +428,16 @@ const MyApplicationsPage = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Thông tin sinh viên
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Chương trình đào tạo
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Trạng thái
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Ngày nộp
+                        Thời gian nộp
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Thao tác
@@ -254,6 +451,28 @@ const MyApplicationsPage = () => {
                         className="hover:bg-gray-50 transition-colors"
                       >
                         <td className="px-6 py-4">
+                          <div className="flex items-start space-y-1 flex-col">
+                            <div className="flex items-center">
+                              <User
+                                size={16}
+                                className="text-gray-400 mr-2 flex-shrink-0"
+                              />
+                              <span className="text-sm font-medium text-gray-900">
+                                {app.StudentName}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <Phone
+                                size={16}
+                                className="text-gray-400 mr-2 flex-shrink-0"
+                              />
+                              <span className="text-sm text-gray-600">
+                                {app.StudentPhone}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
                           <div className="flex items-center">
                             <FileText
                               size={16}
@@ -261,7 +480,7 @@ const MyApplicationsPage = () => {
                             />
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {app.ProgramTitle || "Chưa có thông tin"}
+                                {app.ProgramTitle}
                               </div>
                             </div>
                           </div>
@@ -277,11 +496,7 @@ const MyApplicationsPage = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
-                          {app.SubmittedAt
-                            ? new Date(app.SubmittedAt).toLocaleDateString(
-                                "vi-VN"
-                              )
-                            : "Chưa nộp"}
+                          {formatDate(app.SubmittedAt)}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-2">
@@ -294,7 +509,7 @@ const MyApplicationsPage = () => {
                             </button>
                             {app.Status === 0 && (
                               <button
-                                onClick={() => handleSubmitApplication(app.Id)}
+                                onClick={() => handleSubmitClick(app.Id)}
                                 disabled={submittingId === app.Id}
                                 className="cursor-pointer inline-flex items-center px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
@@ -323,10 +538,25 @@ const MyApplicationsPage = () => {
               </div>
             )}
           </div>
-
-          
         </div>
       </div>
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={handleCancelSubmit}
+        onConfirm={handleConfirmSubmit}
+        title="Xác nhận nộp hồ sơ"
+        message="Bạn có chắc chắn muốn nộp hồ sơ này? Sau khi nộp, bạn sẽ không thể chỉnh sửa hồ sơ nữa."
+        confirmText="Nộp hồ sơ"
+        cancelText="Hủy bỏ"
+        type="warning"
+      />
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={hideToast} />
+      )}
     </div>
   );
 };

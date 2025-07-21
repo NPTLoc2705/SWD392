@@ -46,9 +46,8 @@ const CreateApplicationPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Updating ${name} to: ${value}`); // Debug log
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear validation error khi user thay đổi input
     if (validationErrors[name]) {
       setValidationErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -57,16 +56,12 @@ const CreateApplicationPage = () => {
   const handleFileChange = (setFileFunction) => (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      
-      // Check file size (5MB max)
+      console.log("Selected image file:", file); // Debug log
       if (file.size > 5 * 1024 * 1024) {
         setError("Ảnh không được vượt quá 5MB");
         return;
       }
-      
       setFileFunction(file);
-
-      // Clear validation error khi user chọn file
       setValidationErrors((prev) => ({ ...prev, image: "" }));
     }
   };
@@ -74,17 +69,11 @@ const CreateApplicationPage = () => {
   const handleDocumentChange = (e) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      
-      // Check file size (5MB max for each file)
       const validFiles = filesArray.filter(file => file.size <= 5 * 1024 * 1024);
-      
       if (validFiles.length !== filesArray.length) {
         setError('Một số tệp quá lớn (tối đa 5MB mỗi file)');
       }
-      
       setDocumentFiles(validFiles);
-
-      // Clear validation error khi user chọn documents
       setValidationErrors((prev) => ({ ...prev, documents: "" }));
     }
   };
@@ -92,22 +81,18 @@ const CreateApplicationPage = () => {
   const validateForm = () => {
     const errors = {};
 
-    // Validate chương trình đào tạo
     if (!formData.ProgramId) {
       errors.programId = "Vui lòng chọn chương trình đào tạo";
     }
 
-    // Validate tên sinh viên
     if (!formData.StudentName.trim()) {
       errors.studentName = "Vui lòng nhập họ và tên";
     }
 
-    // Validate ảnh hồ sơ (bắt buộc)
     if (!imageFile) {
       errors.image = "Vui lòng chọn ảnh hồ sơ";
     }
 
-    // Validate tài liệu hỗ trợ (bắt buộc)
     if (documentFiles.length === 0) {
       errors.documents = "Vui lòng chọn ít nhất một tài liệu hỗ trợ";
     }
@@ -133,7 +118,6 @@ const CreateApplicationPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form trước khi submit
     if (!validateForm()) {
       showMessage("error", "Vui lòng điền đầy đủ thông tin bắt buộc");
       return;
@@ -144,14 +128,21 @@ const CreateApplicationPage = () => {
     setSuccess(null);
 
     try {
-      const request = {
-        ...formData,
-        Image: imageFile,
-        Documents: documentFiles,
-      };
+      const formDataToSend = new FormData();
+      formDataToSend.append('ProgramId', formData.ProgramId);
+      if (formData.StudentName) formDataToSend.append('StudentName', formData.StudentName);
+      if (formData.Student_Phone) formDataToSend.append('Student_Phone', formData.Student_Phone);
+      if (formData.PortfolioLink) formDataToSend.append('PortfolioLink', formData.PortfolioLink);
+      if (formData.OtherLink) formDataToSend.append('OtherLink', formData.OtherLink);
+      if (imageFile) formDataToSend.append('Image', imageFile);
+      if (documentFiles) {
+        documentFiles.forEach((doc) => {
+          formDataToSend.append('Documents', doc);
+        });
+      }
 
-      console.log("Submitting application data:", request);
-      const response = await ApplicationService.createDraft(request);
+      console.log("Submitting formData:", Object.fromEntries(formDataToSend)); // Debug log
+      const response = await ApplicationService.createDraft(formDataToSend);
       console.log("API Response:", response);
       
       showMessage("success", "Hồ sơ đã được lưu thành bản nháp thành công!");
@@ -161,6 +152,9 @@ const CreateApplicationPage = () => {
     } catch (err) {
       console.error("Error creating application:", err);
       showMessage("error", err.message || "Có lỗi xảy ra khi lưu hồ sơ");
+      if (err.response?.status === 400) {
+        console.log("Validation errors:", err.response.data.errors); // Log detailed errors
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -171,7 +165,7 @@ const CreateApplicationPage = () => {
       {/* Banner */}
       <div className="relative h-90 overflow-hidden">
         <img
-          src="https://cdnphoto.dantri.com.vn/bc3uX5ERqIeMwAf685OpDrEGHQM=/thumb_w/1360/2024/07/19/tcbc-truong-dh-fpt-cong-bo-diem-chuan-xet-tuyen-anh-2-1721359772279.jpg"
+          src="https://cdnphoto.dantri.com.vn/bc3uX5ERqIeMwAf685OpDrEGHQM=/thumb_w/1360/2024/07/19/tcbc-truong-dh-fpt-cong-bo-diem-chuan-anh-2-1721359772279.jpg"
           alt="Trường Đại học FPT"
           className="w-full h-[600px] object-cover"
         />
@@ -331,7 +325,6 @@ const CreateApplicationPage = () => {
                   Liên kết
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Portfolio Link */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
                       <Link size={16} className="inline mr-2" />
@@ -348,7 +341,6 @@ const CreateApplicationPage = () => {
                     />
                   </div>
 
-                  {/* Other Link */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
                       <Link size={16} className="inline mr-2" />
@@ -451,7 +443,6 @@ const CreateApplicationPage = () => {
                     </span>
                   </div>
 
-                  {/* Documents Preview */}
                   {documentFiles.length > 0 && (
                     <div className="mt-4">
                       <p className="text-sm font-medium text-gray-700 mb-2">Tài liệu đã chọn:</p>
