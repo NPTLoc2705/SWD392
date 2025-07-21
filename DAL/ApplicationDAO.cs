@@ -81,6 +81,7 @@ public class ApplicationDAO
     {
         var application = await _context.Applications
             .Include(a => a.Programs)
+            .Include(a => a.Student)
             .FirstOrDefaultAsync(a => a.id == id);
 
         if (application == null) return null;
@@ -103,7 +104,7 @@ public class ApplicationDAO
     public async Task<ApplicationResponse> UpdateAsync(string id, UpdateApplicationRequest request)
     {
         var application = await _context.Applications
-            .Include(a => a.Student)
+            .Include(a => a.Student)            
             .Include(a => a.Programs)
             .FirstOrDefaultAsync(a => a.id == id);
 
@@ -125,10 +126,52 @@ public class ApplicationDAO
         }
 
         // Update program if changed
-        if (!string.IsNullOrEmpty(request.ProgramId))
+        if (!string.IsNullOrEmpty(request.ProgramId) && application.programs_id != request.ProgramId)
         {
             application.programs_id = request.ProgramId;
+            await _context.Entry(application)
+           .Reference(a => a.Programs)
+           .LoadAsync();
         }
+        // Handle image upload
+        if (request.Image != null)
+        {
+            // Delete old image if exists
+            if (!string.IsNullOrEmpty(application.ImagePath))
+            {
+                await _fileService.DeleteFileAsync(application.ImagePath);
+            }
+            application.ImagePath = await _fileService.SaveFileAsync(request.Image);
+        }
+        // Handle document uploads
+        if (request.Documents != null && request.Documents.Count > 0)
+        {
+            // Delete old documents if they exist
+            var oldDocPaths = TryDeserializeDocumentPaths(application.DocumentPaths);
+            foreach (var docPath in oldDocPaths)
+            {
+                if (!string.IsNullOrEmpty(docPath))
+                {
+                    await _fileService.DeleteFileAsync(docPath);
+                }
+            }
+            var docPaths = new List<string>();
+            foreach (var doc in request.Documents)
+            {
+                docPaths.Add(await _fileService.SaveFileAsync(doc));
+            }
+            application.DocumentPaths = JsonSerializer.Serialize(docPaths);
+        }
+
+        if (request.PortfolioLink != null)
+        {
+            application.PortfolioLink = request.PortfolioLink;
+        }
+        if (request.OtherLink != null)
+        {
+            application.OtherLink = request.OtherLink;
+        }
+
 
         application.updated_at = DateTime.UtcNow;
         await _context.SaveChangesAsync();
@@ -159,17 +202,10 @@ public class ApplicationDAO
 
             case ApplicationStatus.UnderReview:
                 if (newStatus != ApplicationStatus.Approved &&
-                    newStatus != ApplicationStatus.Rejected &&
-                    newStatus != ApplicationStatus.Waitlisted)
+                    newStatus != ApplicationStatus.Rejected 
+                    )
                     throw new InvalidOperationException("InReview applications can only move to Accepted, Rejected, or Waitlisted");
-                break;
-
-            case ApplicationStatus.Waitlisted:
-                if (newStatus != ApplicationStatus.Approved &&
-                    newStatus != ApplicationStatus.Rejected)
-                    throw new InvalidOperationException("Waitlisted applications can only move to Accepted or Rejected");
-                break;
-
+                break;    
             case ApplicationStatus.Approved:
             case ApplicationStatus.Rejected:
                 throw new InvalidOperationException($"Application is already {application.Status} (terminal state)");
@@ -197,7 +233,11 @@ public class ApplicationDAO
             Status = application.Status,
             DocumentUrls = TryDeserializeDocumentPaths(application.DocumentPaths)
         };
-
+        if (application.Student != null)
+        {
+            response.StudentName = application.Student.Name;
+            response.StudentPhone = application.Student.Phone;
+        }
         return response;
     }
 

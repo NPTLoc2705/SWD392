@@ -14,6 +14,8 @@ namespace BO.dtos.Response
     {
         public string Id { get; set; }
         public int StudentId { get; set; }
+        public string StudentName { get; set; }
+        public string StudentPhone { get; set; }
         public string ProgramId { get; set; }
         public string ProgramTitle { get; set; } // Added for convenience
         public string ImageUrl { get; set; }

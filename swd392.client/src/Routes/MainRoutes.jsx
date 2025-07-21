@@ -14,6 +14,10 @@ import GlobalPage from "../Pages/GlobalPage";
 import ContactPage from "../Pages/ContactPage";
 import StudentPage from "../Pages/StudentPage";
 
+import CreateApplicationPage from "../Pages/Application/CreateApplicationPage";
+import MyApplicationsPage from "../Pages/Application/MyApplicationsPage";
+import ApplicationDetail from "../Pages/Application/ApplicationDetail";
+import UpdateApplication from "../Pages/Application/UpdateApplication";
 import UploadArticlePage from "../Pages/UploadArticlePage";
 import ArticleListPage from "../Pages/ArticleListPage"; 
 import ArticleDetailPage from "../Pages/ArticleDetailPage"; 
@@ -80,6 +84,10 @@ const MainRoutes = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/FAQ" element={<FAQ />} />
           <Route path="*" element={<PageNotFound />} />
+          <Route path="/applications/new" element={<CreateApplicationPage />} />
+          <Route path="/applications/my-applications" element={<MyApplicationsPage />} />
+          <Route path="/applications/:id" element={<ApplicationDetail />} />
+          <Route path="/applications/:id/edit" element={<UpdateApplication />} />
         </Route>
 
         {/* Các route dành riêng cho admin */}
