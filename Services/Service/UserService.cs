@@ -63,6 +63,7 @@ namespace Services.Service
                 Phone = user.Phone,
                 RoleName = user.Role?.Name,
                 Password = user.Password,
+                IsBanned = user.IsBanned,
             };
         }
     }

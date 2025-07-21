@@ -15,6 +15,7 @@ namespace BO.dtos.Response
         public int RoleId { get; set; }
         public string RoleName { get; set; }
         public string Password { get; set; }
+        public bool IsBanned {  get; set; }
         
     }
 }
