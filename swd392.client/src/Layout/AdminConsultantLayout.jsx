@@ -45,6 +45,8 @@ const AdminConsultantLayout = ({
   userRole = "Admin",
   panelTitle = "Admin Panel",
 }) => {
+  // Debug: log menuItems
+  console.log('AdminConsultantLayout menuItems:', menuItems);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState(null);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -54,19 +56,19 @@ const AdminConsultantLayout = ({
     setUser(currentUser);
   }, []);
 
-  const MenuItem = ({ item, onClick }) => {
+  const MenuItem = ({ item }) => {
     const Icon = item.icon;
     const active = item.active || false;
 
     return (
       <li>
         <button
-          onClick={() => onClick && onClick(item.id)}
+          onClick={item.onClick}
           className={`w-full flex items-center p-3 rounded-lg transition-all duration-200 group ${
             active
               ? `${item.bgColor} ${item.color} shadow-sm`
               : "text-gray-700 hover:bg-gray-50"
-          } ${item.className || ""}`} // Add item.className here
+          } ${item.className || ""}`}
         >
           <Icon
             size={20}
@@ -150,7 +152,7 @@ const AdminConsultantLayout = ({
               </h3>
               <ul className="space-y-2">
                 {menuItems.map((item) => (
-                  <MenuItem key={item.id} item={item} onClick={item.onClick} />
+                  <MenuItem key={item.id} item={item} />
                 ))}
               </ul>
             </div>
