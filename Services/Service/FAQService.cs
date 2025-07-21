@@ -53,8 +53,12 @@ namespace Services.Service
             return faqs.Select(MapToResponse).ToList();
         }
 
+
         public async Task<FAQResponse> Update(int id, FAQRequest request, int userId)
         {
+            var existingFaq = await _faqRepo.GetById(id);
+            if (existingFaq == null)
+                return null;
 
             var faq = new FAQ
             {

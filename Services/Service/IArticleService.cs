@@ -15,7 +15,6 @@ namespace Services.Service
         Task<List<ArticleResponse>> GetAllArticles();
         Task<ArticleResponse> GetArticleById(string id);
         Task<List<ArticleResponse>> GetArticlesByUserId(int userId);
-        Task<PaginatedArticleResponse> GetArticlesPaginated(int pageNumber, int pageSize);
 
         // Update operations
         Task<ArticleResponse> UpdateArticle(string id, UpdateArticleRequest updateArticleRequest, byte[] imageData = null);

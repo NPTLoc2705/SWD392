@@ -64,30 +64,6 @@ namespace Services.Service
             }
         }
 
-        public async Task<PaginatedArticleResponse> GetArticlesPaginated(int pageNumber, int pageSize)
-        {
-            try
-            {
-                var (articles, totalCount) = await _articlesRepo.GetArticlesPaginated(pageNumber, pageSize);
-
-                var articleResponses = articles.Select(MapToArticleResponse).ToList();
-
-                return new PaginatedArticleResponse
-                {
-                    Articles = articleResponses,
-                    CurrentPage = pageNumber,
-                    PageSize = pageSize,
-                    TotalCount = totalCount,
-                    TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
-                    HasNext = pageNumber < Math.Ceiling((double)totalCount / pageSize),
-                    HasPrevious = pageNumber > 1
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error in service while retrieving paginated articles: {ex.Message}", ex);
-            }
-        }
 
         public async Task<ArticleResponse> UpdateArticle(string id, UpdateArticleRequest updateArticleRequest, byte[] imageData = null)
         {

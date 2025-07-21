@@ -89,7 +89,7 @@ const Profile = () => {
           name: userData.name || "",
           email: userData.email || "",
           phone: userData.phone || "",
-          password: userData.password || "",
+          password: "",
         });
       } else {
         showMessage("error", "Không thể tải thông tin profile");
@@ -299,6 +299,7 @@ const Profile = () => {
         Name: formData.name.trim(),
         Email: formData.email.trim(),
         Phone: formData.phone.trim(),
+        Password: ""
       };
 
       // Chỉ thêm password nếu user có nhập và không rỗng

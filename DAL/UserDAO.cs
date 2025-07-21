@@ -85,5 +85,24 @@ namespace DAL
                 throw new Exception($"Cannot ban user: {e.Message}");
             }
         }
+        public async Task<bool>UnbanUserById(int id)
+        {
+            try
+            {
+                var user = await _dbContext.User.FirstOrDefaultAsync(a => a.Id == id);
+                if (user == null)
+                {
+                    return false;
+                }
+                user.IsBanned = false;
+                _dbContext.User.Update(user);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Cannot ban user: {e.Message}");
+            }
+        }
     }
 }

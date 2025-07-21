@@ -141,6 +141,37 @@ namespace SWD392.Server.Controllers
                 });
             }
         }
+
+        [HttpPut("UnbanUser/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UnbanUserById(int id)
+        {
+            try
+            {
+                var existingUser = await _userService.GetUserById(id);
+                if (existingUser == null)
+                    return NotFound(new { success = false, message = "User not found" });
+
+                var banned = await _userService.UnbanUserById(id);
+                if (!banned)
+                    return BadRequest(new { success = false, message = "Failed to unban user" });
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "User unbanned successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while unbanning the user",
+                    error = ex.Message
+                });
+            }
+        }
         private string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())

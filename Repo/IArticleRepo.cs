@@ -14,7 +14,6 @@ namespace Repo
         Task<List<Articles>> GetAllArticles();
         Task<Articles> GetArticleById(string id);
         Task<List<Articles>> GetArticlesByUserId(int userId);
-        Task<(List<Articles> articles, int totalCount)> GetArticlesPaginated(int pageNumber, int pageSize);
 
         // Update operations
         Task<Articles> UpdateArticle(Articles article, byte[] imageData = null);

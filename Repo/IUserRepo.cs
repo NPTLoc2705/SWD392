@@ -13,5 +13,6 @@ namespace Repo
         Task<User>UpdateUser(User user);
         Task<User> GetUserById(int id);
         Task<bool> BanUserById(int id);
+        Task<bool> UnbanUserById(int id);
     }
 }

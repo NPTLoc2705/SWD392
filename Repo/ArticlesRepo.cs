@@ -78,27 +78,6 @@ namespace Repo
             }
         }
 
-        public async Task<(List<Articles> articles, int totalCount)> GetArticlesPaginated(int pageNumber, int pageSize)
-        {
-            try
-            {
-                if (pageNumber <= 0)
-                {
-                    throw new ArgumentException("Page number must be greater than 0");
-                }
-
-                if (pageSize <= 0 || pageSize > 100)
-                {
-                    throw new ArgumentException("Page size must be between 1 and 100");
-                }
-
-                return await _articlesDAO.GetArticlesPaginated(pageNumber, pageSize);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error in repository while retrieving paginated articles: {ex.Message}", ex);
-            }
-        }
 
         public async Task<Articles> UpdateArticle(Articles article, byte[] imageData = null)
         {

@@ -45,6 +45,10 @@ namespace Services.Service
         {
             return await _userRepo.BanUserById(id);
         }
+        public async Task<bool> UnbanUserById(int id)
+        {
+            return await _userRepo.UnbanUserById(id);
+        }
 
         private UserResponse MapToUserResponse(User user)
         {
