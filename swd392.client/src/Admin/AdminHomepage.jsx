@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../utils/auth";
-import { FileText, PlusCircle, Users, UserCheck } from "lucide-react";
 import AdminConsultantLayout from "../Layout/AdminConsultantLayout";
 import {
   FaPlus,
@@ -11,6 +10,7 @@ import {
   FaSave,
   FaTimes,
 } from "react-icons/fa";
+// import adminMenuItems from "./adminMenuItems";
 const adminMenuItems = [
   {
     id: "articles",
@@ -69,9 +69,13 @@ const adminMenuItems = [
   },
 ];
 
+
 const AdminHomepage = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
+
+  // Debug: log adminMenuItems
+  console.log('AdminHomepage adminMenuItems:', adminMenuItems);
 
   useEffect(() => {
     if (user && user.role === "Student") {
