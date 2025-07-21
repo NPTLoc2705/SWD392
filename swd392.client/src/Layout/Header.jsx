@@ -4,34 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../utils/auth";
 import AdmissionsPage from "../Pages/AdmissionsPage";
 
-const languages = [
-  { code: "en", name: "English" },
-  { code: "vi", name: "Tiếng Việt" },
-];
-
-const LanguageSelector = ({ onClose }) => {
-  const handleLanguageChange = (langCode) => {
-    console.log(`Language changed to: ${langCode}`);
-    onClose();
-  };
-
-  return (
-    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-      <ul className="py-1">
-        {languages.map((language) => (
-          <li key={language.code}>
-            <button
-              onClick={() => handleLanguageChange(language.code)}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-[#F2711F]"
-            >
-              {language.name}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
 
 
 const UserDropdown = ({ user, onClose }) => {
@@ -77,35 +49,7 @@ const UserDropdown = ({ user, onClose }) => {
   );
 };
 
-const SearchBar = () => {
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Searching for:", searchTerm);
-  };
-
-  return (
-    <div className="flex items-center">
-      <div className="relative w-full">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Tìm kiếm..."
-          className="pl-3 pr-10 py-1.5 w-full rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#F2711F] focus:border-transparent text-sm"
-        />
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="absolute right-0 top-0 h-full px-2 text-gray-600 hover:text-[#F2711F]"
-        >
-          <Search size={18} />
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const AuthButtons = () => {
   const [user, setUser] = useState(null);
@@ -162,11 +106,6 @@ const AuthButtons = () => {
 };
 
 const TopBar = ({ isSticky }) => {
-  const [isLanguageSelectorOpen, setIsLanguageSelectorOpen] = useState(false);
-
-  const toggleLanguageSelector = () => {
-    setIsLanguageSelectorOpen(!isLanguageSelectorOpen);
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -209,26 +148,7 @@ const TopBar = ({ isSticky }) => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="relative">
-                <SearchBar />
-              </div>
-
-              <div className="relative">
-                <button
-                  onClick={toggleLanguageSelector}
-                  className="flex items-center text-gray-600 hover:text-[#F2711F]"
-                >
-                  <Globe size={20} />
-                  <span className="ml-1 text-sm">VI</span>
-                  <ChevronDown size={16} className="ml-1" />
-                </button>
-
-                {isLanguageSelectorOpen && (
-                  <LanguageSelector
-                    onClose={() => setIsLanguageSelectorOpen(false)}
-                  />
-                )}
-              </div>
+              
 
               <AuthButtons />
             </div>

@@ -187,7 +187,7 @@ const ContactPage = () => {
       }
 
       const response = await axios.post(
-        "https://localhost:701lates/api/Ticket/create",
+        "https://localhost:7013/api/Ticket/create",
         {
           subject: ticketData.title,
           message: ticketData.subject,

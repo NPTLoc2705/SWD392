@@ -128,7 +128,7 @@ const CreateApplicationPage = () => {
 
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                Profile Image (Optional)
+                Profile Image (Required)
               </label>
               <input
                 type="file"
@@ -140,7 +140,7 @@ const CreateApplicationPage = () => {
 
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                Supporting Documents (Optional)
+                Supporting Documents (Required)
               </label>
               <input
                 type="file"

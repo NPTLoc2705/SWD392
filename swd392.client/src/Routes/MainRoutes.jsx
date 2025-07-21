@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Outlet,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import Header from "../Layout/Header";
 import Footer from "../Layout/Footer";
 import LoginPage from "../Pages/LoginPage";
@@ -19,9 +25,9 @@ import MyApplicationsPage from "../Pages/Application/MyApplicationsPage";
 import ApplicationDetail from "../Pages/Application/ApplicationDetail";
 import UpdateApplication from "../Pages/Application/UpdateApplication";
 import UploadArticlePage from "../Pages/UploadArticlePage";
-import ArticleListPage from "../Pages/ArticleListPage"; 
-import ArticleDetailPage from "../Pages/ArticleDetailPage"; 
-import EditArticlePage from "../Pages/EditArticlePage"; 
+import ArticleListPage from "../Pages/ArticleListPage";
+import ArticleDetailPage from "../Pages/ArticleDetailPage";
+import EditArticlePage from "../Pages/EditArticlePage";
 import Admin from "../Admin/AdminHomepage";
 import AdminRoute from "./AdminRoutes";
 import ConsultantRoute from "./ConsultantRoutes";
@@ -29,6 +35,10 @@ import Consultant from "../Consultant/ConsultantHomepage";
 import { getCurrentUser } from "../utils/auth";
 import Profile from "../Layout/Profile";
 import FAQ from "../Pages/FAQ";
+import ChatbotPopup from "../Chat/chatbot";
+import FAQService from "../Pages/FAQService";
+import TicketAssignmentPage from "../Admin/TicketAssignmentPage";
+import UserManagementPage from "../Admin/UserManagementPage";
 
 // MainLayout kiểm tra nếu là admin thì chuyển hướng về /admin, consultant về /consultant
 const MainLayout = () => {
@@ -48,20 +58,19 @@ const MainLayout = () => {
       <Header />
       <Outlet />
       <Footer />
+      <ChatbotPopup />
     </>
   );
 };
 
-// AdminLayout KHÔNG kiểm tra role, chỉ render layout cho admin
 const AdminLayout = () => (
   <>
-    <Header />
+    {/* <Header /> */}
     <Outlet />
-    <Footer />
+    {/* <Footer /> */}
   </>
 );
 
-// ConsultantLayout - KHÔNG có Header/Footer vì ConsultantHomepage tự quản lý layout
 const ConsultantLayout = () => <Outlet />;
 
 const AuthLayout = () => <Outlet />;
@@ -83,6 +92,7 @@ const MainRoutes = () => {
           <Route path="/sinh-vien" element={<StudentPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/FAQ" element={<FAQ />} />
+          {/* Xóa route /chat vì chatbot sẽ luôn hiện */}
           <Route path="*" element={<PageNotFound />} />
           <Route path="/applications/new" element={<CreateApplicationPage />} />
           <Route path="/applications/my-applications" element={<MyApplicationsPage />} />
@@ -93,7 +103,7 @@ const MainRoutes = () => {
         {/* Các route dành riêng cho admin */}
         <Route element={<AdminLayout />}>
           <Route
-            path="/upload-article"
+            path="/admin/upload-article" 
             element={
               <AdminRoute>
                 <UploadArticlePage />
@@ -101,15 +111,15 @@ const MainRoutes = () => {
             }
           />
           <Route
-            path="/articles"
+            path="/admin/faq" 
             element={
               <AdminRoute>
-                <ArticleListPage />
+                <FAQService />
               </AdminRoute>
             }
           />
           <Route
-            path="/articles/:id"
+            path="/admin/articles/:id" 
             element={
               <AdminRoute>
                 <ArticleDetailPage />
@@ -117,7 +127,7 @@ const MainRoutes = () => {
             }
           />
           <Route
-            path="/articles/edit/:id"
+            path="/admin/articles/edit/:id" 
             element={
               <AdminRoute>
                 <EditArticlePage />
@@ -129,6 +139,22 @@ const MainRoutes = () => {
             element={
               <AdminRoute>
                 <Admin />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/ticket-assignment"
+            element={
+              <AdminRoute>
+                <TicketAssignmentPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute>
+                <UserManagementPage />
               </AdminRoute>
             }
           />
