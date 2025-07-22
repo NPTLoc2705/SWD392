@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo, useCallback, useMemo } from "react";
 import axios from "axios";
+import debounce from "lodash/debounce";
 import AdminConsultantLayout from "../Layout/AdminConsultantLayout";
 import {
   FileText,
@@ -20,9 +21,86 @@ import {
   Plus,
 } from "lucide-react";
 import { FaQuestionCircle } from "react-icons/fa";
-import Toast from "../Components/Toast";
 
 const API_BASE = "https://localhost:7013/api/programs";
+
+const adminMenuItems = [
+  {
+    id: "articles",
+    name: "Quản lý FAQ",
+    icon: FaQuestionCircle,
+    description: "Xem, sửa, xóa các FAQ.",
+    color: "text-orange-600",
+    bgColor: "bg-orange-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/faq"),
+    className: "cursor-pointer",
+  },
+  {
+    id: "upload-article",
+    name: "Quản lý bài viết",
+    icon: PlusCircle,
+    description: "Xem, sửa, xóa các bài viết đã đăng.",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/upload-article"),
+    className: "cursor-pointer",
+  },
+  {
+    id: "users",
+    name: "Quản lý người dùng",
+    icon: Users,
+    description: "Xem và quản lý tài khoản",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/users"),
+    className: "cursor-pointer",
+  },
+  {
+    id: "ticket-assignment",
+    name: "Giao ticket",
+    icon: UserCheck,
+    description: "Giao ticket cho consultant phù hợp.",
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/ticket-assignment"),
+    className: "cursor-pointer",
+  },
+  {
+    id: "applications",
+    name: "Quản lý hồ sơ",
+    icon: FileText,
+    description: "Xem và quản lý hồ sơ xét tuyển.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/applications"),
+    className: "cursor-pointer",
+  },
+  {
+    id: "majors",
+    name: "Quản lý ngành học",
+    icon: BookOpen,
+    description: "Xem, thêm, sửa, xóa các ngành học.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    active: true,
+    onClick: () => (window.location.href = "/admin/majors"),
+    className: "cursor-pointer",
+  },
+];
+
+const emptyMajor = {
+  title: "",
+  description: "",
+  admissionRequirements: "",
+  tuitionFee: "",
+  dormitoryInfo: "",
+  isActive: true,
+};
 
 // Toast Component
 const ToastComponent = ({
@@ -142,13 +220,13 @@ const ConfirmModal = ({
           <div className="flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:outline-none"
             >
               {cancelText}
             </button>
             <button
               onClick={onConfirm}
-              className={`px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 transition-colors ${styles.confirmButton}`}
+              className={`px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 focus:outline-none ${styles.confirmButton}`}
             >
               {confirmText}
             </button>
@@ -159,100 +237,472 @@ const ConfirmModal = ({
   );
 };
 
-const adminMenuItems = [
-  {
-    id: "articles",
-    name: "Quản lý FAQ",
-    icon: FaQuestionCircle,
-    description: "Xem, sửa, xóa các FAQ.",
-    color: "text-orange-600",
-    bgColor: "bg-orange-50",
-    active: false,
-    onClick: () => (window.location.href = "/admin/faq"),
-    className: "cursor-pointer",
-  },
-  {
-    id: "upload-article",
-    name: "Quản lý bài viết",
-    icon: PlusCircle,
-    description: "Xem, sửa, xóa các bài viết đã đăng.",
-    color: "text-green-600",
-    bgColor: "bg-green-50",
-    active: false,
-    onClick: () => (window.location.href = "/admin/upload-article"),
-    className: "cursor-pointer",
-  },
-  {
-    id: "users",
-    name: "Quản lý người dùng",
-    icon: Users,
-    description: "Xem và quản lý tài khoản",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-    active: false,
-    onClick: () => (window.location.href = "/admin/users"),
-    className: "cursor-pointer",
-  },
-  {
-    id: "ticket-assignment",
-    name: "Giao ticket",
-    icon: UserCheck,
-    description: "Giao ticket cho consultant phù hợp.",
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50",
-    active: false,
-    onClick: () => (window.location.href = "/admin/ticket-assignment"),
-    className: "cursor-pointer",
-  },
-  {
-    id: "applications",
-    name: "Quản lý hồ sơ",
-    icon: FileText,
-    description: "Xem và quản lý hồ sơ xét tuyển.",
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-    active: false,
-    onClick: () => (window.location.href = "/admin/applications"),
-    className: "cursor-pointer",
-  },
-  {
-    id: "majors",
-    name: "Quản lý ngành học",
-    icon: BookOpen,
-    description: "Xem, thêm, sửa, xóa các ngành học.",
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-    active: true,
-    onClick: () => (window.location.href = "/admin/majors"),
-    className: "cursor-pointer",
-  },
-];
+// Create/Edit Form Component
+const CreateEditForm = memo(
+  ({ onSubmit, initialForm, editId, error, isSubmitting }) => {
+    const [form, setForm] = useState(initialForm);
 
-const emptyMajor = {
-  title: "",
-  description: "",
-  admissionRequirements: "",
-  tuitionFee: "",
-  dormitoryInfo: "",
-  isActive: true,
-};
+    const handleChange = useCallback((e) => {
+      const { name, value, type, checked } = e.target;
+      setForm((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }, []);
+
+    const handleFormSubmit = useCallback(
+      (e) => {
+        e.preventDefault();
+        onSubmit(form);
+      },
+      [form, onSubmit]
+    );
+
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {editId ? "Chỉnh sửa ngành học" : "Tạo ngành học mới"}
+          </h2>
+          {editId && (
+            <button
+              onClick={() => onSubmit(null)}
+              className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none"
+            >
+              <X size={16} className="mr-2" />
+              Hủy chỉnh sửa
+            </button>
+          )}
+        </div>
+
+        {error && (
+          <div className="mb-6 p-4 rounded-lg border bg-red-50 border-red-200 text-red-700">
+            <div className="flex items-center">
+              <AlertTriangle size={20} className="mr-2 flex-shrink-0" />
+              <span className="font-medium">{error}</span>
+            </div>
+          </div>
+        )}
+
+        <form onSubmit={handleFormSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tên ngành <span className="text-red-500">*</span>
+              </label>
+              <input
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                required
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                placeholder="Nhập tên ngành học"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Học phí <span className="text-red-500">*</span>
+              </label>
+              <input
+                name="tuitionFee"
+                value={form.tuitionFee}
+                onChange={handleChange}
+                type="number"
+                required
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                placeholder="Nhập học phí"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Mô tả <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              required
+              rows={4}
+              disabled={isSubmitting}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+              placeholder="Nhập mô tả ngành học"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Yêu cầu tuyển sinh <span className="text-red-500">*</span>
+            </label>
+            <input
+              name="admissionRequirements"
+              value={form.admissionRequirements}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+              placeholder="Nhập yêu cầu tuyển sinh"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Thông tin ký túc xá
+            </label>
+            <input
+              name="dormitoryInfo"
+              value={form.dormitoryInfo}
+              onChange={handleChange}
+              disabled={isSubmitting}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+              placeholder="Nhập thông tin ký túc xá"
+            />
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <label className="text-sm font-medium text-gray-700">
+              Trạng thái hoạt động
+            </label>
+            <div className="relative">
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={form.isActive}
+                onChange={handleChange}
+                disabled={isSubmitting}
+                className="sr-only peer"
+                id="isActiveToggle"
+              />
+              <label
+                htmlFor="isActiveToggle"
+                className={`relative inline-flex h-5 w-9 items-center rounded-full focus:outline-none duration-200 ease-in-out cursor-pointer peer-focus:ring-2 peer-focus:ring-orange-500 peer-focus:ring-offset-2 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed ${
+                  form.isActive
+                    ? "bg-green-500 hover:bg-green-600"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}
+                title={form.isActive ? "Đang tuyển sinh" : "Ngừng tuyển sinh"}
+              >
+                <span
+                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${
+                    form.isActive ? "translate-x-5" : "translate-x-1"
+                  }`}
+                />
+              </label>
+            </div>
+            <span
+              className={`text-sm ${
+                form.isActive ? "text-green-600 font-medium" : "text-gray-500"
+              }`}
+            >
+              {form.isActive ? "Đang tuyển sinh" : "Ngừng tuyển sinh"}
+            </span>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="cursor-pointer flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none font-medium"
+            >
+              {isSubmitting ? (
+                <>
+                  <RefreshCw size={16} className="mr-2 animate-spin" />
+                  {editId ? "Đang cập nhật..." : "Đang thêm..."}
+                </>
+              ) : (
+                <>
+                  <Save size={16} className="mr-2" />
+                  {editId ? "Cập nhật ngành học" : "Tạo ngành học"}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+);
+
+// Majors Management Component
+const MajorsManagement = memo(
+  ({ majors, searchTerm, onEdit, onDelete, onDetail, onRefresh, loading }) => {
+    const filteredMajors = useMemo(
+      () =>
+        majors.filter(
+          (major) =>
+            major.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            major.description
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            major.admissionRequirements
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase())
+        ),
+      [majors, searchTerm]
+    );
+
+    const getStatusDisplay = (isActive) => {
+      return isActive
+        ? {
+            color: "text-green-600",
+            bgColor: "bg-green-100",
+            text: "Đang tuyển",
+            dotColor: "bg-green-500",
+          }
+        : {
+            color: "text-red-600",
+            bgColor: "bg-red-100",
+            text: "Ngừng tuyển",
+            dotColor: "bg-red-500",
+          };
+    };
+
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Quản lý ngành học
+          </h2>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={onRefresh}
+              disabled={loading}
+              className="cursor-pointer flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
+            >
+              <RefreshCw
+                size={16}
+                className={`mr-2 ${loading ? "animate-spin" : ""}`}
+              />
+              {loading ? "Đang tải..." : "Làm mới"}
+            </button>
+            <button
+              onClick={() => onEdit(null)}
+              className="cursor-pointer flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none"
+            >
+              <PlusCircle size={16} className="mr-2" />
+              Tạo ngành học mới
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm ngành học..."
+                defaultValue={searchTerm}
+                onChange={(e) => onSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            <div className="flex items-center space-x-4 text-sm text-gray-600">
+              <span>Tổng: {majors.length} ngành</span>
+              <span>
+                Đang tuyển: {majors.filter((major) => major.isActive).length}
+              </span>
+              <span>
+                Ngừng tuyển: {majors.filter((major) => !major.isActive).length}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <RefreshCw size={32} className="animate-spin text-blue-600 mb-4" />
+            <span className="text-gray-600 text-lg">Đang tải dữ liệu...</span>
+            <span className="text-gray-500 text-sm mt-2">
+              Vui lòng chờ trong giây lát
+            </span>
+          </div>
+        ) : filteredMajors.length === 0 ? (
+          <div className="text-center py-12">
+            <BookOpen size={64} className="mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-500 text-lg mb-2">Không có ngành học nào</p>
+            <p className="text-gray-400 text-sm mt-2">
+              Các ngành học sẽ hiển thị tại đây
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ngành học
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Học phí
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Trạng thái
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Yêu cầu tuyển sinh
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Thao tác
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredMajors.map((major) => {
+                  const statusDisplay = getStatusDisplay(major.isActive);
+                  const toggleId = `toggle-${major.id}`;
+
+                  return (
+                    <tr key={major.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {major.title}
+                          </div>
+                          <div
+                            className="text-sm text-gray-500 line-clamp-2 break-words max-w-[10rem] md:max-w-[14rem] lg:max-w-[18rem] xl:max-w-[22rem] 2xl:max-w-[26rem]"
+                            title={major.description}
+                          >
+                            {major.description}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {major.tuitionFee?.toLocaleString("vi-VN")} VNĐ
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusDisplay.bgColor} ${statusDisplay.color}`}
+                          >
+                            <span
+                              className={`w-2 h-2 rounded-full mr-2 ${statusDisplay.dotColor}`}
+                            ></span>
+                            {statusDisplay.text}
+                          </span>
+                          <div className="relative">
+                            <input
+                              type="checkbox"
+                              id={toggleId}
+                              checked={major.isActive}
+                              onChange={async () => {
+                                const newStatus = !major.isActive;
+                                const updateData = {
+                                  title: major.title,
+                                  description: major.description,
+                                  admissionRequirements:
+                                    major.admissionRequirements,
+                                  tuitionFee: major.tuitionFee,
+                                  dormitoryInfo: major.dormitoryInfo,
+                                  isActive: newStatus,
+                                };
+                                try {
+                                  await axios.put(
+                                    `${API_BASE}/update/${major.id}`,
+                                    updateData,
+                                    { headers: getAuthHeaders() }
+                                  );
+                                  showToast(
+                                    "Cập nhật trạng thái thành công!",
+                                    "success"
+                                  );
+                                  onRefresh();
+                                } catch (err) {
+                                  showToast(
+                                    "Lỗi khi cập nhật trạng thái",
+                                    "error"
+                                  );
+                                }
+                              }}
+                              className="sr-only peer"
+                            />
+                            {/* <label
+                              htmlFor={toggleId}
+                              className={`relative inline-flex h-5 w-9 items-center rounded-full focus:outline-none duration-200 ease-in-out cursor-pointer peer-focus:ring-2 peer-focus:ring-orange-500 peer-focus:ring-offset-2 ${
+                                major.isActive
+                                  ? "bg-green-500 hover:bg-green-600"
+                                  : "bg-gray-300 hover:bg-gray-400"
+                              }`}
+                              title={
+                                major.isActive
+                                  ? "Nhấn để tắt tuyển sinh"
+                                  : "Nhấn để bật tuyển sinh"
+                              }
+                            >
+                              <span
+                                className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${
+                                  major.isActive
+                                    ? "translate-x-5"
+                                    : "translate-x-1"
+                                }`}
+                              />
+                            </label> */}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 line-clamp-2">
+                          {major.admissionRequirements}
+                        </div>
+                        {major.dormitoryInfo && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            KTX: {major.dormitoryInfo}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => onDetail(major)}
+                            className="cursor-pointer inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          >
+                            <BookOpen className="h-4 w-4 mr-1" />
+                            Xem
+                          </button>
+                          <button
+                            onClick={() => onEdit(major)}
+                            className="cursor-pointer inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Sửa
+                          </button>
+                          <button
+                            onClick={() => onDelete(major.id)}
+                            className="cursor-pointer inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Xóa
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  }
+);
 
 const AdminMajorsPage = () => {
   const [majors, setMajors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [form, setForm] = useState(emptyMajor);
   const [editId, setEditId] = useState(null);
-  const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [activeTab, setActiveTab] = useState("create");
   const [toast, setToast] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-
-  // Thêm state cho modal xem chi tiết
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMajor, setSelectedMajor] = useState(null);
 
@@ -260,56 +710,59 @@ const AdminMajorsPage = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = useCallback(() => {
     const token = getAuthToken();
     return {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     };
-  };
+  }, []);
 
-  const showToast = (message, type = "success") => {
+  const showToast = useCallback((message, type = "success") => {
     setToast({ message, type });
-  };
+  }, []);
 
-  const hideToast = () => {
+  const hideToast = useCallback(() => {
     setToast(null);
-  };
+  }, []);
 
-  const handleApiError = (err, defaultMessage) => {
-    let errorMessage = defaultMessage;
+  const handleApiError = useCallback(
+    (err, defaultMessage) => {
+      let errorMessage = defaultMessage;
 
-    if (err.response) {
-      const status = err.response.status;
-      const serverMessage =
-        err.response.data?.message || err.response.data?.error;
+      if (err.response) {
+        const status = err.response.status;
+        const serverMessage =
+          err.response.data?.message || err.response.data?.error;
 
-      switch (status) {
-        case 401:
-          errorMessage = "Bạn cần đăng nhập để thực hiện thao tác này";
-          break;
-        case 403:
-          errorMessage = "Bạn không có quyền thực hiện thao tác này";
-          break;
-        case 404:
-          errorMessage = "Không tìm thấy dữ liệu";
-          break;
-        case 500:
-          errorMessage = serverMessage || "Lỗi server";
-          break;
-        default:
-          errorMessage = serverMessage || defaultMessage;
+        switch (status) {
+          case 401:
+            errorMessage = "Bạn cần đăng nhập để thực hiện thao tác này";
+            break;
+          case 403:
+            errorMessage = "Bạn không có quyền thực hiện thao tác này";
+            break;
+          case 404:
+            errorMessage = "Không tìm thấy dữ liệu";
+            break;
+          case 500:
+            errorMessage = serverMessage || "Lỗi server";
+            break;
+          default:
+            errorMessage = serverMessage || defaultMessage;
+        }
+      } else if (err.request) {
+        errorMessage =
+          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.";
       }
-    } else if (err.request) {
-      errorMessage =
-        "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.";
-    }
 
-    setError(errorMessage);
-    showToast(errorMessage, "error");
-  };
+      setError(errorMessage);
+      showToast(errorMessage, "error");
+    },
+    [showToast]
+  );
 
-  const fetchMajors = async () => {
+  const fetchMajors = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -322,89 +775,75 @@ const AdminMajorsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getAuthHeaders, handleApiError]);
 
   useEffect(() => {
     fetchMajors();
-  }, []);
+  }, [fetchMajors]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError("");
+  const handleSubmit = useCallback(
+    async (form) => {
+      if (!form) {
+        setEditId(null);
+        setError("");
+        return;
+      }
 
-    try {
-      const { id, ...payload } = form;
-      const requestData = {
-        ...payload,
-        tuitionFee: form.tuitionFee === "" ? 0 : Number(form.tuitionFee),
-      };
+      setIsSubmitting(true);
+      setError("");
 
-      if (editId) {
-        await axios.put(`${API_BASE}/update/${editId}`, requestData, {
-          headers: getAuthHeaders(),
-        });
-        showToast("Cập nhật ngành học thành công!", "success");
-        // Nếu ngành học vừa chuyển sang ngừng tuyển, giữ modal mở và cập nhật trạng thái ngay
-        if (requestData.isActive === false) {
-          setForm((prev) => ({ ...prev, isActive: false }));
-          await fetchMajors();
-          // Không đóng modal, chỉ cập nhật lại danh sách majors để trạng thái hiển thị đúng
-          setIsSubmitting(false);
-          return;
+      try {
+        const { id, ...payload } = form;
+        const requestData = {
+          ...payload,
+          tuitionFee: form.tuitionFee === "" ? 0 : Number(form.tuitionFee),
+        };
+
+        if (editId) {
+          await axios.put(`${API_BASE}/update/${editId}`, requestData, {
+            headers: getAuthHeaders(),
+          });
+          showToast("Cập nhật ngành học thành công!", "success");
+        } else {
+          await axios.post(`${API_BASE}/create`, requestData, {
+            headers: getAuthHeaders(),
+          });
+          showToast("Thêm ngành học thành công!", "success");
         }
-      } else {
-        await axios.post(`${API_BASE}/create`, requestData, {
-          headers: getAuthHeaders(),
-        });
-        showToast("Thêm ngành học thành công!", "success");
+
+        setEditId(null);
+        setError("");
+        await fetchMajors();
+        setActiveTab("manage");
+      } catch (err) {
+        handleApiError(
+          err,
+          editId ? "Lỗi khi cập nhật ngành học" : "Lỗi khi thêm ngành học"
+        );
+      } finally {
+        setIsSubmitting(false);
       }
+    },
+    [editId, getAuthHeaders, showToast, handleApiError, fetchMajors]
+  );
 
-      // Đóng modal hoặc form tùy thuộc vào trạng thái
-      if (editId) {
-        setShowEditModal(false);
-      } else {
-        setShowForm(false);
+  const handleEdit = useCallback(
+    (major) => {
+      setEditId(major ? major.id : null);
+      setActiveTab("create");
+      if (showDetailModal) {
+        setShowDetailModal(false);
       }
+    },
+    [showDetailModal]
+  );
 
-      setForm(emptyMajor);
-      setEditId(null);
-      await fetchMajors();
-    } catch (err) {
-      handleApiError(
-        err,
-        editId ? "Lỗi khi cập nhật ngành học" : "Lỗi khi thêm ngành học"
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleEdit = (major) => {
-    setForm({
-      title: major.title || "",
-      description: major.description || "",
-      admissionRequirements: major.admissionRequirements || "",
-      tuitionFee: major.tuitionFee || "",
-      dormitoryInfo: major.dormitoryInfo || "",
-      isActive: major.isActive,
-    });
-    setEditId(major.id);
-    setShowEditModal(true); // Mở modal thay vì setShowForm(true)
-  };
-
-  const closeEditModal = () => {
-    setShowEditModal(false);
-    setForm(emptyMajor);
-    setEditId(null);
-  };
-
-  const handleDeleteClick = (id) => {
+  const handleDeleteClick = useCallback((id) => {
     setItemToDelete(id);
     setShowConfirmModal(true);
-  };
+  }, []);
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!itemToDelete) return;
 
     setShowConfirmModal(false);
@@ -433,37 +872,36 @@ const AdminMajorsPage = () => {
       setLoading(false);
       setItemToDelete(null);
     }
-  };
+  }, [itemToDelete, getAuthHeaders, showToast, handleApiError, fetchMajors]);
 
-  const handleCancelDelete = () => {
+  const handleCancelDelete = useCallback(() => {
     setShowConfirmModal(false);
     setItemToDelete(null);
-  };
+  }, []);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+  const openDetailModal = useCallback((major) => {
+    setSelectedMajor(major);
+    setShowDetailModal(true);
+  }, []);
 
-  const handleCancelForm = () => {
-    setShowForm(false);
-    setForm(emptyMajor);
-    setEditId(null);
-  };
+  const closeDetailModal = useCallback(() => {
+    setShowDetailModal(false);
+    setSelectedMajor(null);
+  }, []);
 
-  const filteredMajors = majors.filter(
-    (major) =>
-      major.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      major.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      major.admissionRequirements
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
+  const debouncedSetSearchTerm = useCallback(
+    debounce((value) => setSearchTerm(value), 300),
+    []
   );
 
-  const getStatusDisplay = (isActive) => {
+  const handleSearchChange = useCallback(
+    (value) => {
+      debouncedSetSearchTerm(value);
+    },
+    [debouncedSetSearchTerm]
+  );
+
+  const getStatusDisplay = useCallback((isActive) => {
     return isActive
       ? {
           color: "text-green-600",
@@ -477,18 +915,7 @@ const AdminMajorsPage = () => {
           text: "Ngừng tuyển",
           dotColor: "bg-red-500",
         };
-  };
-
-  // Thêm hàm để mở modal chi tiết
-  const openDetailModal = (major) => {
-    setSelectedMajor(major);
-    setShowDetailModal(true);
-  };
-
-  const closeDetailModal = () => {
-    setShowDetailModal(false);
-    setSelectedMajor(null);
-  };
+  }, []);
 
   return (
     <>
@@ -498,334 +925,73 @@ const AdminMajorsPage = () => {
         panelTitle="Admin Panel"
       >
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm ngành học..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
-              </div>
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <span>Tổng: {majors.length} ngành</span>
-                <span>
-                  Đang tuyển: {majors.filter((major) => major.isActive).length}
-                </span>
-                <span>
-                  Ngừng tuyển:{" "}
-                  {majors.filter((major) => !major.isActive).length}
-                </span>
-              </div>
-            </div>
-
-            {error && (
-              <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                <AlertCircle className="h-5 w-5" />
-                <span>{error}</span>
-              </div>
-            )}
-          </div>
-
-          {showForm && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  {editId ? "Chỉnh sửa ngành học" : "Thêm ngành học mới"}
-                </h2>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tên ngành <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      name="title"
-                      value={form.title}
-                      onChange={handleChange}
-                      required
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="Nhập tên ngành học"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Học phí <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      name="tuitionFee"
-                      value={form.tuitionFee}
-                      onChange={handleChange}
-                      type="number"
-                      required
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="Nhập học phí"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Mô tả <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      name="description"
-                      value={form.description}
-                      onChange={handleChange}
-                      required
-                      rows={3}
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="Nhập mô tả ngành học"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Yêu cầu tuyển sinh <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      name="admissionRequirements"
-                      value={form.admissionRequirements}
-                      onChange={handleChange}
-                      required
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="Nhập yêu cầu tuyển sinh"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Thông tin ký túc xá
-                    </label>
-                    <input
-                      name="dormitoryInfo"
-                      value={form.dormitoryInfo}
-                      onChange={handleChange}
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="Nhập thông tin ký túc xá"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        name="isActive"
-                        checked={form.isActive}
-                        onChange={handleChange}
-                        disabled={isSubmitting}
-                        className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded disabled:opacity-50"
-                      />
-                      <label className="ml-2 block text-sm text-gray-700">
-                        Đang hoạt động
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={handleCancelForm}
-                    disabled={isSubmitting}
-                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
-                  >
-                    <X size={16} className="mr-2" />
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <RefreshCw size={16} className="mr-2 animate-spin" />
-                        {editId ? "Đang lưu..." : "Đang thêm..."}
-                      </>
-                    ) : (
-                      <>
-                        <Save size={16} className="mr-2" />
-                        {editId ? "Lưu thay đổi" : "Thêm ngành học"}
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="flex justify-between p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Danh sách ngành học
-              </h2>
-              <div className="flex space-x-3">
-                <button
-                  onClick={fetchMajors}
-                  disabled={loading}
-                  className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                  />
-                  <span>Làm mới</span>
-                </button>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Thêm ngành học</span>
-                </button>
-              </div>
+            <div className="flex">
+              <button
+                onClick={() => {
+                  setActiveTab("create");
+                  setError("");
+                }}
+                className={`cursor-pointer flex-1 px-6 py-4 text-sm font-medium rounded-l-xl focus:outline-none ${
+                  activeTab === "create"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  <PlusCircle size={16} />
+                  <span>
+                    {editId ? "Chỉnh sửa ngành học" : "Tạo ngành học mới"}
+                  </span>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab("manage");
+                  setEditId(null);
+                  setError("");
+                }}
+                className={`cursor-pointer flex-1 px-6 py-4 text-sm font-medium rounded-r-xl focus:outline-none ${
+                  activeTab === "manage"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  <BookOpen size={16} />
+                  <span>Quản lý ngành học</span>
+                </div>
+              </button>
             </div>
-
-            {loading ? (
-              <div className="flex items-center justify-center p-12">
-                <RefreshCw className="h-8 w-8 animate-spin text-orange-600" />
-                <span className="ml-2 text-gray-600">Đang tải...</span>
-              </div>
-            ) : filteredMajors.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-12 text-gray-500">
-                <BookOpen className="h-12 w-12 mb-4" />
-                <p>Không có ngành học nào</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ngành học
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Học phí
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Trạng thái
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Yêu cầu tuyển sinh
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Thao tác
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredMajors.map((major) => {
-                      const statusDisplay = getStatusDisplay(major.isActive);
-
-                      return (
-                        <tr key={major.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {major.title}
-                              </div>
-                              <div className="text-sm text-gray-500 line-clamp-2 break-words max-w-[10rem] md:max-w-[14rem] lg:max-w-[18rem] xl:max-w-[22rem] 2xl:max-w-[26rem]" title={major.description}>
-                                {major.description}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {major.tuitionFee?.toLocaleString("vi-VN")} VNĐ
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusDisplay.bgColor} ${statusDisplay.color}`}
-                              >
-                                <span
-                                  className={`w-2 h-2 rounded-full mr-2 ${statusDisplay.dotColor}`}
-                                ></span>
-                                {statusDisplay.text}
-                              </span>
-                              <input
-                                type="checkbox"
-                                checked={major.isActive}
-                                onChange={async (e) => {
-                                  const newStatus = e.target.checked;
-                                  // Chỉ gửi các trường cần thiết cho update
-                                  const updateData = {
-                                    title: major.title,
-                                    description: major.description,
-                                    admissionRequirements: major.admissionRequirements,
-                                    tuitionFee: major.tuitionFee,
-                                    dormitoryInfo: major.dormitoryInfo,
-                                    isActive: newStatus
-                                  };
-                                  try {
-                                    await axios.put(`${API_BASE}/update/${major.id}`,
-                                      updateData,
-                                      { headers: getAuthHeaders() }
-                                    );
-                                    showToast("Cập nhật trạng thái thành công!", "success");
-                                    await fetchMajors();
-                                  } catch (err) {
-                                    showToast("Lỗi khi cập nhật trạng thái", "error");
-                                  }
-                                }}
-                                className="ml-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded cursor-pointer"
-                                title="Bật/tắt trạng thái tuyển sinh"
-                              />
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900 line-clamp-2">
-                              {major.admissionRequirements}
-                            </div>
-                            {major.dormitoryInfo && (
-                              <div className="text-xs text-gray-500 mt-1">
-                                KTX: {major.dormitoryInfo}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center space-x-2">
-                              <button
-                                onClick={() => openDetailModal(major)}
-                                className="cursor-pointer inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                              >
-                                <BookOpen className="h-4 w-4 mr-1" />
-                                Xem
-                              </button>
-                              <button
-                                onClick={() => handleEdit(major)}
-                                className="cursor-pointer inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                              >
-                                <Edit className="h-4 w-4 mr-1" />
-                                Sửa
-                              </button>
-                              <button
-                                onClick={() => handleDeleteClick(major.id)}
-                                className="cursor-pointer inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                              >
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                Xóa
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
+
+          {activeTab === "create" ? (
+            <CreateEditForm
+              onSubmit={handleSubmit}
+              initialForm={
+                editId
+                  ? majors.find((m) => m.id === editId) || emptyMajor
+                  : emptyMajor
+              }
+              editId={editId}
+              error={error}
+              isSubmitting={isSubmitting}
+            />
+          ) : (
+            <MajorsManagement
+              majors={majors}
+              searchTerm={searchTerm}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+              onDetail={openDetailModal}
+              onRefresh={fetchMajors}
+              onSearch={handleSearchChange}
+              loading={loading}
+            />
+          )}
         </div>
       </AdminConsultantLayout>
 
-      {/* Confirm Modal */}
       <ConfirmModal
         isOpen={showConfirmModal}
         onClose={handleCancelDelete}
@@ -837,153 +1003,6 @@ const AdminMajorsPage = () => {
         type="danger"
       />
 
-      {/* Edit Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Chỉnh sửa ngành học
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">ID: {editId}</p>
-              </div>
-              <button
-                onClick={closeEditModal}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X size={20} className="text-gray-500" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tên ngành <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      name="title"
-                      value={form.title}
-                      onChange={handleChange}
-                      required
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="Nhập tên ngành học"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Học phí <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      name="tuitionFee"
-                      value={form.tuitionFee}
-                      onChange={handleChange}
-                      type="number"
-                      required
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="Nhập học phí"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mô tả <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="description"
-                    value={form.description}
-                    onChange={handleChange}
-                    required
-                    rows={4}
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="Nhập mô tả ngành học"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Yêu cầu tuyển sinh <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    name="admissionRequirements"
-                    value={form.admissionRequirements}
-                    onChange={handleChange}
-                    required
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="Nhập yêu cầu tuyển sinh"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Thông tin ký túc xá
-                  </label>
-                  <input
-                    name="dormitoryInfo"
-                    value={form.dormitoryInfo}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="Nhập thông tin ký túc xá"
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isActive"
-                    checked={form.isActive}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                    className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded disabled:opacity-50"
-                  />
-                  <label className="ml-2 block text-sm text-gray-700">
-                    Đang hoạt động
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={closeEditModal}
-                  disabled={isSubmitting}
-                  className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
-                >
-                  <X size={16} className="mr-2" />
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="cursor-pointer inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                      Đang lưu...
-                    </>
-                  ) : (
-                    <>
-                      <Save size={16} className="mr-2" />
-                      Lưu thay đổi
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Detail Modal */}
       {showDetailModal && selectedMajor && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -1015,7 +1034,7 @@ const AdminMajorsPage = () => {
               </div>
               <button
                 onClick={closeDetailModal}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg focus:outline-none"
               >
                 <X size={20} className="text-gray-500" />
               </button>
@@ -1081,17 +1100,42 @@ const AdminMajorsPage = () => {
                   <label className="block text-sm font-medium text-gray-700">
                     Trạng thái hoạt động
                   </label>
-                  <div className="mt-1 flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedMajor.isActive}
-                      disabled
-                      className="h-4 w-4 text-orange-600 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">
+                  <div className="mt-1 flex items-center space-x-3">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={selectedMajor.isActive}
+                        disabled
+                        className="sr-only peer"
+                        id="detailToggle"
+                      />
+                      <label
+                        htmlFor="detailToggle"
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full focus:outline-none duration-200 ease-in-out opacity-50 ${
+                          selectedMajor.isActive
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${
+                            selectedMajor.isActive
+                              ? "translate-x-5"
+                              : "translate-x-1"
+                          }`}
+                        />
+                      </label>
+                    </div>
+                    <span
+                      className={`text-sm ${
+                        selectedMajor.isActive
+                          ? "text-green-600 font-medium"
+                          : "text-gray-500"
+                      }`}
+                    >
                       {selectedMajor.isActive
-                        ? "Đang hoạt động"
-                        : "Ngừng hoạt động"}
+                        ? "Đang tuyển sinh"
+                        : "Ngừng tuyển sinh"}
                     </span>
                   </div>
                 </div>
@@ -1112,14 +1156,14 @@ const AdminMajorsPage = () => {
                   closeDetailModal();
                   handleEdit(selectedMajor);
                 }}
-                className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg focus:outline-none font-medium"
               >
                 <Edit size={16} className="mr-2" />
                 Chỉnh sửa
               </button>
               <button
                 onClick={closeDetailModal}
-                className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium"
+                className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg focus:outline-none font-medium"
               >
                 <X size={16} className="mr-2" />
                 Đóng
@@ -1129,7 +1173,6 @@ const AdminMajorsPage = () => {
         </div>
       )}
 
-      {/* Toast Notification */}
       {toast && (
         <ToastComponent
           message={toast.message}

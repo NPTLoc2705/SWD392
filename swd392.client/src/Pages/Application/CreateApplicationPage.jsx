@@ -165,7 +165,7 @@ const CreateApplicationPage = () => {
       {/* Banner */}
       <div className="relative h-90 overflow-hidden">
         <img
-          src="https://cdnphoto.dantri.com.vn/bc3uX5ERqIeMwAf685OpDrEGHQM=/thumb_w/1360/2024/07/19/tcbc-truong-dh-fpt-cong-bo-diem-chuan-anh-2-1721359772279.jpg"
+          src="https://cdnphoto.dantri.com.vn/bc3uX5ERqIeMwAf685OpDrEGHQM=/thumb_w/1360/2024/07/19/tcbc-truong-dh-fpt-cong-bo-diem-chuan-xet-tuyen-anh-2-1721359772279.jpg"
           alt="Trường Đại học FPT"
           className="w-full h-[600px] object-cover"
         />
@@ -245,7 +245,7 @@ const CreateApplicationPage = () => {
                       onChange={handleInputChange}
                       required
                       disabled={isSubmitting}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed ${
                         validationErrors.studentName
                           ? "border-red-500"
                           : "border-gray-300"
@@ -271,7 +271,7 @@ const CreateApplicationPage = () => {
                       value={formData.Student_Phone}
                       onChange={handleInputChange}
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Nhập số điện thoại"
                     />
                   </div>
@@ -294,7 +294,7 @@ const CreateApplicationPage = () => {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed ${
                       validationErrors.programId
                         ? "border-red-500"
                         : "border-gray-300"
@@ -337,7 +337,7 @@ const CreateApplicationPage = () => {
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       placeholder="https://example.com/portfolio"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -353,7 +353,7 @@ const CreateApplicationPage = () => {
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       placeholder="https://example.com"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -371,7 +371,7 @@ const CreateApplicationPage = () => {
                   </label>
                   <div className="flex items-center gap-4">
                     <label
-                      className={`cursor-pointer flex items-center px-4 py-2 rounded-lg shadow transition-colors ${
+                      className={`cursor-pointer flex items-center px-4 py-2 rounded-lg shadow focus:outline-none ${
                         validationErrors.image
                           ? "bg-red-500 hover:bg-red-600"
                           : "bg-orange-500 hover:bg-orange-600"
@@ -419,7 +419,7 @@ const CreateApplicationPage = () => {
                   </label>
                   <div className="flex items-center gap-4">
                     <label
-                      className={`cursor-pointer flex items-center px-4 py-2 rounded-lg shadow transition-colors ${
+                      className={`cursor-pointer flex items-center px-4 py-2 rounded-lg shadow focus:outline-none ${
                         validationErrors.documents
                           ? "bg-red-500 hover:bg-red-600"
                           : "bg-orange-500 hover:bg-orange-600"

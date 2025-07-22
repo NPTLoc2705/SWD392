@@ -132,7 +132,7 @@ const RegisterPage = () => {
                                     type="email"
                                     value={form.email}
                                     onChange={handleChange}
-                                    // placeholder="your.email@fpt.edu.vn"
+                                    placeholder="Nhập email của bạn"
                                     required
                                     disabled={loading}
                                     className="w-full pl-10 pr-4 py-3 border border-gray-200/60 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent focus:outline-none transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500 bg-white/70 backdrop-blur-sm"
@@ -178,7 +178,7 @@ const RegisterPage = () => {
                                     type={showPassword ? "text" : "password"}
                                     value={form.password}
                                     onChange={handleChange}
-                                    // placeholder="••••••••"
+                                    placeholder="••••••••"
                                     required
                                     disabled={loading}
                                     className="w-full pl-10 pr-12 py-3 border border-gray-200/60 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent focus:outline-none transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500 bg-white/70 backdrop-blur-sm"
