@@ -16,9 +16,10 @@ namespace BO.Models
     }
     public enum AppointmentStatus
     {
-        Pending,     // Default status when created
-        Confirmed,   // Payment completed, ready for consultant
+        Pending,    
+        Confirmed,
+        Finish,
         Rescheduled,
-        Finish
+     
     }
 }
