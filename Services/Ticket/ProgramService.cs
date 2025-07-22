@@ -28,6 +28,9 @@ namespace Services.Ticket
         public Task<IEnumerable<ProgramResponse>> GetAllAsync()
        => _programRepository.GetAllAsync();
 
+        public Task<IEnumerable<ProgramResponse>> GetAllForAdminAsync()
+        => _programRepository.GetAllForAdminAsync();
+
         public Task<ProgramResponse> GetByIdAsync(string id)
         => _programRepository.GetByIdAsync(id);
 
