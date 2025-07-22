@@ -82,6 +82,24 @@ namespace DAL
                     UpdatedAt = t.updated_at
                 }).ToListAsync();
         }
+        public async Task<IEnumerable<ProgramResponse>> GetAllForAdminAsync()
+        {
+            return await _context.Programs
+                .OrderByDescending(t => t.updated_at)
+                
+                .Select(t => new ProgramResponse
+                {
+                    Id = t.id,
+                    Title = t.title,
+                    Description = t.description,
+                    AdmissionRequirements = t.admission_requirements,
+                    TuitionFee = t.tuition_fee,
+                    DormitoryInfo = t.dormitory_info,
+                    IsActive = t.is_active,
+                    CreatedAt = t.created_at,
+                    UpdatedAt = t.updated_at
+                }).ToListAsync();
+        }
 
         public async Task<ProgramResponse> GetByIdAsync(string id)
         {

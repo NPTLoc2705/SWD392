@@ -313,7 +313,7 @@ const AdminMajorsPage = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.get(`${API_BASE}/list-program`, {
+      const response = await axios.get(`${API_BASE}/admin/list-program`, {
         headers: getAuthHeaders(),
       });
       setMajors(Array.isArray(response.data) ? response.data : []);

@@ -40,6 +40,23 @@ namespace YourProjectName.Controllers
             }
         }
 
+
+        [HttpGet("admin/list-program")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<ProgramResponse>>> GetAllProgramsForAdmin()
+        {
+            try
+            {
+                var programs = await _programService.GetAllForAdminAsync();
+                return Ok(programs);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all programs");
+                return StatusCode(500, new { message = "An error occurred while retrieving programs" });
+            }
+        }
+
         [HttpGet("/program-detail/{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<ProgramResponse>> GetProgramById(string id)
