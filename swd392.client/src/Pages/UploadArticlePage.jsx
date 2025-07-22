@@ -719,22 +719,22 @@ const UploadArticlePage = memo(() => {
                 <table className="w-full border-collapse bg-white">
                   <thead>
                     <tr className="bg-gray-50">
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-2 py-3 text-left text-sm font-medium text-gray-700">
                         STT
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-2 py-3 text-left text-sm font-medium text-gray-700">
                         Ảnh
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-2 py-3 text-left text-sm font-medium text-gray-700">
                         Tiêu đề
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-2 py-3 text-left text-sm font-medium text-gray-700">
                         Nội dung
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-2 py-3 text-left text-sm font-medium text-gray-700">
                         Ngày tạo
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-2 py-3 text-left text-sm font-medium text-gray-700">
                         Thao tác
                       </th>
                     </tr>
@@ -745,10 +745,10 @@ const UploadArticlePage = memo(() => {
                         key={article.id}
                         className="hover:bg-gray-50 transition-colors"
                       >
-                        <td className="border border-gray-200 px-4 py-3 text-sm text-gray-900 font-medium">
+                        <td className="border border-gray-200 px-2 py-3 text-sm text-gray-900 font-medium">
                           {index + 1}
                         </td>
-                        <td className="border border-gray-200 px-4 py-3">
+                        <td className="border border-gray-200 px-2 py-3">
                           {article.imagePath || article.image ? (
                             <img
                               src={
@@ -759,17 +759,17 @@ const UploadArticlePage = memo(() => {
                                   : `data:image/jpeg;base64,${article.image}`
                               }
                               alt={article.title}
-                              className="w-16 h-12 object-cover rounded"
+                              className="w-12 h-8 object-cover rounded"
                             />
                           ) : (
-                            <div className="w-16 h-12 bg-gray-200 rounded flex items-center justify-center">
+                            <div className="w-12 h-8 bg-gray-200 rounded flex items-center justify-center">
                               <span className="text-gray-400 text-xs">
                                 No image
                               </span>
                             </div>
                           )}
                         </td>
-                        <td className="border border-gray-200 px-4 py-3">
+                        <td className="border border-gray-200 px-2 py-3">
                           <div className="max-w-xs">
                             <p
                               className="text-sm font-medium text-gray-900 truncate"
@@ -779,48 +779,48 @@ const UploadArticlePage = memo(() => {
                             </p>
                           </div>
                         </td>
-                        <td className="border border-gray-200 px-4 py-3">
+                        <td className="border border-gray-200 px-2 py-3">
                           <div className="max-w-md">
                             <p
                               className="text-sm text-gray-600 truncate"
                               title={stripImageTags(article.content)}
                             >
-                              {stripImageTags(article.content).substring(0, 100)}
+                              {stripImageTags(article.content).substring(0, 50)}
                               ...
                             </p>
                           </div>
                         </td>
-                        <td className="border border-gray-200 px-4 py-3 text-sm text-gray-900">
+                        <td className="border border-gray-200 px-2 py-3 text-sm text-gray-900">
                           {formatDate(article.createdAt)}
                         </td>
-                        <td className="border border-gray-200 px-4 py-3">
-                          <div className="flex items-center space-x-2">
+                        <td className="border border-gray-200 px-2 py-3">
+                          <div className="flex items-center space-x-1">
                             <button
                               onClick={() => onViewDetail(article)}
-                              className="flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                              className="flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
                               title="Xem chi tiết"
                             >
-                              <Eye size={14} className="mr-1" />
+                              <Eye size={12} className="mr-1" />
                               Xem
                             </button>
                             <button
                               onClick={() => onEdit(article)}
-                              className="flex items-center px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"
+                              className="flex items-center px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"
                               title="Chỉnh sửa"
                             >
-                              <Edit size={14} className="mr-1" />
+                              <Edit size={12} className="mr-1" />
                               Sửa
                             </button>
                             <button
                               onClick={() => onDelete(article.id)}
                               disabled={deletingId === article.id}
-                              className="flex items-center px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors disabled:opacity-50"
+                              className="flex items-center px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors disabled:opacity-50"
                               title="Xóa"
                             >
                               {deletingId === article.id ? (
-                                <div className="w-3 h-3 border border-red-700 border-t-transparent rounded-full animate-spin mr-1"></div>
+                                <div className="w-2 h-2 border border-red-700 border-t-transparent rounded-full animate-spin mr-1"></div>
                               ) : (
-                                <Trash2 size={14} className="mr-1" />
+                                <Trash2 size={12} className="mr-1" />
                               )}
                               Xóa
                             </button>
