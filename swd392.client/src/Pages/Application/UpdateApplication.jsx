@@ -301,7 +301,7 @@ const UpdateApplication = () => {
           <div className="mb-8">
             <button
               onClick={handleBack}
-              className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-orange-600 transition-colors font-medium"
+              className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-orange-600 focus:outline-none font-medium"
             >
               <ArrowLeft size={20} className="mr-2" />
               Quay lại chi tiết hồ sơ
@@ -371,7 +371,7 @@ const UpdateApplication = () => {
                       value={formData.studentName}
                       onChange={handleInputChange}
                       disabled={isSubmitting}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed ${
                         validationErrors.studentName
                           ? "border-red-500"
                           : "border-gray-300"
@@ -398,7 +398,7 @@ const UpdateApplication = () => {
                       value={formData.studentPhone}
                       onChange={handleInputChange}
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Nhập số điện thoại"
                     />
                   </div>
@@ -420,7 +420,7 @@ const UpdateApplication = () => {
                     value={formData.programId}
                     onChange={handleProgramChange}
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed ${
                       validationErrors.programId
                         ? "border-red-500"
                         : "border-gray-300"
@@ -470,7 +470,7 @@ const UpdateApplication = () => {
                       value={formData.portfolioLink}
                       onChange={handleInputChange}
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="https://example.com/portfolio"
                     />
                   </div>
@@ -486,7 +486,7 @@ const UpdateApplication = () => {
                       value={formData.otherLink}
                       onChange={handleInputChange}
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="https://example.com"
                     />
                   </div>
@@ -512,7 +512,7 @@ const UpdateApplication = () => {
                   )}
 
                   <div className="flex items-center gap-4">
-                    <label className="cursor-pointer flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow transition-colors">
+                    <label className="cursor-pointer flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow focus:outline-none">
                       <Upload size={16} className="mr-2" />
                       {formData.imageUrl ? "Thay đổi ảnh" : "Chọn ảnh"}
                       <input
@@ -563,13 +563,13 @@ const UpdateApplication = () => {
                               <div className="flex items-center">
                                 <FileText
                                   size={18}
-                                  className="text-orange-600 mr-3 group-hover:text-orange-700 transition-colors"
+                                  className="text-orange-600 mr-3 group-hover:text-orange-700 focus:outline-none"
                                 />
-                                <span className="text-sm font-medium text-gray-700 group-hover:text-orange-700 transition-colors">
+                                <span className="text-sm font-medium text-gray-700 group-hover:text-orange-700 focus:outline-none">
                                   Tài liệu {index + 1}
                                 </span>
                               </div>
-                              <div className="inline-flex items-center px-3 py-1.5 bg-orange-100 text-orange-700 rounded-md group-hover:bg-orange-200 transition-colors text-sm font-medium">
+                              <div className="inline-flex items-center px-3 py-1.5 bg-orange-100 text-orange-700 rounded-md group-hover:bg-orange-200 focus:outline-none text-sm font-medium">
                                 <ExternalLink size={12} className="mr-1" />
                                 Mở mới
                               </div>
@@ -580,7 +580,7 @@ const UpdateApplication = () => {
                                 onClick={() =>
                                   handleRemoveDocument(index, false)
                                 }
-                                className="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+                                className="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 focus:outline-none text-sm font-medium"
                               >
                                 <X size={12} className="mr-1" />
                                 Xóa
@@ -600,7 +600,7 @@ const UpdateApplication = () => {
                 {/* New Documents */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <label className="cursor-pointer flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow transition-colors">
+                    <label className="cursor-pointer flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow focus:outline-none">
                       <Upload size={16} className="mr-2" />
                       Thêm tài liệu mới
                       <input
@@ -675,7 +675,7 @@ const UpdateApplication = () => {
                     type="button"
                     onClick={handleBack}
                     disabled={isSubmitting}
-                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg focus:outline-none font-medium disabled:opacity-50"
                   >
                     <X size={16} className="mr-2" />
                     Hủy
@@ -683,7 +683,7 @@ const UpdateApplication = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg focus:outline-none font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>

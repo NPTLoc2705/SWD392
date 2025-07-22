@@ -220,13 +220,13 @@ const ConfirmModal = ({
           <div className="flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:outline-none"
             >
               {cancelText}
             </button>
             <button
               onClick={onConfirm}
-              className={`px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 transition-colors ${styles.confirmButton}`}
+              className={`px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 focus:outline-none ${styles.confirmButton}`}
             >
               {confirmText}
             </button>
@@ -267,7 +267,7 @@ const CreateEditForm = memo(
           {editId && (
             <button
               onClick={() => onSubmit(null)}
-              className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none"
             >
               <X size={16} className="mr-2" />
               Hủy chỉnh sửa
@@ -296,7 +296,7 @@ const CreateEditForm = memo(
                 onChange={handleChange}
                 required
                 disabled={isSubmitting}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                 placeholder="Nhập tên ngành học"
               />
             </div>
@@ -311,7 +311,7 @@ const CreateEditForm = memo(
                 type="number"
                 required
                 disabled={isSubmitting}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                 placeholder="Nhập học phí"
               />
             </div>
@@ -328,7 +328,7 @@ const CreateEditForm = memo(
               required
               rows={4}
               disabled={isSubmitting}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="Nhập mô tả ngành học"
             />
           </div>
@@ -343,7 +343,7 @@ const CreateEditForm = memo(
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="Nhập yêu cầu tuyển sinh"
             />
           </div>
@@ -357,7 +357,7 @@ const CreateEditForm = memo(
               value={form.dormitoryInfo}
               onChange={handleChange}
               disabled={isSubmitting}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="Nhập thông tin ký túc xá"
             />
           </div>
@@ -378,7 +378,7 @@ const CreateEditForm = memo(
               />
               <label
                 htmlFor="isActiveToggle"
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ease-in-out cursor-pointer peer-focus:ring-2 peer-focus:ring-orange-500 peer-focus:ring-offset-2 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed ${
+                className={`relative inline-flex h-5 w-9 items-center rounded-full focus:outline-none duration-200 ease-in-out cursor-pointer peer-focus:ring-2 peer-focus:ring-orange-500 peer-focus:ring-offset-2 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed ${
                   form.isActive
                     ? "bg-green-500 hover:bg-green-600"
                     : "bg-gray-300 hover:bg-gray-400"
@@ -405,7 +405,7 @@ const CreateEditForm = memo(
             <button
               type="submit"
               disabled={isSubmitting}
-              className="cursor-pointer flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="cursor-pointer flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none font-medium"
             >
               {isSubmitting ? (
                 <>
@@ -470,7 +470,7 @@ const MajorsManagement = memo(
             <button
               onClick={onRefresh}
               disabled={loading}
-              className="cursor-pointer flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="cursor-pointer flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
             >
               <RefreshCw
                 size={16}
@@ -480,7 +480,7 @@ const MajorsManagement = memo(
             </button>
             <button
               onClick={() => onEdit(null)}
-              className="cursor-pointer flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="cursor-pointer flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none"
             >
               <PlusCircle size={16} className="mr-2" />
               Tạo ngành học mới
@@ -623,7 +623,7 @@ const MajorsManagement = memo(
                             />
                             {/* <label
                               htmlFor={toggleId}
-                              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ease-in-out cursor-pointer peer-focus:ring-2 peer-focus:ring-orange-500 peer-focus:ring-offset-2 ${
+                              className={`relative inline-flex h-5 w-9 items-center rounded-full focus:outline-none duration-200 ease-in-out cursor-pointer peer-focus:ring-2 peer-focus:ring-orange-500 peer-focus:ring-offset-2 ${
                                 major.isActive
                                   ? "bg-green-500 hover:bg-green-600"
                                   : "bg-gray-300 hover:bg-gray-400"
@@ -932,7 +932,7 @@ const AdminMajorsPage = () => {
                   setActiveTab("create");
                   setError("");
                 }}
-                className={`cursor-pointer flex-1 px-6 py-4 text-sm font-medium rounded-l-xl transition-colors ${
+                className={`cursor-pointer flex-1 px-6 py-4 text-sm font-medium rounded-l-xl focus:outline-none ${
                   activeTab === "create"
                     ? "bg-orange-500 text-white"
                     : "bg-gray-50 text-gray-700 hover:bg-gray-100"
@@ -951,7 +951,7 @@ const AdminMajorsPage = () => {
                   setEditId(null);
                   setError("");
                 }}
-                className={`cursor-pointer flex-1 px-6 py-4 text-sm font-medium rounded-r-xl transition-colors ${
+                className={`cursor-pointer flex-1 px-6 py-4 text-sm font-medium rounded-r-xl focus:outline-none ${
                   activeTab === "manage"
                     ? "bg-orange-500 text-white"
                     : "bg-gray-50 text-gray-700 hover:bg-gray-100"
@@ -1034,7 +1034,7 @@ const AdminMajorsPage = () => {
               </div>
               <button
                 onClick={closeDetailModal}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg focus:outline-none"
               >
                 <X size={20} className="text-gray-500" />
               </button>
@@ -1111,7 +1111,7 @@ const AdminMajorsPage = () => {
                       />
                       <label
                         htmlFor="detailToggle"
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ease-in-out opacity-50 ${
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full focus:outline-none duration-200 ease-in-out opacity-50 ${
                           selectedMajor.isActive
                             ? "bg-green-500"
                             : "bg-gray-300"
@@ -1156,14 +1156,14 @@ const AdminMajorsPage = () => {
                   closeDetailModal();
                   handleEdit(selectedMajor);
                 }}
-                className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg focus:outline-none font-medium"
               >
                 <Edit size={16} className="mr-2" />
                 Chỉnh sửa
               </button>
               <button
                 onClick={closeDetailModal}
-                className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium"
+                className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg focus:outline-none font-medium"
               >
                 <X size={16} className="mr-2" />
                 Đóng

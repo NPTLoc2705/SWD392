@@ -398,7 +398,7 @@ const FAQCRUDPage = memo(() => {
               name="question"
               value={form.question}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none transition-colors"
               rows="3"
               placeholder="Nhập câu hỏi..."
               required
@@ -413,7 +413,7 @@ const FAQCRUDPage = memo(() => {
               name="answer"
               value={form.answer}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none transition-colors"
               rows="5"
               placeholder="Nhập câu trả lời..."
               required
