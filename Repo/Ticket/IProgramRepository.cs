@@ -17,5 +17,6 @@ namespace Repo.Ticket
         Task<ProgramResponse> UpdateAsync(string id,UpdateProgramRequest program);
         Task<ProgramResponse> DeleteAsync(string id);
         Task<bool> ProgramExistsAsync(string id);
+        Task<IEnumerable<ProgramResponse>> GetAllForAdminAsync();
     }
 }

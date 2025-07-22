@@ -16,6 +16,7 @@ namespace Services.Ticket
         Task<ProgramResponse> GetByIdAsync(string id);
         Task<ProgramResponse> UpdateAsync(string id, UpdateProgramRequest program);
         Task<ProgramResponse> DeleteAsync(string id);
+        Task<IEnumerable<ProgramResponse>> GetAllForAdminAsync();
         Task<bool> ProgramExistsAsync(string id);
     }
 }

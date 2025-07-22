@@ -26,6 +26,9 @@ namespace Repo.Ticket
         public Task<IEnumerable<ProgramResponse>> GetAllAsync()
         => _programDAO.GetAllAsync();
 
+        public Task<IEnumerable<ProgramResponse>> GetAllForAdminAsync()
+        => _programDAO.GetAllForAdminAsync();
+
         public Task<ProgramResponse> GetByIdAsync(string id)
         => _programDAO.GetByIdAsync(id);
 
