@@ -4,13 +4,25 @@ import { Link, useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../utils/auth";
 import AdmissionsPage from "../Pages/AdmissionsPage";
 
-
-
 const UserDropdown = ({ user, onClose }) => {
+  const navigate = useNavigate();
+
   const handleLogout = () => {
+    // Clear tất cả dữ liệu user
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
     onClose();
-    window.location.reload();
+
+    // Điều hướng về trang chủ
+    navigate("/");
+
+    // Reload để đảm bảo state được reset hoàn toàn
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   return (
@@ -56,8 +68,6 @@ const UserDropdown = ({ user, onClose }) => {
     </div>
   );
 };
-
-
 
 const AuthButtons = () => {
   const [user, setUser] = useState(null);
@@ -114,11 +124,7 @@ const AuthButtons = () => {
 };
 
 const TopBar = ({ isSticky }) => {
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+  // Xóa handleLogout không sử dụng vì đã được xử lý trong UserDropdown
 
   return (
     <div
@@ -152,12 +158,9 @@ const TopBar = ({ isSticky }) => {
               >
                 Sinh Viên
               </Link>
-             
             </div>
 
             <div className="flex items-center space-x-4">
-              
-
               <AuthButtons />
             </div>
           </div>
