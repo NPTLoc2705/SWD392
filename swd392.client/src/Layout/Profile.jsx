@@ -225,7 +225,7 @@ const Profile = () => {
           color: "text-red-600",
           bgColor: "bg-red-100",
           icon: XCircle,
-          text: "Đã hủy",
+          text: "Đã lên lịch lại",
         };
       default:
         return {

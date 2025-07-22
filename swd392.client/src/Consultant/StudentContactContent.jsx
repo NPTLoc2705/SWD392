@@ -194,7 +194,7 @@ const StudentContactContent = () => {
           icon: CheckCircle,
           text: "Hoàn thành",
         };
-      case 3: 
+      case 3: // Rescheduled
         return {
           color: "text-red-600",
           bgColor: "bg-red-100",
@@ -248,18 +248,19 @@ const StudentContactContent = () => {
     const statusDisplay = getStatusDisplay(selectedAppointment.status);
     const StatusIcon = statusDisplay.icon;
 
+    // Updated status flow based on the diagram
     const statusFlow = {
-      0: [1, 3], // Pending → Confirmed or Cancelled
-      1: [2, 3], // Confirmed → Completed or Cancelled
-      2: [], // Completed → no change allowed
-      3: [], // Cancelled → no change allowed
+      0: [1, 3], // Pending → Confirmed or Rescheduled
+      1: [2, 3], // Confirmed → Completed or Rescheduled
+      2: [],     // Completed → no change allowed
+      3: [2],    // Rescheduled → Completed
     };
 
     const statusLabels = {
       0: "Chờ xử lý",
       1: "Đã xác nhận",
       2: "Hoàn thành",
-      3: "Đã hủy",
+      3: "Lên lịch lại",
     };
 
     const canChangeStatus = statusFlow[selectedAppointment.status].length > 0;

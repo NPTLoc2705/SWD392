@@ -18,7 +18,7 @@ namespace BO.Models
     {
         Pending,     // Default status when created
         Confirmed,   // Payment completed, ready for consultant
-        Rescheduled,
-        Finish
+        Finish,
+        Rescheduled
     }
 }
