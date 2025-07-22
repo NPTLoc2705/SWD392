@@ -132,13 +132,12 @@ const ProgramsPage = () => {
               >
                 {/* Program Image */}
                 <Link to={`/nganh-hoc/${program.id}`} className="block">
-                  <div className="relative overflow-hidden h-48 bg-gradient-to-br from-orange-100 to-orange-200">
+                  <div className="relative overflow-hidden h-48">
                     <img
-                      src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=400&h=300&q=80"
+                      src="https://upload.wikimedia.org/wikipedia/vi/thumb/2/2d/Logo_Tr%C6%B0%E1%BB%9Dng_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_FPT.svg/1200px-Logo_Tr%C6%B0%E1%BB%9Dng_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_FPT.svg.png"
                       alt={program.title}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                      className="w-full h-[-30px] object-cover duration-300 "
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
 
                     {/* Status Badge */}
                     <div className="absolute top-4 right-4">
@@ -185,19 +184,17 @@ const ProgramsPage = () => {
                     <div className="mb-4">
                       <div className="flex items-center text-gray-600 text-sm mb-1">
                         <Users size={12} className="mr-2" />
-                        <span className="font-medium">Yêu cầu tuyển sinh:</span>
+                        <span className="font-medium">Yêu cầu tuyển sinh: {program.admissionRequirements}</span>
+                     
                       </div>
-                      <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
-                        {program.admissionRequirements}
-                      </p>
                     </div>
                   )}
 
                   {/* Tuition Fee */}
                   {program.tuitionFee && (
                     <div className="flex items-center text-orange-600 text-sm font-medium mb-4">
-                      <DollarSign size={14} className="mr-2" />
-                      {Number(program.tuitionFee).toLocaleString("vi-VN")} VNĐ
+                      {/* <DollarSign size={14} className="mr-2" /> */}
+                      Học phí: {Number(program.tuitionFee).toLocaleString("vi-VN")} VNĐ
                     </div>
                   )}
 

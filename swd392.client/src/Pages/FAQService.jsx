@@ -44,7 +44,7 @@ const adminMenuItems = [
     color: "text-orange-600",
     bgColor: "bg-orange-50",
     active: true,
-    onClick: () => (window.location.href = "/admin/faq"), // Thay đổi từ /articles
+    onClick: () => (window.location.href = "/admin/faq"),
     className: "cursor-pointer",
   },
   {
@@ -55,7 +55,7 @@ const adminMenuItems = [
     color: "text-blue-600",
     bgColor: "bg-blue-50",
     active: false,
-    onClick: () => (window.location.href = "/admin/upload-article"), // Thay đổi từ /upload-article
+    onClick: () => (window.location.href = "/admin/upload-article"),
     className: "cursor-pointer",
   },
   {
@@ -90,17 +90,18 @@ const adminMenuItems = [
     active: false,
     onClick: () => (window.location.href = "/admin/applications"),
     className: "cursor-pointer",
-  },{
-      id: "majors",
-      name: "Quản lý ngành học",
-      icon: BookOpen,
-      description: "Xem, thêm, sửa, xóa các ngành học.",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      active: false,
-      onClick: () => (window.location.href = "/admin/majors"),
-      className: "cursor-pointer",
-    },
+  },
+  {
+    id: "majors",
+    name: "Quản lý ngành học",
+    icon: BookOpen,
+    description: "Xem, thêm, sửa, xóa các ngành học.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    active: false,
+    onClick: () => (window.location.href = "/admin/majors"),
+    className: "cursor-pointer",
+  },
 ];
 
 const formatDate = (dateString) => {
@@ -119,31 +120,6 @@ const formatDate = (dateString) => {
   } catch (error) {
     console.error("Error formatting date:", error);
     return "Ngày không hợp lệ";
-  }
-};
-
-// State management with useReducer
-const initialState = {
-  question: "",
-  answer: "",
-  editingFaq: null,
-  message: "",
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "SET_QUESTION":
-      return { ...state, question: action.payload };
-    case "SET_ANSWER":
-      return { ...state, answer: action.payload };
-    case "SET_EDITING_FAQ":
-      return { ...state, editingFaq: action.payload };
-    case "SET_MESSAGE":
-      return { ...state, message: action.payload };
-    case "RESET_FORM":
-      return { ...initialState };
-    default:
-      return state;
   }
 };
 
@@ -199,156 +175,81 @@ const FAQService = {
 };
 
 const FAQCRUDPage = memo(() => {
-  const [state, dispatch] = React.useReducer(reducer, initialState);
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("manage");
-  const [selectedFaq, setSelectedFaq] = useState(null);
+  const [activeTab, setActiveTab] = useState("create");
   const [showModal, setShowModal] = useState(false);
+  const [selectedFaq, setSelectedFaq] = useState(null);
+  const [message, setMessage] = useState("");
 
   const user = getCurrentUser();
 
-  useEffect(() => {
-    fetchFAQs();
-  }, []);
-
-  const fetchFAQs = async () => {
+  const fetchFAQs = useCallback(async () => {
     try {
       setLoading(true);
       const faqs = await FAQService.fetchFAQs();
       setFaqs(faqs);
     } catch (error) {
-      dispatch({ type: "SET_MESSAGE", payload: error.message });
+      setMessage(error.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleQuestionChange = useCallback(
-    debounce((value) => {
-      dispatch({ type: "SET_QUESTION", payload: value });
-    }, 200),
-    []
-  );
+  useEffect(() => {
+    fetchFAQs();
+  }, [fetchFAQs]);
 
-  const handleAnswerChange = useCallback(
-    debounce((value) => {
-      dispatch({ type: "SET_ANSWER", payload: value });
-    }, 300),
-    []
-  );
+  const showToast = useCallback((msg, type) => {
+    setMessage(msg);
+    setTimeout(() => setMessage(""), 5000);
+  }, []);
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    if (!state.question.trim() || !state.answer.trim()) {
-      dispatch({
-        type: "SET_MESSAGE",
-        payload: "Vui lòng nhập đầy đủ câu hỏi và câu trả lời",
-      });
-      return;
-    }
-
-    setFormLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      await FAQService.createFAQ(
-        {
-          question: state.question,
-          answer: state.answer,
-        },
-        token
-      );
-      dispatch({ type: "SET_MESSAGE", payload: "Tạo FAQ thành công!" });
-      dispatch({ type: "RESET_FORM" });
-      setShowCreateForm(false);
-      setActiveTab("manage");
-      fetchFAQs();
-    } catch (error) {
-      dispatch({ type: "SET_MESSAGE", payload: error.message });
-    } finally {
-      setFormLoading(false);
-    }
-  };
-
-  const handleEdit = (faq) => {
-    dispatch({ type: "SET_EDITING_FAQ", payload: faq.id });
-    dispatch({ type: "SET_QUESTION", payload: faq.question });
-    dispatch({ type: "SET_ANSWER", payload: faq.answer });
+  const handleEdit = useCallback((faq) => {
     setActiveTab("create");
-    dispatch({ type: "SET_MESSAGE", payload: "" });
-  };
+    setShowModal(false);
+  }, []);
 
-  const handleUpdate = async (id) => {
-    if (!state.question.trim() || !state.answer.trim()) {
-      dispatch({
-        type: "SET_MESSAGE",
-        payload: "Vui lòng nhập đầy đủ câu hỏi và câu trả lời",
-      });
-      return;
-    }
-
-    setFormLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      await FAQService.updateFAQ(
-        id,
-        {
-          question: state.question,
-          answer: state.answer,
-        },
-        token
-      );
-      dispatch({ type: "SET_MESSAGE", payload: "Cập nhật FAQ thành công!" });
-      dispatch({ type: "RESET_FORM" });
-      setActiveTab("manage");
-      fetchFAQs();
-    } catch (error) {
-      dispatch({ type: "SET_MESSAGE", payload: error.message });
-    } finally {
-      setFormLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa FAQ này?")) return;
-
+  const handleDeleteClick = useCallback((id) => {
     setDeletingId(id);
+    setShowModal(true);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingId) return;
+
     try {
       const token = localStorage.getItem("token");
-      await FAQService.deleteFAQ(id, token);
-      setFaqs((prev) => prev.filter((item) => item.id !== id));
-      dispatch({ type: "SET_MESSAGE", payload: "Xóa FAQ thành công!" });
+      await FAQService.deleteFAQ(deletingId, token);
+      setFaqs((prev) => prev.filter((item) => item.id !== deletingId));
+      showToast("Xóa FAQ thành công!", "success");
     } catch (error) {
-      dispatch({ type: "SET_MESSAGE", payload: error.message });
+      showToast(error.message, "error");
     } finally {
       setDeletingId(null);
+      setShowModal(false);
     }
-  };
+  }, [deletingId, showToast]);
 
-  const cancelEdit = () => {
-    dispatch({ type: "RESET_FORM" });
-    setActiveTab("manage");
-  };
+  const handleCancelDelete = useCallback(() => {
+    setShowModal(false);
+    setDeletingId(null);
+  }, []);
 
-  const resetForm = () => {
-    dispatch({ type: "RESET_FORM" });
-  };
-
-  const handleViewDetail = (faq) => {
+  const handleViewDetail = useCallback((faq) => {
     setSelectedFaq(faq);
     setShowModal(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowModal(false);
     setSelectedFaq(null);
-  };
+    setDeletingId(null);
+  }, []);
 
-  const FAQDetailModal = memo(() => {
-    if (!selectedFaq) return null;
+  const FAQDetailModal = memo(({ faq, onEdit, onClose }) => {
+    if (!faq) return null;
 
     return (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
@@ -358,7 +259,7 @@ const FAQCRUDPage = memo(() => {
               Chi tiết FAQ
             </h3>
             <button
-              onClick={closeModal}
+              onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <X size={20} className="text-gray-500" />
@@ -373,13 +274,11 @@ const FAQCRUDPage = memo(() => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">ID FAQ</p>
-                  <p className="font-semibold text-gray-800">
-                    #{selectedFaq.id}
-                  </p>
+                  <p className="font-semibold text-gray-800">#{faq.id}</p>
                 </div>
               </div>
 
-              {selectedFaq.createdAt && (
+              {faq.createdAt && (
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg">
                     <FileText size={20} className="text-green-600" />
@@ -387,7 +286,7 @@ const FAQCRUDPage = memo(() => {
                   <div>
                     <p className="text-sm text-gray-500">Ngày tạo</p>
                     <p className="font-semibold text-gray-800">
-                      {formatDate(selectedFaq.createdAt)}
+                      {formatDate(faq.createdAt)}
                     </p>
                   </div>
                 </div>
@@ -401,9 +300,7 @@ const FAQCRUDPage = memo(() => {
                   <h4 className="font-semibold text-gray-800">Câu hỏi</h4>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-800 font-medium">
-                    {selectedFaq.question}
-                  </p>
+                  <p className="text-gray-800 font-medium">{faq.question}</p>
                 </div>
               </div>
 
@@ -413,9 +310,7 @@ const FAQCRUDPage = memo(() => {
                   <h4 className="font-semibold text-gray-800">Câu trả lời</h4>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-800 leading-relaxed">
-                    {selectedFaq.answer}
-                  </p>
+                  <p className="text-gray-800 leading-relaxed">{faq.answer}</p>
                 </div>
               </div>
             </div>
@@ -424,8 +319,8 @@ const FAQCRUDPage = memo(() => {
               {user && user.role === "Admin" && (
                 <button
                   onClick={() => {
-                    closeModal();
-                    handleEdit(selectedFaq);
+                    onEdit(faq);
+                    onClose();
                   }}
                   className="flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
@@ -434,7 +329,7 @@ const FAQCRUDPage = memo(() => {
                 </button>
               )}
               <button
-                onClick={closeModal}
+                onClick={onClose}
                 className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
               >
                 Đóng
@@ -446,115 +341,116 @@ const FAQCRUDPage = memo(() => {
     );
   });
 
-  const CreateEditForm = memo(() => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">
-          {state.editingFaq ? "Chỉnh sửa FAQ" : "Tạo FAQ mới"}
-        </h2>
-        {state.editingFaq && (
-          <button
-            onClick={cancelEdit}
-            className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-          >
-            <X size={16} className="mr-2" />
-            Hủy chỉnh sửa
-          </button>
-        )}
-      </div>
+  const CreateEditForm = memo(({ onSubmit, initialForm, isEditing, isSubmitting, error }) => {
+    const [form, setForm] = useState(initialForm);
 
-      {state.message && (
-        <div
-          className={`mb-6 p-4 rounded-lg border ${
-            state.message.toLowerCase().includes("thành công") ||
-            state.message.toLowerCase().includes("success")
-              ? "bg-green-50 border-green-200 text-green-700"
-              : "bg-red-50 border-red-200 text-red-700"
-          }`}
-        >
-          <div className="flex items-center">
-            {state.message.toLowerCase().includes("thành công") ? (
-              <CheckCircle size={20} className="mr-2 flex-shrink-0" />
-            ) : (
-              <XCircle size={20} className="mr-2 flex-shrink-0" />
-            )}
-            <span className="font-medium">{state.message}</span>
-          </div>
-        </div>
-      )}
+    const handleChange = useCallback((e) => {
+      const { name, value } = e.target;
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }, []);
 
-      <form
-        onSubmit={
-          state.editingFaq
-            ? (e) => {
-                e.preventDefault();
-                handleUpdate(state.editingFaq);
-              }
-            : handleCreate
+    const handleFormSubmit = useCallback(
+      (e) => {
+        e.preventDefault();
+        if (!form.question.trim() || !form.answer.trim()) {
+          showToast("Vui lòng nhập đầy đủ câu hỏi và câu trả lời", "error");
+          return;
         }
-        className="space-y-6"
-      >
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">
-            Câu hỏi <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            key="question-input"
-            defaultValue={state.question}
-            onChange={(e) => handleQuestionChange(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-            rows="3"
-            placeholder="Nhập câu hỏi..."
-            required
-          />
+        onSubmit(form);
+      },
+      [form, onSubmit, showToast]
+    );
+
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {isEditing ? "Chỉnh sửa FAQ" : "Tạo FAQ mới"}
+          </h2>
+          {isEditing && (
+            <button
+              onClick={() => onSubmit(null)}
+              className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              <X size={16} className="mr-2" />
+              Hủy chỉnh sửa
+            </button>
+          )}
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">
-            Câu trả lời <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            key="answer-input"
-            defaultValue={state.answer}
-            onChange={(e) => handleAnswerChange(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-            rows="5"
-            placeholder="Nhập câu trả lời..."
-            required
-          />
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={formLoading}
-            className="cursor-pointer flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+        {error && (
+          <div
+            className="mb-6 p-4 rounded-lg border bg-red-50 border-red-200 text-red-700"
           >
-            {formLoading ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-            ) : (
-              <FaSave size={16} className="mr-2" />
-            )}
-            {formLoading
-              ? state.editingFaq
-                ? "Đang cập nhật..."
-                : "Đang lưu..."
-              : state.editingFaq
-              ? "Cập nhật FAQ"
-              : "Lưu FAQ"}
-          </button>
-        </div>
-      </form>
-    </div>
-  ));
+            <div className="flex items-center">
+              <XCircle size={20} className="mr-2 flex-shrink-0" />
+              <span className="font-medium">{error}</span>
+            </div>
+          </div>
+        )}
 
-  const FAQsManagement = memo(() => (
+        <form onSubmit={handleFormSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Câu hỏi <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              name="question"
+              value={form.question}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+              rows="3"
+              placeholder="Nhập câu hỏi..."
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Câu trả lời <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              name="answer"
+              value={form.answer}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+              rows="5"
+              placeholder="Nhập câu trả lời..."
+              required
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="cursor-pointer flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  {isEditing ? "Đang cập nhật..." : "Đang lưu..."}
+                </>
+              ) : (
+                <>
+                  <FaSave size={16} className="mr-2" />
+                  {isEditing ? "Cập nhật FAQ" : "Lưu FAQ"}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  });
+
+  const FAQsManagement = memo(({ faqs, loading, onEdit, onDelete, onViewDetail, onRefresh, showToast }) => (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-800">Quản lý FAQ</h2>
         <div className="flex items-center space-x-3">
           <button
-            onClick={fetchFAQs}
+            onClick={onRefresh}
             disabled={loading}
             className="cursor-pointer flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
@@ -566,7 +462,7 @@ const FAQCRUDPage = memo(() => {
           </button>
           {user && user.role === "Admin" && (
             <button
-              onClick={() => setActiveTab("create")}
+              onClick={() => onEdit(null)}
               className="cursor-pointer flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <PlusCircle size={16} className="mr-2" />
@@ -576,22 +472,21 @@ const FAQCRUDPage = memo(() => {
         </div>
       </div>
 
-      {state.message && (
+      {message && (
         <div
           className={`mb-6 p-4 rounded-lg border ${
-            state.message.toLowerCase().includes("thành công") ||
-            state.message.toLowerCase().includes("success")
+            message.toLowerCase().includes("thành công")
               ? "bg-green-50 border-green-200 text-green-700"
               : "bg-red-50 border-red-200 text-red-700"
           }`}
         >
           <div className="flex items-center">
-            {state.message.toLowerCase().includes("thành công") ? (
+            {message.toLowerCase().includes("thành công") ? (
               <CheckCircle size={20} className="mr-2 flex-shrink-0" />
             ) : (
               <XCircle size={20} className="mr-2 flex-shrink-0" />
             )}
-            <span className="font-medium">{state.message}</span>
+            <span className="font-medium">{message}</span>
           </div>
         </div>
       )}
@@ -631,23 +526,20 @@ const FAQCRUDPage = memo(() => {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse bg-white">
+              <div className="overflow-hidden">
+                <table className="w-full border-collapse bg-white table-fixed">
                   <thead>
                     <tr className="bg-gray-50">
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700 w-16">
                         STT
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700 w-1/3">
                         Câu hỏi
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700 w-1/3">
                         Câu trả lời
                       </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
-                        Ngày tạo
-                      </th>
-                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-medium text-gray-700 w-1/4">
                         Thao tác
                       </th>
                     </tr>
@@ -658,13 +550,13 @@ const FAQCRUDPage = memo(() => {
                         key={faq.id}
                         className="hover:bg-gray-50 transition-colors"
                       >
-                        <td className="border border-gray-200 px-4 py-3 text-sm text-gray-900 font-medium">
+                        <td className="border border-gray-200 px-4 py-3 text-sm text-gray-900 font-medium text-center">
                           {index + 1}
                         </td>
                         <td className="border border-gray-200 px-4 py-3">
-                          <div className="max-w-xs">
+                          <div className="w-full">
                             <p
-                              className="text-sm font-medium text-gray-900 truncate"
+                              className="text-sm font-medium text-gray-900 break-words line-clamp-3"
                               title={faq.question}
                             >
                               {faq.question}
@@ -672,48 +564,47 @@ const FAQCRUDPage = memo(() => {
                           </div>
                         </td>
                         <td className="border border-gray-200 px-4 py-3">
-                          <div className="max-w-md">
+                          <div className="w-full">
                             <p
-                              className="text-sm text-gray-600 truncate"
+                              className="text-sm text-gray-600 break-words line-clamp-3"
                               title={faq.answer}
                             >
-                              {faq.answer.substring(0, 100)}...
+                              {faq.answer.length > 120
+                                ? `${faq.answer.substring(0, 120)}...`
+                                : faq.answer}
                             </p>
                           </div>
                         </td>
-                        <td className="border border-gray-200 px-4 py-3 text-sm text-gray-900">
-                          {faq.createdAt ? formatDate(faq.createdAt) : "N/A"}
-                        </td>
                         <td className="border border-gray-200 px-4 py-3">
-                          <div className="flex items-center space-x-2">
+                          <div className="flex flex-wrap gap-2">
                             <button
-                              onClick={() => handleViewDetail(faq)}
-                              className="cursor-pointer flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                              onClick={() => onViewDetail(faq)}
+                              className="cursor-pointer inline-flex items-center px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
                               title="Xem chi tiết"
                             >
-                              <Eye size={14} className="mr-1" />
+                              <Eye size={12} className="mr-1" />
                               Xem
                             </button>
                             {user && user.role === "Admin" && (
                               <>
                                 <button
-                                  onClick={() => handleEdit(faq)}
-                                  className="cursor-pointer flex items-center px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"
+                                  onClick={() => onEdit(faq)}
+                                  className="cursor-pointer inline-flex items-center px-3 py-1 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"
                                   title="Chỉnh sửa"
                                 >
-                                  <FaEdit size={14} className="mr-1" />
+                                  <FaEdit size={12} className="mr-1" />
                                   Sửa
                                 </button>
                                 <button
-                                  onClick={() => handleDelete(faq.id)}
+                                  onClick={() => onDelete(faq.id)}
                                   disabled={deletingId === faq.id}
-                                  className="cursor-pointer flex items-center px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors disabled:opacity-50"
+                                  className="cursor-pointer inline-flex items-center px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors disabled:opacity-50"
                                   title="Xóa"
                                 >
                                   {deletingId === faq.id ? (
                                     <div className="w-3 h-3 border border-red-700 border-t-transparent rounded-full animate-spin mr-1"></div>
                                   ) : (
-                                    <FaTrash size={14} className="mr-1" />
+                                    <FaTrash size={12} className="mr-1" />
                                   )}
                                   Xóa
                                 </button>
@@ -730,21 +621,79 @@ const FAQCRUDPage = memo(() => {
           )}
         </>
       )}
-
-      {showModal && <FAQDetailModal />}
     </div>
   ));
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "create":
-        return <CreateEditForm />;
-      case "manage":
-        return <FAQsManagement />;
-      default:
-        return <FAQsManagement />;
-    }
-  };
+  const ConfirmDeleteModal = memo(({ isOpen, onConfirm, onCancel }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+          <div className="p-6">
+            <div className="flex items-center mb-4">
+              <XCircle size={24} className="text-red-600 mr-4" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Xác nhận xóa FAQ
+              </h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Bạn có chắc chắn muốn xóa FAQ này? Hành động này không thể hoàn tác.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={onCancel}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={onConfirm}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+              >
+                Xóa FAQ
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  });
+
+  const handleSubmit = useCallback(
+    async (form) => {
+      if (!form) {
+        setActiveTab("manage");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        if (form.id) {
+          await FAQService.updateFAQ(
+            form.id,
+            { question: form.question, answer: form.answer },
+            token
+          );
+          showToast("Cập nhật FAQ thành công!", "success");
+        } else {
+          await FAQService.createFAQ(
+            { question: form.question, answer: form.answer },
+            token
+          );
+          showToast("Tạo FAQ thành công!", "success");
+        }
+        setActiveTab("manage");
+        fetchFAQs();
+      } catch (error) {
+        showToast(error.message, "error");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchFAQs, showToast]
+  );
 
   return (
     <AdminConsultantLayout
@@ -756,10 +705,7 @@ const FAQCRUDPage = memo(() => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="flex">
             <button
-              onClick={() => {
-                setActiveTab("create");
-                dispatch({ type: "SET_MESSAGE", payload: "" });
-              }}
+              onClick={() => setActiveTab("create")}
               className={`flex-1 px-6 py-4 text-sm font-medium rounded-l-xl transition-colors cursor-pointer ${
                 activeTab === "create"
                   ? "bg-orange-500 text-white"
@@ -768,17 +714,11 @@ const FAQCRUDPage = memo(() => {
             >
               <div className="flex items-center justify-center space-x-2">
                 <PlusCircle size={16} />
-                <span>
-                  {state.editingFaq ? "Chỉnh sửa FAQ" : "Tạo FAQ mới"}
-                </span>
+                <span>Tạo FAQ mới</span>
               </div>
             </button>
             <button
-              onClick={() => {
-                setActiveTab("manage");
-                resetForm();
-                dispatch({ type: "SET_MESSAGE", payload: "" });
-              }}
+              onClick={() => setActiveTab("manage")}
               className={`flex-1 px-6 py-4 text-sm font-medium rounded-r-xl transition-colors cursor-pointer ${
                 activeTab === "manage"
                   ? "bg-orange-500 text-white"
@@ -792,7 +732,46 @@ const FAQCRUDPage = memo(() => {
             </button>
           </div>
         </div>
-        {renderContent()}
+
+        {activeTab === "create" ? (
+          <CreateEditForm
+            onSubmit={handleSubmit}
+            initialForm={
+              selectedFaq
+                ? { id: selectedFaq.id, question: selectedFaq.question, answer: selectedFaq.answer }
+                : { question: "", answer: "" }
+            }
+            isEditing={!!selectedFaq}
+            isSubmitting={loading}
+            error={message}
+          />
+        ) : (
+          <FAQsManagement
+            faqs={faqs}
+            loading={loading}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            onViewDetail={handleViewDetail}
+            onRefresh={fetchFAQs}
+            showToast={showToast}
+          />
+        )}
+
+        {showModal && deletingId && (
+          <ConfirmDeleteModal
+            isOpen={showModal}
+            onConfirm={handleConfirmDelete}
+            onCancel={handleCancelDelete}
+          />
+        )}
+
+        {showModal && selectedFaq && !deletingId && (
+          <FAQDetailModal
+            faq={selectedFaq}
+            onEdit={handleEdit}
+            onClose={closeModal}
+          />
+        )}
       </div>
     </AdminConsultantLayout>
   );

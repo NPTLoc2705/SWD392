@@ -115,9 +115,6 @@ const ProgramDetailPage = () => {
               <span className="inline-block px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">
                 CHƯƠNG TRÌNH ĐÀO TẠO
               </span>
-              <div className="text-sm text-gray-500">
-                ID: {program.id}
-              </div>
             </div>
           </div>
         </div>
